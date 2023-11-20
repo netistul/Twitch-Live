@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
+  updateLiveStreams();
+
+  // Update the live streams every minute
+  setInterval(updateLiveStreams, 60000);
+
   chrome.storage.local.get(["twitchAccessToken"], function (result) {
     const buttonContainer = document.getElementById("buttonContainer");
 
@@ -32,3 +37,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+function updateLiveStreams() {
+  chrome.storage.local.get(['liveStreams'], function(result) {
+    const liveStreams = result.liveStreams;
+    if (liveStreams && liveStreams.length > 0) {
+      const container = document.getElementById("buttonContainer");
+      container.innerHTML = ''; // Clear existing content
+
+      liveStreams.forEach(stream => {
+        const streamDiv = document.createElement('div');
+        streamDiv.className = 'stream-info'; // Apply the new class
+      
+        const twitchLink = document.createElement('a');
+        twitchLink.href = `https://www.twitch.tv/${stream.channelName}`;
+        twitchLink.textContent = `${stream.channelName} ${stream.viewers}`;
+        twitchLink.target = '_blank'; // Open in new tab
+        streamDiv.appendChild(twitchLink);
+        container.appendChild(streamDiv);
+      });
+    }
+  });
+}

@@ -41,3 +41,22 @@ body {
     font-size: 14px;
   }
   
+    /* Add this to your existing style.css */
+    .stream-info {
+      margin-bottom: 10px;
+      white-space: nowrap; /* Ensures content stays on one line */
+    }
+    
+    .stream-info a {
+      color: #6441a5; /* Twitch's brand color */
+      text-decoration: none; /* Removes underline from links */
+      display: inline-block; /* Treats the link as an inline block */
+      overflow: hidden; /* Prevents text overflow */
+      text-overflow: ellipsis; /* Adds an ellipsis for overflowed text */
+      max-width: 90%; /* Limits the width of the link */
+    }
+    
+
+  .stream-info a:hover {
+    text-decoration: underline; /* Optional: adds underline on hover */
+  }

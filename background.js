@@ -91,32 +91,79 @@ function fetchFollowList(accessToken, userId, cursor = "", followedList = []) {
       "Client-Id": "z05n4woixewpyagrqrui76x28avd2g",
     },
   })
-    .then((response) => {
-      console.log("API Response:", response); // Log the raw response
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Data Received:", data); // Log the data received
-      followedList = followedList.concat(data.data);
+  .then((response) => {
+    console.log("API Response:", response); // Log the raw response
+    return response.json();
+  })
+  .then((data) => {
+    console.log("Data Received:", data); // Log the data received
+    followedList = followedList.concat(data.data);
 
-      if (data.pagination && data.pagination.cursor) {
-        fetchFollowList(
-          accessToken,
-          userId,
-          data.pagination.cursor,
-          followedList
-        );
-      } else {
-        chrome.storage.local.set({ followedList: followedList }, () => {
-          console.log("Followed Channels saved in local storage");
-          console.log("Complete Followed Channels:", followedList);
-        });
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching follow list:", error);
-    });
+    if (data.pagination && data.pagination.cursor) {
+      fetchFollowList(
+        accessToken,
+        userId,
+        data.pagination.cursor,
+        followedList
+      );
+    } else {
+      chrome.storage.local.set({ followedList: followedList }, () => {
+        console.log("Followed Channels saved in local storage");
+        console.log("Complete Followed Channels:", followedList);
+
+        // Call fetchStreamData here after followed channels are saved
+        fetchStreamData(accessToken, followedList);
+      });
+    }
+  })
+  .catch((error) => {
+    console.error("Error fetching follow list:", error);
+  });
 }
+
+function fetchStreamData(accessToken, followedList) {
+  console.log("Fetching stream data...");
+
+  const streamFetchPromises = followedList.map(channel => {
+    const url = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`; // Corrected property
+
+    return fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Client-Id": "z05n4woixewpyagrqrui76x28avd2g",
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.data && data.data.length > 0) {
+        console.log(`Live Channel: ${channel.broadcaster_name}, Viewers: ${data.data[0].viewer_count}`);
+        return { channelName: channel.broadcaster_name, viewers: data.data[0].viewer_count, live: true };
+      }
+      return null;
+    })
+    .catch(error => {
+      console.error("Error fetching stream data for channel:", channel.broadcaster_login, error);
+      return null;
+    });
+  });
+
+  Promise.all(streamFetchPromises).then(streamData => {
+    const liveStreams = streamData.filter(data => data !== null);
+    chrome.storage.local.set({ 'liveStreams': liveStreams }, () => {
+      console.log("Live stream data updated in local storage", liveStreams);
+    });
+  });
+}
+
+// Fetch and update the live stream data periodically
+setInterval(() => {
+  chrome.storage.local.get(['twitchAccessToken', 'followedList'], (result) => {
+    if (result.twitchAccessToken && result.followedList) {
+      console.log("Updating live stream data...");
+      fetchStreamData(result.twitchAccessToken, result.followedList);
+    }
+  });
+}, 180000);
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {
