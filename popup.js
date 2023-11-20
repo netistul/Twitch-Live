@@ -49,13 +49,19 @@ function updateLiveStreams() {
         const streamDiv = document.createElement('div');
         streamDiv.className = 'stream-info'; // Apply the new class
       
-        const twitchLink = document.createElement('a');
-        twitchLink.href = `https://www.twitch.tv/${stream.channelName}`;
-        twitchLink.textContent = `${stream.channelName} ${stream.viewers}`;
-        twitchLink.target = '_blank'; // Open in new tab
-        streamDiv.appendChild(twitchLink);
+        const channelLink = document.createElement('a');
+        channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
+        channelLink.textContent = stream.channelName;
+        channelLink.className = 'channel-name';
+      
+        const viewersSpan = document.createElement('span');
+        viewersSpan.className = 'viewers'; // Apply a class for viewers
+        viewersSpan.textContent = stream.viewers;
+      
+        streamDiv.appendChild(channelLink);
+        streamDiv.appendChild(viewersSpan);
         container.appendChild(streamDiv);
-      });
+      });      
     }
   });
 }
