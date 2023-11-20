@@ -168,8 +168,10 @@ setInterval(() => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {
     console.log("Context menu item clicked - Disconnecting Twitch account");
-    chrome.storage.local.remove(['twitchAccessToken', 'userId'], () => {
-      console.log("Twitch account disconnected");
+
+    // Clear the entire local storage for this extension
+    chrome.storage.local.clear(() => {
+      console.log("Local storage cleared - Twitch account disconnected");
     });
   }
 });

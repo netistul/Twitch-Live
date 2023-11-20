@@ -27,13 +27,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Listen for a message from background.js
-  chrome.runtime.onMessage.addListener(function (
-    message,
-    sender,
-    sendResponse
-  ) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "oauthComplete") {
-      window.location.reload();
+      // Adding a short delay to ensure all data is fetched and stored
+      setTimeout(() => window.location.reload(), 1000); // 1 second delay
     }
   });
 });
