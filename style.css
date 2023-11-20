@@ -1,0 +1,43 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 10px;
+    max-width: 350px; /* Increased max-width */
+  }
+  
+  #header {
+    font-size: 20px;
+    color: #6441a5; /* Twitch's brand color */
+    margin-bottom: 10px;
+    white-space: nowrap; /* Prevents text from wrapping */
+  }
+  
+  #separator {
+    height: 4px;
+    background-color: #6441a5; /* Twitch's brand color */
+    border-radius: 2px;
+    margin: 0 auto 20px auto;
+    width: 80%;
+  }
+  
+  #loginButton {
+    background-color: #6441a5; /* Twitch's brand color */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    white-space: nowrap; /* Prevents text from wrapping */
+    width: 100%; /* Full width */
+  }
+  
+  #loginButton:hover {
+    background-color: #503484;
+  }
+  
+  #description {
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  

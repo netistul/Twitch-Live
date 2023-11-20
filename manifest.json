@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Twitch Live",
+  "version": "1.0",
+  "icons": {
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "permissions": [
+    "storage",
+    "identity",
+    "contextMenus"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "oauth2": {
+    "client_id": "z05n4woixewpyagrqrui76x28avd2g",
+    "scopes": ["user:read:follows"],
+    "redirect_uri": "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/"
+  }
+}
