@@ -36,30 +36,30 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function updateLiveStreams() {
-  chrome.storage.local.get(['liveStreams'], function(result) {
+  chrome.storage.local.get(["liveStreams"], function (result) {
     const liveStreams = result.liveStreams;
     if (liveStreams && liveStreams.length > 0) {
       const container = document.getElementById("buttonContainer");
-      container.innerHTML = ''; // Clear existing content
+      container.innerHTML = ""; // Clear existing content
 
-      liveStreams.forEach(stream => {
-        const streamDiv = document.createElement('div');
-        streamDiv.className = 'stream-info'; // Apply the new class
-      
-        const channelLink = document.createElement('a');
+      liveStreams.forEach((stream) => {
+        const streamDiv = document.createElement("div");
+        streamDiv.className = "stream-info"; // Apply the new class
+
+        const channelLink = document.createElement("a");
         channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
         channelLink.textContent = stream.channelName;
-        channelLink.className = 'channel-name';
+        channelLink.className = "channel-name";
         channelLink.target = "_blank";
-      
-        const viewersSpan = document.createElement('span');
-        viewersSpan.className = 'viewers'; // Apply a class for viewers
+
+        const viewersSpan = document.createElement("span");
+        viewersSpan.className = "viewers"; // Apply a class for viewers
         viewersSpan.textContent = stream.viewers;
-      
+
         streamDiv.appendChild(channelLink);
         streamDiv.appendChild(viewersSpan);
         container.appendChild(streamDiv);
-      });      
+      });
     }
   });
 }
