@@ -52,21 +52,38 @@ function updateLiveStreams() {
         channelLink.className = "stream-info";
         channelLink.target = "_blank";
 
-        // Create and append the channel name span to the link
+        // Create a wrapper div for channel name and category
+        const wrapperDiv = document.createElement("div");
+        wrapperDiv.className = "channel-category-wrapper";
+
+        // Create and append the channel name span to the wrapper
         const channelNameSpan = document.createElement("span");
         channelNameSpan.className = "channel-name";
         channelNameSpan.textContent = stream.channelName;
-        channelLink.appendChild(channelNameSpan);
+        wrapperDiv.appendChild(channelNameSpan);
 
-        // Create and append the viewers span to the link
+        // Create and append the category span to the wrapper
+        const categorySpan = document.createElement("span");
+        categorySpan.className = "stream-category";
+        categorySpan.textContent = stream.category; // Ensure category data is present
+        wrapperDiv.appendChild(categorySpan);
+
+        // Append the wrapper div to the channel link
+        channelLink.appendChild(wrapperDiv);
+
+        // Create and append the viewers span to the channel link
         const viewersSpan = document.createElement("span");
         viewersSpan.className = "viewers";
         viewersSpan.textContent = stream.viewers;
         channelLink.appendChild(viewersSpan);
 
+        // Append the channel link to the container
         container.appendChild(channelLink);
       });
     }
   });
+  
 }
+
+
 

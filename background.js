@@ -93,49 +93,60 @@ function fetchFollowList(accessToken, userId, isOAuthComplete = false, cursor = 
   })
   .catch((error) => console.error("Error fetching follow list:", error));
 }
+
 function fetchStreamData(accessToken, followedList) {
   console.log("Fetching stream data...");
 
-  const streamFetchPromises = followedList.map((channel) => {
-    const url = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`;
+  const streamFetchPromises = followedList.map(channel => {
+    const streamUrl = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`;
 
-    return fetch(url, {
+    return fetch(streamUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        "Client-Id": "z05n4woixewpyagrqrui76x28avd2g",
+        "Client-Id": twitchClientId,
       },
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.data && data.data.length > 0) {
-          console.log(
-            `Live Channel: ${channel.broadcaster_name}, Viewers: ${data.data[0].viewer_count}`
-          );
+    .then(response => response.json())
+    .then(streamData => {
+      if (streamData.data && streamData.data.length > 0) {
+        const stream = streamData.data[0];
+        console.log(`Live Channel: ${channel.broadcaster_name}, Viewers: ${stream.viewer_count}`);
+
+        // Only fetch the category for live streams
+        const categoryUrl = `https://api.twitch.tv/helix/games?id=${stream.game_id}`;
+        return fetch(categoryUrl, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Client-Id": twitchClientId,
+          },
+        })
+        .then(response => response.json())
+        .then(categoryData => {
+          const categoryName = categoryData.data && categoryData.data.length > 0 ? categoryData.data[0].name : "Unknown Category";
           return {
             channelName: channel.broadcaster_name,
-            viewers: data.data[0].viewer_count,
+            viewers: stream.viewer_count,
+            category: categoryName, // Add the category name
             live: true,
           };
-        }
-        return null;
-      })
-      .catch((error) => {
-        console.error(
-          "Error fetching stream data for channel:",
-          channel.broadcaster_login,
-          error
-        );
-        return null;
-      });
+        });
+      }
+      return null;
+    })
+    .catch(error => {
+      console.error("Error fetching stream data for channel:", channel.broadcaster_login, error);
+      return null;
+    });
   });
 
-  Promise.all(streamFetchPromises).then((streamData) => {
-    const liveStreams = streamData.filter((data) => data !== null);
+  Promise.all(streamFetchPromises).then(streamData => {
+    const liveStreams = streamData.filter(data => data !== null);
     chrome.storage.local.set({ liveStreams: liveStreams }, () => {
       console.log("Live stream data updated in local storage", liveStreams);
     });
   });
 }
+
 
 // Fetch and update the live stream data periodically
 setInterval(() => {
@@ -145,7 +156,7 @@ setInterval(() => {
       fetchStreamData(result.twitchAccessToken, result.followedList);
     }
   });
-}, 20000); // 10 seconds interval
+}, 20000); // 20 seconds interval
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {

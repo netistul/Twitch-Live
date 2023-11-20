@@ -42,23 +42,33 @@ body {
   }
   
   .stream-info {
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 7px;
+    padding: 7px 7px 3px; /* Reduced bottom padding */
     text-decoration: none;
     color: black;
     transition: background-color 0.3s;
-    position: relative; /* Needed for positioning the pseudo-element */
+    position: relative;
   }
-  
   .stream-info::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 12px; /* Start 2px after the channel name (10px margin + 2px) */
-    right: 12px; /* End 2px before the viewers (10px margin + 2px) */
+    bottom: 1px; /* Closer to the bottom of the stream-info */
+    left: 12px;
+    right: 12px;
     border-bottom: 1px dashed #9999996e;
+  }
+  /* New Wrapper Style */
+  .channel-category-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Allow it to take available space */
+  }
+  
+  .channel-name, .stream-category {
+    margin-right: 5px; /* Spacing between channel name and category */
   }
   
   .stream-info:last-child::after {
@@ -73,6 +83,13 @@ body {
     flex-grow: 1;
     text-align: left;
     margin-left: 10px;
+  }
+
+  .stream-category {
+    display: block; /* Ensures it appears on a new line */
+    color: #88888885; /* Example color */
+    font-size: 0.9em; /* Smaller font size */
+    margin-left: 10px; /* Align with the channel name */
   }
   
   .viewers {
