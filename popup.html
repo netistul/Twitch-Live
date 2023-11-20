@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8"> <!-- Ensure UTF-8 encoding -->
   <title>Twitch Extension Login</title>
   <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-  <div id="header">Twitch Live</div>
+  <div id="header">
+    Twitch Live
+    <span id="settingsIcon" style="float: right; cursor: pointer;">⚙️</span>
+  </div>
   <div class="separator"></div>
   <div id="buttonContainer"></div> <!-- Container for dynamic content -->
   <script src="popup.js"></script>

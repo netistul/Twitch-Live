@@ -30,10 +30,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+    // Event listener for the settings icon
+    document.getElementById("settingsIcon").addEventListener("click", function() {
+      window.open("settings.html", "ExtensionSettings", "width=600,height=400");
+    });
+  
+    // Listener for OAuth completion
   chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "oauthComplete") {
       spinner.style.display = "none"; // Hide the spinner
-      setTimeout(() => window.location.reload(), 1000); // 1 second delay
+      setTimeout(() => window.location.reload(), 1300); // 1 second delay
     }
   });
 });

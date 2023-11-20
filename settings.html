@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"> <!-- Specify UTF-8 Encoding -->
+  <title>Extension Settings</title>
+  <style>
+    body {
+      background-color: #efeff1; /* Light gray background */
+    }
+
+    #settingsTable {
+      width: 500px;
+      height: auto; /* Adjust height to fit content */
+      background-color: #d7cfcf; /* Dark gray table */
+      margin: 20px 0 20px 20px; /* Adjusted margin for left alignment */
+      padding: 20px; /* Padding inside the table */
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center items horizontally */
+    }
+
+
+    #addFavoriteGroupButton {
+  background-color: #6441a5; /* Purple background */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px; /* Space above the button */
+  align-self: center; /* Center the button */
+  transition: background-color 0.3s ease; /* Add transition for hover effect */
+}
+
+#addFavoriteGroupButton:hover {
+  background-color: #392765; /* Slightly darker purple on hover */
+}
+
+
+    #groupListContainer {
+      width: 100%; /* Full width of the container */
+      margin-top: 1px; /* Space above the list */
+    }
+
+    
+    #groupList {
+      list-style-type: none; /* Remove default list styling */
+      padding: 0;
+    }
+
+    #groupList li {
+        font-size: 18px;
+      background-color: #f2f2f2; /* Light grey background for list items */
+      padding: 10px;
+      margin-bottom: 10px; /* Space between list items */
+      border-radius: 5px; /* Rounded corners */
+      display: flex;
+      justify-content: space-between; /* Space out list item content and delete button */
+      align-items: center;
+    }
+
+    #groupList li button {
+      background-color: #ff4c4c; /* Red color for delete button */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    #groupList li button:hover {
+      background-color: #ff3333; /* Slightly darker red on hover */
+    }
+
+    .empty-list-message {
+      text-align: center; /* Center the content */
+      font-size: 16px;
+    }
+
+    .empty-list-message span {
+      display: block; /* Block level for emoji */
+      font-size: 24px;
+      margin: 0 auto; /* Center the emoji */
+    }
+ /* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(255, 255, 255, 0.8); /* Light background with opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #f5f5f5; /* Light gray background */
+  margin: 15% auto;
+  padding: 30px; /* Increased padding for a bigger look */
+  border: 2px solid #ccc; /* Light border */
+  border-radius: 10px; /* Rounded corners */
+  width: 60%; /* Adjusted width for better appearance */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* Drop shadow for depth */
+}
+
+/* Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Styled Input */
+input[type="text"] {
+  padding: 10px; /* Increased padding for a bigger input field */
+  border: 2px solid #ccc; /* Light border */
+  border-radius: 5px; /* Rounded corners */
+  width: 100%; /* Full width within the modal */
+}
+
+/* Styled Buttons */
+.button {
+  background-color: #9147ff; /* Twitch-like purple color */
+  color: white;
+  padding: 10px 20px; /* Increased padding for a bigger button */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #7a36d1; /* Darker purple on hover */
+}
+
+/* Style for the "Save Group" button */
+#saveGroup {
+  background-color: #9147ff; /* Twitch-like purple color */
+  color: white;
+  padding: 10px 20px; /* Increased padding for a bigger button */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px; /* Space above the button */
+  align-self: center; /* Center the button */
+}
+
+#saveGroup:hover {
+  background-color: #7a36d1; /* Darker purple on hover */
+}
+
+
+  /* Style for the dropdown menu */
+.dropdown-menu {
+  display: none; /* Initially hidden */
+  position: absolute;
+  background-color: #f5f5f5; /* Light gray background */
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 5px; /* Rounded corners */
+  width: 100%; /* Full width */
+}
+
+.dropdown-menu a {
+  color: black;
+  padding: 10px 20px; /* Adjust padding for consistency */
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-menu a:hover {
+  background-color: #c3272782; /* Lighter gray on hover */
+}
+
+.show {
+  display: block;
+}
+
+.green-button {
+  background-color: #28a745; /* Green color */
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.green-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+#favoriteListText {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 5px; /* Adjust this value to reduce space */
+    display: none;
+}
+
+.dropdown-overlay {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent black background */
+}
+
+
+</style>
+</head>
+<body>
+    <div id="settingsTable">
+        <p id="favoriteListText" style="display: none; text-align: center; font-size: 18px;">Your Favorite Lists:</p>
+        <div id="groupListContainer">
+          <ul id="groupList"></ul>
+        </div>
+        <button id="addFavoriteGroupButton">➕ Add favorite group for live streams</button>
+    </div>
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>➕ Add Favorite Group</h3>
+      <input type="text" id="groupName" placeholder="Group Name">
+      <button id="saveGroup">Save Group</button>
+      <div id="streamerDropdown" class="dropdown-menu"> 
+        <div id="dropdownOverlay" class="dropdown-overlay"></div>
+        <!-- Dynamically populated dropdown content will go here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

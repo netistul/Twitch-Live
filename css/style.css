@@ -6,11 +6,15 @@ body {
 }
 
 #header {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: space-between; /* Space out the items */
+  align-items: center; /* Align items vertically */
   font-size: 20px;
   color: #6441a5a9;
-  margin-bottom: 0px; /* Reduce bottom margin to bring closer to separator */
-  margin-top: 10px; /* 10px away from the top of the window */
+  margin-bottom: 0px;
+  margin-top: 10px;
 }
+
 
 .separator {
   height: 1px;
@@ -103,6 +107,13 @@ body {
   
   .stream-info:hover {
     text-decoration: none;
+  }
+  
+  #settingsIcon:hover {
+    color: #ff5722; /* Change the color to a different one on hover */
+    transform: scale(1.2); /* Add a scaling effect on hover (optional) */
+    transition: color 0.3s, transform 0.3s; /* Add a smooth transition effect */
+    cursor: pointer; /* Change cursor to indicate interactivity */
   }
   
     
