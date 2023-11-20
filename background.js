@@ -163,7 +163,7 @@ setInterval(() => {
       fetchStreamData(result.twitchAccessToken, result.followedList);
     }
   });
-}, 180000);
+}, 20000); // 10 seconds interval
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {

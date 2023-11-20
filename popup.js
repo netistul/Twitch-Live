@@ -53,6 +53,7 @@ function updateLiveStreams() {
         channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
         channelLink.textContent = stream.channelName;
         channelLink.className = 'channel-name';
+        channelLink.target = "_blank";
       
         const viewersSpan = document.createElement('span');
         viewersSpan.className = 'viewers'; // Apply a class for viewers
