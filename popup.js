@@ -1,35 +1,38 @@
 document.addEventListener("DOMContentLoaded", function () {
   updateLiveStreams();
+  setInterval(updateLiveStreams, 60000); // Update every minute
 
-  // Update the live streams every minute
-  setInterval(updateLiveStreams, 60000);
+  const buttonContainer = document.getElementById("buttonContainer");
+
+  // Create the spinner element for loading
+  const spinner = document.createElement("img");
+  spinner.id = "spinner";
+  spinner.src = "css/loading.webp"; // Set the source to your loading image
+  spinner.style.display = "none"; // Initially hidden
+  buttonContainer.appendChild(spinner);
 
   chrome.storage.local.get(["twitchAccessToken"], function (result) {
-    const buttonContainer = document.getElementById("buttonContainer");
-
     if (!result.twitchAccessToken) {
-      // User is not logged in, create and show the login button and description
       const loginButton = document.createElement("button");
       loginButton.id = "loginButton";
       loginButton.textContent = "Login with Twitch";
       loginButton.addEventListener("click", function () {
+        spinner.style.display = "block"; // Show the spinner
+        loginButton.style.display = "none"; // Hide the login button
         chrome.runtime.sendMessage({ action: "startOAuth" });
       });
       buttonContainer.appendChild(loginButton);
 
       const description = document.createElement("div");
-      description.textContent =
-        "Log in with Twitch to see live channels you follow!";
+      description.textContent = "Log in with Twitch to see live channels you follow!";
       description.id = "description";
       buttonContainer.appendChild(description);
     }
-    // No need to fetch user profile here
   });
 
-  // Listen for a message from background.js
   chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "oauthComplete") {
-      // Adding a short delay to ensure all data is fetched and stored
+      spinner.style.display = "none"; // Hide the spinner
       setTimeout(() => window.location.reload(), 1000); // 1 second delay
     }
   });
@@ -43,23 +46,27 @@ function updateLiveStreams() {
       container.innerHTML = ""; // Clear existing content
 
       liveStreams.forEach((stream) => {
-        const streamDiv = document.createElement("div");
-        streamDiv.className = "stream-info"; // Apply the new class
-
+        // Create the link that will cover the entire row
         const channelLink = document.createElement("a");
         channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
-        channelLink.textContent = stream.channelName;
-        channelLink.className = "channel-name";
+        channelLink.className = "stream-info";
         channelLink.target = "_blank";
 
-        const viewersSpan = document.createElement("span");
-        viewersSpan.className = "viewers"; // Apply a class for viewers
-        viewersSpan.textContent = stream.viewers;
+        // Create and append the channel name span to the link
+        const channelNameSpan = document.createElement("span");
+        channelNameSpan.className = "channel-name";
+        channelNameSpan.textContent = stream.channelName;
+        channelLink.appendChild(channelNameSpan);
 
-        streamDiv.appendChild(channelLink);
-        streamDiv.appendChild(viewersSpan);
-        container.appendChild(streamDiv);
+        // Create and append the viewers span to the link
+        const viewersSpan = document.createElement("span");
+        viewersSpan.className = "viewers";
+        viewersSpan.textContent = stream.viewers;
+        channelLink.appendChild(viewersSpan);
+
+        container.appendChild(channelLink);
       });
     }
   });
 }
+

@@ -1,0 +1,91 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 10px;
+  min-width: 355px; /* Set minimum width to 355px */
+}
+
+#header {
+  font-size: 20px;
+  color: #6441a5a9;
+  margin-bottom: 0px; /* Reduce bottom margin to bring closer to separator */
+  margin-top: 10px; /* 10px away from the top of the window */
+}
+
+.separator {
+  height: 1px;
+  background-color: #6441a564;
+  margin-top: 1px; /* Reduce top margin to bring closer to header */
+  margin-bottom: 12px;
+  width: 355px; /* Keep the separator at 355px */
+}
+
+  #loginButton {
+    background-color: #6441a5;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    white-space: nowrap;
+    width: 100%;
+  }
+  
+  #loginButton:hover {
+    background-color: #503484;
+  }
+  
+  #description {
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  .stream-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px;
+    text-decoration: none;
+    color: black;
+    transition: background-color 0.3s;
+    position: relative; /* Needed for positioning the pseudo-element */
+  }
+  
+  .stream-info::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12px; /* Start 2px after the channel name (10px margin + 2px) */
+    right: 12px; /* End 2px before the viewers (10px margin + 2px) */
+    border-bottom: 1px dashed #9999996e;
+  }
+  
+  .stream-info:last-child::after {
+    display: none; /* Hide the separator for the last item */
+  }
+  
+  .stream-info:hover {
+    background-color: #e0d4f7;
+  }
+  
+  .channel-name {
+    flex-grow: 1;
+    text-align: left;
+    margin-left: 10px;
+  }
+  
+  .viewers {
+    margin-left: auto;
+    margin-right: 10px;
+  }
+  
+  .stream-info:link, .stream-info:visited {
+    color: inherit;
+  }
+  
+  .stream-info:hover {
+    text-decoration: none;
+  }
+  
+    

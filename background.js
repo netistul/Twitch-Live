@@ -97,7 +97,7 @@ function fetchStreamData(accessToken, followedList) {
   console.log("Fetching stream data...");
 
   const streamFetchPromises = followedList.map((channel) => {
-    const url = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`; // Corrected property
+    const url = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`;
 
     return fetch(url, {
       headers: {
