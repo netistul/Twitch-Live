@@ -80,19 +80,21 @@ function displayGroups() {
                 buttonContainer.classList.add('button-container');
 
                 var addStreamerBtn = document.createElement('button');
-                addStreamerBtn.textContent = '➕ add a Twitch Channel';
-                addStreamerBtn.onclick = function() {
-                    showAddStreamerDropdown(index);
-                };
-                buttonContainer.appendChild(addStreamerBtn);
+addStreamerBtn.className = 'add-streamer-btn'; // Apply the class for styling
+addStreamerBtn.textContent = 'Add a Twitch Channel';
+addStreamerBtn.onclick = function() {
+    showAddStreamerDropdown(index);
+};
+buttonContainer.appendChild(addStreamerBtn);
 
-                var deleteBtn = document.createElement('button');
-                deleteBtn.textContent = '❌ Delete this list';
-                deleteBtn.onclick = function() {
-                    deleteGroup(index);
-                    displayGroups();
-                };
-                buttonContainer.appendChild(deleteBtn);
+var deleteBtn = document.createElement('button');
+deleteBtn.className = 'delete-group-btn'; // Apply the class for styling
+deleteBtn.textContent = 'Delete this list';
+deleteBtn.onclick = function() {
+    deleteGroup(index);
+    displayGroups();
+};
+buttonContainer.appendChild(deleteBtn);
 
                 groupItem.appendChild(buttonContainer);
                 groupList.appendChild(groupItem);
