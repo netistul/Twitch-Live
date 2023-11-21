@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
   updateLiveStreams();
-  setInterval(updateLiveStreams, 60000); // Update every minute
+  setInterval(updateLiveStreams, 60000);
 
   const buttonContainer = document.getElementById("buttonContainer");
 
   // Create the spinner element for loading
   const spinner = document.createElement("img");
   spinner.id = "spinner";
-  spinner.src = "css/loading.webp"; // Set the source to your loading image
-  spinner.style.display = "none"; // Initially hidden
+  spinner.src = "css/loading.webp";
+  spinner.style.display = "none";
   buttonContainer.appendChild(spinner);
 
   chrome.storage.local.get(["twitchAccessToken"], function (result) {
@@ -32,7 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Event listener for the settings icon
     document.getElementById("settingsIcon").addEventListener("click", function() {
-      window.open("settings.html", "ExtensionSettings", "width=512,height=700");
+      var screenWidth = 512; // Define the width you want for the window
+var screenHeight = window.screen.availHeight; // Get the available screen height
+
+window.open("settings.html", "ExtensionSettings", "width=" + screenWidth + ",height=" + screenHeight);
     });
   
     // Listener for OAuth completion
