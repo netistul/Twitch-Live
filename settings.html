@@ -9,7 +9,7 @@
     }
 
     #settingsTable {
-      width: 500px;
+      width: 400px;
       height: auto; /* Adjust height to fit content */
       background-color: #d7cfcf; /* Dark gray table */
       margin: 20px 0 20px 20px; /* Adjusted margin for left alignment */
@@ -38,40 +38,46 @@
 }
 
 
-    #groupListContainer {
-      width: 100%; /* Full width of the container */
-      margin-top: 1px; /* Space above the list */
-    }
+#groupListContainer {
+    width: 100%; /* Full width of the container */
+    margin-top: 1px; /* Space above the list */
+}
 
-    
-    #groupList {
-      list-style-type: none; /* Remove default list styling */
-      padding: 0;
-    }
+#groupList {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0;
+}
+.group-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
 
-    #groupList li {
-        font-size: 18px;
-      background-color: #f2f2f2; /* Light grey background for list items */
-      padding: 10px;
-      margin-bottom: 10px; /* Space between list items */
-      border-radius: 5px; /* Rounded corners */
-      display: flex;
-      justify-content: space-between; /* Space out list item content and delete button */
-      align-items: center;
-    }
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+#groupList > li {
+    font-size: 18px;
+    background-color: #f2f2f2; /* Light grey background for list items */
+    padding: 10px;
+    margin-bottom: 10px; /* Space between list items */
+    border-radius: 5px; /* Rounded corners */
+}
 
-    #groupList li button {
-      background-color: #ff4c4c; /* Red color for delete button */
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
+#groupList > li > ul {
+    padding: 0;
+}
 
-    #groupList li button:hover {
-      background-color: #ff3333; /* Slightly darker red on hover */
-    }
+#groupList > li > ul > li {
+    display: flex;
+    justify-content: space-between; /* Space out list item content and delete button */
+    align-items: center;
+    margin-bottom: 5px; /* Space between streamer items */
+}
 
     .empty-list-message {
       text-align: center; /* Center the content */
@@ -83,6 +89,15 @@
       font-size: 24px;
       margin: 0 auto; /* Center the emoji */
     }
+    .streamer-name {
+    flex-grow: 1; /* Allows streamer name to take up the remaining space */
+}
+
+.streamer-remove-btn {
+    width: 100px; /* Fixed width for remove buttons */
+    text-align: right;
+    padding: 5px 10px; /* Padding for the button */
+}
  /* Modal Styles */
 .modal {
   display: none;

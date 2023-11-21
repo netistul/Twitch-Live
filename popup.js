@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Event listener for the settings icon
     document.getElementById("settingsIcon").addEventListener("click", function() {
-      window.open("settings.html", "ExtensionSettings", "width=600,height=400");
+      window.open("settings.html", "ExtensionSettings", "width=512,height=700");
     });
   
     // Listener for OAuth completion
