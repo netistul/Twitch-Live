@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   updateLiveStreams();
-  setInterval(updateLiveStreams, 60000);
+  setInterval(updateLiveStreams, 10000);
 
   const buttonContainer = document.getElementById("buttonContainer");
 
@@ -48,9 +48,10 @@ window.open("settings.html", "ExtensionSettings", "width=" + screenWidth + ",hei
 });
 
 function updateLiveStreams() {
-  chrome.storage.local.get(["liveStreams", "favoriteGroups"], function (result) {
+  chrome.storage.local.get(["liveStreams", "favoriteGroups", "showAvatar"], function (result) {
     const liveStreams = result.liveStreams || [];
     const favoriteGroups = result.favoriteGroups || [];
+    const showAvatar = result.showAvatar; // Retrieve the "Show Avatar" preference
 
     // Map to keep track of streamers in each group
     const groupStreamMap = favoriteGroups.reduce((acc, group) => {
@@ -61,12 +62,24 @@ function updateLiveStreams() {
     const container = document.getElementById("buttonContainer");
     container.innerHTML = ""; // Clear existing content
 
-    // Function to append a stream link to the container
     function appendStreamLink(stream) {
       const channelLink = document.createElement("a");
       channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
       channelLink.className = "stream-info";
       channelLink.target = "_blank";
+
+      // Check if the setting is enabled before adding the avatar
+      if (showAvatar && stream.avatar) {
+        const avatarImg = document.createElement("img");
+        avatarImg.src = stream.avatar;
+        avatarImg.className = "stream-avatar";
+        avatarImg.alt = `${stream.channelName}'s avatar`;
+        avatarImg.style.width = '30px';
+        avatarImg.style.height = '30px';
+        avatarImg.style.borderRadius = '15px';
+        avatarImg.style.marginRight = '5px';
+        channelLink.appendChild(avatarImg);
+      }
 
       const wrapperDiv = document.createElement("div");
       wrapperDiv.className = "channel-category-wrapper";
@@ -91,35 +104,34 @@ function updateLiveStreams() {
       container.appendChild(channelLink);
     }
 
-// Display group headers and their live streams
-favoriteGroups.forEach(group => {
-  // Filter live streams that belong to this group
-  const liveGroupStreams = liveStreams.filter(stream => group.streamers.map(s => s.toLowerCase()).includes(stream.channelName.toLowerCase()));
+    // Display group headers and their live streams
+    favoriteGroups.forEach(group => {
+      const liveGroupStreams = liveStreams.filter(stream => 
+        group.streamers.map(s => s.toLowerCase()).includes(stream.channelName.toLowerCase())
+      );
 
-  if (liveGroupStreams.length > 0) {
-    const groupNameHeader = document.createElement("h3");
-    groupNameHeader.textContent = group.name.toUpperCase(); // Convert group name to uppercase
-    groupNameHeader.classList.add('group-header'); // Apply the custom style
-    container.appendChild(groupNameHeader);
+      if (liveGroupStreams.length > 0) {
+        const groupNameHeader = document.createElement("h3");
+        groupNameHeader.textContent = group.name.toUpperCase(); // Convert group name to uppercase
+        groupNameHeader.classList.add('group-header'); // Apply the custom style
+        container.appendChild(groupNameHeader);
 
-    // Display each live stream in the group
-    liveGroupStreams.forEach(stream => {
-      appendStreamLink(stream);
+        liveGroupStreams.forEach(stream => {
+          appendStreamLink(stream);
+        });
+      }
     });
-  }
-});
-
 
     // Handle ungrouped channels
     let ungroupedChannelsExist = false;
     liveStreams.forEach(stream => {
       let inGroup = false;
-      for (let groupName in groupStreamMap) {
-        if (groupStreamMap[groupName].includes(stream.channelName.toLowerCase())) {
+      favoriteGroups.forEach(group => {
+        if (group.streamers.includes(stream.channelName.toLowerCase())) {
           inGroup = true;
-          break;
         }
-      }
+      });
+
       if (!inGroup) {
         if (!ungroupedChannelsExist) {
           const otherChannelsHeader = document.createElement("h3"); // Use h3 to match grouped headers

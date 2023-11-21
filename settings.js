@@ -148,6 +148,7 @@ function getFollowedList() {
 // Global function to show the streamer dropdown
 function showAddStreamerDropdown(groupIndex) {
     getFollowedList().then(followedList => {
+        // Close any existing dropdown
         var existingDropdown = document.querySelector('.dropdown-menu');
         var existingOverlay = document.getElementById('dropdownOverlay');
         if (existingDropdown) {
@@ -157,6 +158,7 @@ function showAddStreamerDropdown(groupIndex) {
             existingOverlay.remove();
         }
 
+        // Create overlay for the dropdown
         var overlay = document.createElement('div');
         overlay.id = 'dropdownOverlay';
         overlay.style.position = 'fixed';
@@ -167,9 +169,11 @@ function showAddStreamerDropdown(groupIndex) {
         overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
         overlay.style.zIndex = '2';
 
+        // Create dropdown menu container
         var dropdownMenu = document.createElement('div');
         dropdownMenu.className = 'dropdown-menu';
 
+        // Create search input
         var searchInput = document.createElement('input');
         searchInput.type = 'text';
         searchInput.placeholder = 'Search streamer...';
@@ -180,10 +184,12 @@ function showAddStreamerDropdown(groupIndex) {
         };
         dropdownMenu.appendChild(searchInput);
 
+        // Create dropdown items
         followedList.forEach(function(channel) {
             var dropdownItem = document.createElement('a');
             dropdownItem.textContent = channel.broadcaster_name;
             dropdownItem.onclick = function() {
+                // Add Streamer to the group
                 chrome.storage.local.get('favoriteGroups', function(data) {
                     var groups = data.favoriteGroups || [];
                     if (groups[groupIndex]) {
@@ -191,18 +197,22 @@ function showAddStreamerDropdown(groupIndex) {
 
                         chrome.storage.local.set({ 'favoriteGroups': groups }, function() {
                             console.log('Streamer added:', channel.broadcaster_name, 'to group', groups[groupIndex].name);
-                            displayGroups();
+                            displayGroups(); // Refresh the displayed groups
                         });
                     }
                 });
+                // Close the dropdown after selecting a channel
+                closeDropdown();
             };
             dropdownMenu.appendChild(dropdownItem);
         });
 
+        // Append the overlay and dropdown to the body
         document.body.appendChild(overlay);
         document.body.appendChild(dropdownMenu);
         dropdownMenu.style.display = 'block';
 
+        // Set width, position, and height of dropdown
         dropdownMenu.style.width = '300px';
         dropdownMenu.style.position = 'absolute';
         dropdownMenu.style.overflowY = 'auto';
@@ -215,21 +225,29 @@ function showAddStreamerDropdown(groupIndex) {
         dropdownMenu.style.top = '50px';
         dropdownMenu.style.zIndex = '3';
 
-        function closeDropdown(event) {
-            if (!dropdownMenu.contains(event.target) && !searchInput.contains(event.target)) {
-                dropdownMenu.style.display = 'none';
-                overlay.style.display = 'none';
-                document.removeEventListener('click', closeDropdown);
+        // Function to close dropdown and overlay
+        function closeDropdown() {
+            dropdownMenu.style.display = 'none';
+            overlay.style.display = 'none';
+            document.removeEventListener('click', closeDropdownEvent);
+        }
+
+        // Event to close dropdown when clicking outside
+        function closeDropdownEvent(event) {
+            if (!dropdownMenu.contains(event.target)) {
+                closeDropdown();
             }
         }
 
+        // Close dropdown and overlay when clicking outside
         setTimeout(() => {
-            document.addEventListener('click', closeDropdown);
+            document.addEventListener('click', closeDropdownEvent);
         }, 0);
     }).catch(error => {
         console.error(error);
     });
 }
+
 
 
 // Global function to filter dropdown
@@ -286,5 +304,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    displayGroups();
-});
+        // Load and set the "Show Avatar" preference
+        chrome.storage.local.get('showAvatar', function(data) {
+            document.getElementById('showAvatarCheckbox').checked = data.showAvatar !== false;
+        });
+    
+        // Save the "Show Avatar" preference when changed
+        document.getElementById('showAvatarCheckbox').addEventListener('change', function() {
+            chrome.storage.local.set({ 'showAvatar': this.checked }, function() {
+                console.log('Show Avatar preference updated:', this.checked);
+            });
+        });
+    
+        displayGroups();
+    });

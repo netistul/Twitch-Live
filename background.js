@@ -112,21 +112,32 @@ function fetchStreamData(accessToken, followedList) {
         const stream = streamData.data[0];
         console.log(`Live Channel: ${channel.broadcaster_name}, Viewers: ${stream.viewer_count}`);
 
-        // Only fetch the category for live streams
+        // Fetch the category and user data (for avatar) for live streams
         const categoryUrl = `https://api.twitch.tv/helix/games?id=${stream.game_id}`;
-        return fetch(categoryUrl, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Client-Id": twitchClientId,
-          },
-        })
-        .then(response => response.json())
-        .then(categoryData => {
+        const userUrl = `https://api.twitch.tv/helix/users?login=${channel.broadcaster_login}`;
+
+        return Promise.all([
+          fetch(categoryUrl, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Client-Id": twitchClientId,
+            },
+          }).then(response => response.json()),
+          fetch(userUrl, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Client-Id": twitchClientId,
+            },
+          }).then(response => response.json())
+        ])
+        .then(([categoryData, userData]) => {
           const categoryName = categoryData.data && categoryData.data.length > 0 ? categoryData.data[0].name : "Unknown Category";
+          const avatarUrl = userData.data && userData.data.length > 0 ? userData.data[0].profile_image_url : "";
           return {
             channelName: channel.broadcaster_name,
             viewers: stream.viewer_count,
             category: categoryName, // Add the category name
+            avatar: avatarUrl, // Add the avatar URL
             live: true,
           };
         });
