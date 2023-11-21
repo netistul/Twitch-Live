@@ -50,8 +50,16 @@
 .group-item {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    
     margin-bottom: 15px;
+}
+
+.streamers-list {
+    flex-basis: calc(50% - 10px); /* Adjust this to manage the width */
+    list-style-type: none;
+    padding: 0;
+    margin-right: 10px; /* Space between columns */
 }
 
 .button-container {
@@ -178,28 +186,37 @@ input[type="text"] {
 }
 
 
-  /* Style for the dropdown menu */
+  /* Style for the dropdown menu to match modal appearance */
 .dropdown-menu {
-  display: none; /* Initially hidden */
-  position: absolute;
-  background-color: #f5f5f5; /* Light gray background */
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  border-radius: 5px; /* Rounded corners */
-  width: 100%; /* Full width */
+    display: none; /* Initially hidden */
+    position: absolute;
+    background-color: #f5f5f5; /* Light gray background similar to modal */
+    border: 2px solid #ccc; /* Light border like modal */
+    border-radius: 10px; /* Rounded corners like modal */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* Drop shadow for depth like modal */
+    z-index: 1;
+    width: 60%; /* Adjusted width for better appearance */
+    margin: 15% auto;
+    padding: 30px; /* Increased padding for a bigger look */
 }
 
 .dropdown-menu a {
-  color: black;
-  padding: 10px 20px; /* Adjust padding for consistency */
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s ease;
+    color: black;
+    padding: 10px 20px; /* Adjust padding for consistency */
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+    border-bottom: 1px solid #ccc; /* Light border between items */
+}
+
+.dropdown-menu a:last-child {
+    border-bottom: none; /* No border for the last item */
 }
 
 .dropdown-menu a:hover {
-  background-color: #c3272782; /* Lighter gray on hover */
+    background-color: #e0d4f7; /* Light purple background on hover */
 }
+
 
 .show {
   display: block;
@@ -236,6 +253,32 @@ input[type="text"] {
   height: 100%; /* Full height */
   background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent black background */
 }
+
+/* Custom Scrollbar Styles */
+/* For Webkit browsers like Chrome, Safari */
+::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background-color: #efeff1; /* Light gray track */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #6441a5; /* Twitch-like purple thumb */
+    border-radius: 5px; /* Rounded corners for the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #503484; /* Darker purple on hover */
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin; /* Width of the scrollbar */
+    scrollbar-color: #6441a5 #efeff1; /* Thumb and track colors */
+}
+
 
 
 </style>

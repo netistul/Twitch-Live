@@ -1,4 +1,3 @@
-// Global function to display saved groups
 function displayGroups() {
     chrome.storage.local.get('favoriteGroups', function(data) {
         var groups = data.favoriteGroups || [];
@@ -30,7 +29,9 @@ function displayGroups() {
                 groupNameSpan.textContent = group.name;
                 groupItem.appendChild(groupNameSpan);
 
+                // Create the first column of streamers
                 var streamersList = document.createElement('ul');
+                streamersList.classList.add('streamers-list');
                 streamersList.style.listStyleType = 'none';
                 streamersList.style.padding = '0';
 
@@ -41,6 +42,14 @@ function displayGroups() {
                     streamerItem.style.alignItems = 'center';
                     streamerItem.style.fontSize = '70%';
 
+                    // Add Twitch icon
+                    var twitchIcon = document.createElement('img');
+                    twitchIcon.src = 'css/twitch.png'; // Update with the correct path
+                    twitchIcon.alt = 'Twitch';
+                    twitchIcon.style.width = '20px'; // Adjust size as needed
+                    twitchIcon.style.marginRight = '3px';
+                    streamerItem.appendChild(twitchIcon);
+
                     var streamerNameSpan = document.createElement('span');
                     streamerNameSpan.textContent = streamer;
                     streamerNameSpan.style.flexGrow = '1';
@@ -48,20 +57,30 @@ function displayGroups() {
 
                     var deleteStreamerBtn = document.createElement('button');
                     deleteStreamerBtn.textContent = 'x';
-                    deleteStreamerBtn.style.width = '100px';
+                    deleteStreamerBtn.style.width = '30px';
                     deleteStreamerBtn.onclick = function() {
                         deleteStreamer(index, streamerIndex);
                     };
                     streamerItem.appendChild(deleteStreamerBtn);
+
+                    // Append streamer item to the current list
                     streamersList.appendChild(streamerItem);
+
+                    // If 5 streamers have been added or we reach the end, append the list and start a new one
+                    if ((streamerIndex % 5 === 4 && streamerIndex !== 0) || streamerIndex === group.streamers.length - 1) {
+                        groupItem.appendChild(streamersList);
+                        streamersList = document.createElement('ul');
+                        streamersList.classList.add('streamers-list');
+                        streamersList.style.listStyleType = 'none';
+                        streamersList.style.padding = '0';
+                    }
                 });
-                groupItem.appendChild(streamersList);
 
                 var buttonContainer = document.createElement('div');
                 buttonContainer.classList.add('button-container');
 
                 var addStreamerBtn = document.createElement('button');
-                addStreamerBtn.textContent = '➕ add a Twitch Channel to this list';
+                addStreamerBtn.textContent = '➕ add a Twitch Channel';
                 addStreamerBtn.onclick = function() {
                     showAddStreamerDropdown(index);
                 };
@@ -82,7 +101,6 @@ function displayGroups() {
         }
     });
 }
-
 
 // Global function to delete a streamer from a group
 function deleteStreamer(groupIndex, streamerIndex) {
@@ -153,7 +171,7 @@ function showAddStreamerDropdown(groupIndex) {
         var searchInput = document.createElement('input');
         searchInput.type = 'text';
         searchInput.placeholder = 'Search streamer...';
-        searchInput.style.width = '92%';
+        searchInput.style.width = '91%';
         searchInput.onkeyup = function() {
             var searchValue = this.value.toLowerCase();
             filterDropdown(dropdownMenu, searchValue);
