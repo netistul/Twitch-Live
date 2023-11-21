@@ -51,13 +51,7 @@ function updateLiveStreams() {
   chrome.storage.local.get(["liveStreams", "favoriteGroups", "showAvatar"], function (result) {
     const liveStreams = result.liveStreams || [];
     const favoriteGroups = result.favoriteGroups || [];
-    const showAvatar = result.showAvatar; // Retrieve the "Show Avatar" preference
-
-    // Map to keep track of streamers in each group
-    const groupStreamMap = favoriteGroups.reduce((acc, group) => {
-      acc[group.name.toUpperCase()] = group.streamers.map(streamer => streamer.toLowerCase());
-      return acc;
-    }, {});
+    const showAvatar = result.showAvatar !== false;
 
     const container = document.getElementById("buttonContainer");
     container.innerHTML = ""; // Clear existing content
@@ -68,7 +62,6 @@ function updateLiveStreams() {
       channelLink.className = "stream-info";
       channelLink.target = "_blank";
 
-      // Check if the setting is enabled before adding the avatar
       if (showAvatar && stream.avatar) {
         const avatarImg = document.createElement("img");
         avatarImg.src = stream.avatar;
@@ -104,6 +97,8 @@ function updateLiveStreams() {
       container.appendChild(channelLink);
     }
 
+    let anyGroupStreamsLive = false;
+
     // Display group headers and their live streams
     favoriteGroups.forEach(group => {
       const liveGroupStreams = liveStreams.filter(stream => 
@@ -111,9 +106,10 @@ function updateLiveStreams() {
       );
 
       if (liveGroupStreams.length > 0) {
+        anyGroupStreamsLive = true;
         const groupNameHeader = document.createElement("h3");
-        groupNameHeader.textContent = group.name.toUpperCase(); // Convert group name to uppercase
-        groupNameHeader.classList.add('group-header'); // Apply the custom style
+        groupNameHeader.textContent = group.name.toUpperCase(); 
+        groupNameHeader.classList.add('group-header'); 
         container.appendChild(groupNameHeader);
 
         liveGroupStreams.forEach(stream => {
@@ -122,29 +118,29 @@ function updateLiveStreams() {
       }
     });
 
-    // Handle ungrouped channels
-    let ungroupedChannelsExist = false;
-    liveStreams.forEach(stream => {
-      let inGroup = false;
-      favoriteGroups.forEach(group => {
-        if (group.streamers.includes(stream.channelName.toLowerCase())) {
-          inGroup = true;
-        }
-      });
-
-      if (!inGroup) {
-        if (!ungroupedChannelsExist) {
-          const otherChannelsHeader = document.createElement("h3"); // Use h3 to match grouped headers
-          otherChannelsHeader.textContent = "MORE TWITCH CHANNELS";
-          otherChannelsHeader.classList.add('group-header'); // Apply the same class as grouped headers
-          container.appendChild(otherChannelsHeader);
-          ungroupedChannelsExist = true;
-        }
-        appendStreamLink(stream);
-      }
+    // Determine if there are any ungrouped channels
+    const ungroupedStreams = liveStreams.filter(stream => {
+      return !favoriteGroups.some(group => 
+        group.streamers.map(s => s.toLowerCase()).includes(stream.channelName.toLowerCase())
+      );
     });
+
+    // Display ungrouped channels, with or without the header based on anyGroupStreamsLive
+    if (ungroupedStreams.length > 0) {
+      if (anyGroupStreamsLive) {
+        const otherChannelsHeader = document.createElement("h3");
+        otherChannelsHeader.textContent = "MORE TWITCH CHANNELS";
+        otherChannelsHeader.classList.add('group-header');
+        container.appendChild(otherChannelsHeader);
+      }
+
+      ungroupedStreams.forEach(stream => {
+        appendStreamLink(stream);
+      });
+    }
   });
 }
+
 
 
 
