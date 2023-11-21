@@ -32,8 +32,8 @@ document.addEventListener("DOMContentLoaded", function () {
   
     // Event listener for the settings icon
     document.getElementById("settingsIcon").addEventListener("click", function() {
-      var screenWidth = 654; // Define the width you want for the window
-var screenHeight = window.screen.availHeight; // Get the available screen height
+      var screenWidth = 674; // Define the width you want for the window
+      var screenHeight = Math.min(window.screen.availHeight, 600);
 
 window.open("settings.html", "ExtensionSettings", "width=" + screenWidth + ",height=" + screenHeight);
     });
@@ -56,7 +56,10 @@ function updateLiveStreams() {
     const container = document.getElementById("buttonContainer");
     container.innerHTML = ""; // Clear existing content
 
-    function appendStreamLink(stream) {
+    const scrollContainer = document.createElement("div");
+    scrollContainer.id = "scrollContainer"; // Assign an ID to the scrollable container
+
+    function appendStreamLink(stream, container) {
       const channelLink = document.createElement("a");
       channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
       channelLink.className = "stream-info";
@@ -87,17 +90,15 @@ function updateLiveStreams() {
       categorySpan.textContent = stream.category;
       wrapperDiv.appendChild(categorySpan);
 
-      channelLink.appendChild(wrapperDiv);
-
       const viewersSpan = document.createElement("span");
       viewersSpan.className = "viewers";
       viewersSpan.textContent = stream.viewers;
       wrapperDiv.appendChild(viewersSpan);
-      
-      container.appendChild(channelLink);
-    }
 
-    let anyGroupStreamsLive = false;
+      channelLink.appendChild(wrapperDiv);
+
+      container.appendChild(channelLink); // Append to the provided container
+    }
 
     // Display group headers and their live streams
     favoriteGroups.forEach(group => {
@@ -106,14 +107,13 @@ function updateLiveStreams() {
       );
 
       if (liveGroupStreams.length > 0) {
-        anyGroupStreamsLive = true;
         const groupNameHeader = document.createElement("h3");
         groupNameHeader.textContent = group.name.toUpperCase(); 
         groupNameHeader.classList.add('group-header'); 
-        container.appendChild(groupNameHeader);
+        scrollContainer.appendChild(groupNameHeader); // Append group header to the scrollable container
 
         liveGroupStreams.forEach(stream => {
-          appendStreamLink(stream);
+          appendStreamLink(stream, scrollContainer); // Append streams to the scrollable container
         });
       }
     });
@@ -125,23 +125,26 @@ function updateLiveStreams() {
       );
     });
 
-    // Display ungrouped channels, with or without the header based on anyGroupStreamsLive
     if (ungroupedStreams.length > 0) {
-      if (anyGroupStreamsLive) {
-        const otherChannelsHeader = document.createElement("h3");
-        otherChannelsHeader.textContent = "MORE TWITCH CHANNELS";
-        otherChannelsHeader.classList.add('group-header');
-        container.appendChild(otherChannelsHeader);
-      }
+      const otherChannelsHeader = document.createElement("h3");
+      otherChannelsHeader.textContent = "MORE TWITCH CHANNELS";
+      otherChannelsHeader.classList.add('group-header');
+      scrollContainer.appendChild(otherChannelsHeader); // Append the header to the scrollable container
 
       ungroupedStreams.forEach(stream => {
-        appendStreamLink(stream);
+        appendStreamLink(stream, scrollContainer); // Append streams to the scrollable container
       });
+    }
+
+    container.appendChild(scrollContainer); // Append the scrollable container to the main container
+
+    // Adjust the height of the scrollable container if necessary
+    const maxHeight = 600; // Maximum height for the scrollable area
+    if (scrollContainer.scrollHeight > maxHeight) {
+      scrollContainer.style.height = `${maxHeight}px`;
     }
   });
 }
-
-
 
 
 
