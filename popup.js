@@ -51,7 +51,7 @@ function updateLiveStreams() {
   chrome.storage.local.get(["liveStreams", "favoriteGroups", "showAvatar"], function (result) {
     const liveStreams = result.liveStreams || [];
     const favoriteGroups = result.favoriteGroups || [];
-    const showAvatar = result.showAvatar !== false;
+    const showAvatar = result.showAvatar === true;
 
     const container = document.getElementById("buttonContainer");
     container.innerHTML = ""; // Clear existing content
@@ -92,8 +92,8 @@ function updateLiveStreams() {
       const viewersSpan = document.createElement("span");
       viewersSpan.className = "viewers";
       viewersSpan.textContent = stream.viewers;
-      channelLink.appendChild(viewersSpan);
-
+      wrapperDiv.appendChild(viewersSpan);
+      
       container.appendChild(channelLink);
     }
 

@@ -54,11 +54,12 @@ body {
   }
   
   .stream-info {
+    display: flex;
     font-family: Verdana, sans-serif;
     font-size: 13px;
     display: flex;
     align-items: center;
-    padding: 7px 7px 3px; /* Reduced bottom padding */
+    padding: 7px 7px 3px;
     text-decoration: none;
     color: black;
     transition: background-color 0.3s;
@@ -76,7 +77,8 @@ body {
   .channel-category-wrapper {
     display: flex;
     align-items: center;
-    flex-grow: 1; /* Allow it to take available space */
+    justify-content: space-between; /* Distribute space */
+    flex-grow: 1;
   }
   
   .channel-name, .stream-category {
@@ -94,23 +96,27 @@ body {
   .channel-name {
     flex-grow: 1;
     text-align: left;
-    margin-left: 10px;
-  }
-
-  .stream-category {
-    display: block; /* Ensures it appears on a new line */
-    color: #88888885; /* Example color */
-    font-size: 0.9em; /* Smaller font size */
-    margin-left: 10px; /* Align with the channel name */
+    margin-right: 5px; /* Adjust the space between channel name and category */
   }
   
+  .stream-category {
+    flex-grow: 0; /* Prevent it from growing */
+    margin-right: 5px; /* Adjust space between category and viewers */
+    font-size: 0.9em;
+    color: #88888885;
+  }
+
   .viewers {
-    margin-left: auto;
+    flex-grow: 0; /* Prevent it from growing */
     margin-right: 10px;
   }
   
   .stream-info:link, .stream-info:visited {
     color: inherit;
+  }
+
+  .stream-avatar {
+    margin-right: 5px; /* Space after avatar */
   }
   
   .stream-info:hover {
