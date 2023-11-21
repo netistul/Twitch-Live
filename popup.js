@@ -54,10 +54,10 @@ function updateLiveStreams() {
     const showAvatar = result.showAvatar === true;
 
     const container = document.getElementById("buttonContainer");
-    container.innerHTML = ""; // Clear existing content
+    container.innerHTML = "";
 
     const scrollContainer = document.createElement("div");
-    scrollContainer.id = "scrollContainer"; // Assign an ID to the scrollable container
+    scrollContainer.id = "scrollContainer";
 
     function appendStreamLink(stream, container) {
       const channelLink = document.createElement("a");
@@ -100,6 +100,8 @@ function updateLiveStreams() {
       container.appendChild(channelLink); // Append to the provided container
     }
 
+    let anyFavoriteGroupLive = false; // Flag to check if any favorite group has live streams
+
     // Display group headers and their live streams
     favoriteGroups.forEach(group => {
       const liveGroupStreams = liveStreams.filter(stream => 
@@ -107,13 +109,15 @@ function updateLiveStreams() {
       );
 
       if (liveGroupStreams.length > 0) {
+        anyFavoriteGroupLive = true; // Set flag if there are live streams in any favorite group
+
         const groupNameHeader = document.createElement("h3");
         groupNameHeader.textContent = group.name.toUpperCase(); 
         groupNameHeader.classList.add('group-header'); 
-        scrollContainer.appendChild(groupNameHeader); // Append group header to the scrollable container
+        scrollContainer.appendChild(groupNameHeader);
 
         liveGroupStreams.forEach(stream => {
-          appendStreamLink(stream, scrollContainer); // Append streams to the scrollable container
+          appendStreamLink(stream, scrollContainer);
         });
       }
     });
@@ -125,26 +129,28 @@ function updateLiveStreams() {
       );
     });
 
-    if (ungroupedStreams.length > 0) {
+    // Only display "MORE TWITCH CHANNELS" if there are live streams in favorite groups
+    if (ungroupedStreams.length > 0 && anyFavoriteGroupLive) {
       const otherChannelsHeader = document.createElement("h3");
       otherChannelsHeader.textContent = "MORE TWITCH CHANNELS";
       otherChannelsHeader.classList.add('group-header');
-      scrollContainer.appendChild(otherChannelsHeader); // Append the header to the scrollable container
-
-      ungroupedStreams.forEach(stream => {
-        appendStreamLink(stream, scrollContainer); // Append streams to the scrollable container
-      });
+      scrollContainer.appendChild(otherChannelsHeader);
     }
 
-    container.appendChild(scrollContainer); // Append the scrollable container to the main container
+    ungroupedStreams.forEach(stream => {
+      appendStreamLink(stream, scrollContainer);
+    });
+
+    container.appendChild(scrollContainer);
 
     // Adjust the height of the scrollable container if necessary
-    const maxHeight = 600; // Maximum height for the scrollable area
+    const maxHeight = 600;
     if (scrollContainer.scrollHeight > maxHeight) {
       scrollContainer.style.height = `${maxHeight}px`;
     }
   });
 }
+
 
 
 

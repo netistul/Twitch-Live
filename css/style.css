@@ -100,12 +100,15 @@ body {
   }
   
   .stream-category {
-    flex-grow: 0; /* Prevent it from growing */
-    margin-right: 5px; /* Adjust space between category and viewers */
-    font-size: 0.9em;
-    color: #88888885;
+    display: inline-block; /* Change from block to inline-block */
+    color: #88888885; /* Example color */
+    font-size: 0.9em; /* Smaller font size */
+    margin-left: 10px; /* Align with the channel name */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
+    max-width: 120px; /* Adjust as needed based on available space */
   }
-
   .viewers {
     flex-grow: 0; /* Prevent it from growing */
     margin-right: 10px;
@@ -133,7 +136,7 @@ body {
  /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 #scrollContainer::-webkit-scrollbar {
-  width: 10px; /* Width of the scrollbar */
+  width: 3px; /* Width of the scrollbar */
 }
 
 #scrollContainer::-webkit-scrollbar-track {
@@ -160,6 +163,29 @@ body {
   /* Other styles... */
 }
 
+/* For the entire popup window */
+body::-webkit-scrollbar {
+  width: 10px;  /* Width of the scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+  background-color: #efeff1;  /* Light gray track */
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #6441a51d;  /* Twitch-like purple thumb */
+  border-radius: 5px;  /* Rounded corners for the thumb */
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background-color: #503484;  /* Darker purple on hover */
+}
+
+/* For the entire popup window */
+body {
+  scrollbar-width: thin;  /* Width of the scrollbar */
+  scrollbar-color: #6441a5 #efeff1;  /* Thumb and track colors */
+}
 
   
     
