@@ -316,5 +316,63 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     
-        displayGroups();
+            // Load and set the "Show Avatar" preference
+    chrome.storage.local.get('showAvatar', function(data) {
+        var checkbox = document.getElementById('showAvatarCheckbox');
+        checkbox.checked = data.showAvatar === true;
+        updatePreview(); // Update preview on page load
     });
+
+    // Save the "Show Avatar" preference when changed
+    document.getElementById('showAvatarCheckbox').addEventListener('change', function() {
+        chrome.storage.local.set({ 'showAvatar': this.checked }, function() {
+            console.log('Show Avatar preference updated:', this.checked);
+            updatePreview(); // Update preview on checkbox change
+        });
+    });
+
+    displayGroups();
+});
+
+var previewStream = null;
+
+function updatePreview() {
+    chrome.storage.local.get("liveStreams", function(data) {
+        var liveStreams = data.liveStreams || [];
+        if (liveStreams.length > 0) {
+            // Select a random stream only if it has not been selected before
+            if (!previewStream) {
+                previewStream = liveStreams[Math.floor(Math.random() * liveStreams.length)];
+            }
+
+            var previewContainer = document.getElementById("previewContainer");
+            previewContainer.innerHTML = ""; // Clear previous content
+
+            var showAvatar = document.getElementById('showAvatarCheckbox').checked;
+
+            var previewDiv = document.createElement("div");
+            previewDiv.className = "stream-preview";
+
+            if (showAvatar && previewStream.avatar) {
+                var avatarImg = document.createElement("img");
+                avatarImg.src = previewStream.avatar;
+                avatarImg.className = "stream-avatar";
+                avatarImg.style.width = '30px';
+                avatarImg.style.height = '30px';
+                avatarImg.style.borderRadius = '15px';
+                avatarImg.style.marginRight = '5px';
+                previewDiv.appendChild(avatarImg);
+            }
+
+            var channelNameSpan = document.createElement("span");
+            channelNameSpan.textContent = previewStream.channelName;
+            previewDiv.appendChild(channelNameSpan);
+
+            var viewersSpan = document.createElement("span");
+            viewersSpan.textContent = ` - ${previewStream.viewers} viewers`;
+            previewDiv.appendChild(viewersSpan);
+
+            previewContainer.appendChild(previewDiv);
+        }
+    });
+}

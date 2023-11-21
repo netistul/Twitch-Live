@@ -366,6 +366,21 @@ input[type="text"] {
             border-radius: 50%;
         }
 
+        preview-container {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+.stream-preview {
+    display: flex;
+    align-items: center;
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+}
+
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 ::-webkit-scrollbar {
@@ -412,6 +427,7 @@ input[type="text"] {
                     <span class="slider round"></span>
                 </label>
             </div>
+            <div id="previewContainer" class="preview-container"></div>
         </div>
         
     </div>
