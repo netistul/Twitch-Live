@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Load and set the "Show Avatar" preference
         chrome.storage.local.get('showAvatar', function(data) {
-            document.getElementById('showAvatarCheckbox').checked = data.showAvatar !== false;
+            document.getElementById('showAvatarCheckbox').checked = data.showAvatar === true;
         });
     
         // Save the "Show Avatar" preference when changed
