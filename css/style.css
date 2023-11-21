@@ -15,6 +15,14 @@ body {
   margin-top: 10px;
 }
 
+.group-header {
+  font-family: 'Bebas Neue', sans-serif; /* Example font */
+  font-size: 13px; /* Font size */
+  color: #6441a575; /* Text color */
+  margin-bottom: 1px; /* Spacing after the header */
+  text-transform: uppercase; /* Capitalize text */
+}
+
 
 .separator {
   height: 1px;
