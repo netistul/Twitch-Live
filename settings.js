@@ -368,11 +368,15 @@ function updatePreview() {
             channelNameSpan.textContent = previewStream.channelName;
             previewDiv.appendChild(channelNameSpan);
 
+            // Add a space text node between channel name and viewers
+            previewDiv.appendChild(document.createTextNode(' '));
+
             var viewersSpan = document.createElement("span");
-            viewersSpan.textContent = ` - ${previewStream.viewers} viewers`;
+            viewersSpan.innerHTML = `\u00A0- ${previewStream.viewers} viewers`;
             previewDiv.appendChild(viewersSpan);
 
             previewContainer.appendChild(previewDiv);
         }
     });
 }
+
