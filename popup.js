@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Event listener for the settings icon
     document.getElementById("settingsIcon").addEventListener("click", function() {
-      var screenWidth = 512; // Define the width you want for the window
+      var screenWidth = 654; // Define the width you want for the window
 var screenHeight = window.screen.availHeight; // Get the available screen height
 
 window.open("settings.html", "ExtensionSettings", "width=" + screenWidth + ",height=" + screenHeight);

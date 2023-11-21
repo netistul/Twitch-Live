@@ -12,7 +12,7 @@
       width: 400px;
       height: auto; /* Adjust height to fit content */
       background-color: #d7cfcf; /* Dark gray table */
-      margin: 20px 0 20px 20px; /* Adjusted margin for left alignment */
+      margin: 1px 0 1px 1px; /* Adjusted margin for left alignment */
       padding: 20px; /* Padding inside the table */
       display: flex;
       flex-direction: column;
@@ -222,20 +222,6 @@ input[type="text"] {
   display: block;
 }
 
-.green-button {
-  background-color: #28a745; /* Green color */
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.green-button:hover {
-  background-color: #218838; /* Darker green on hover */
-}
-
 #favoriteListText {
     text-align: center;
     font-size: 18px;
@@ -282,9 +268,103 @@ input[type="text"] {
     transition: background-color 0.3s ease;
 }
 
+#settingsContainer {
+    display: flex; /* Use flexbox for layout */
+    justify-content: flex-start; /* Align content to the start */
+    align-items: flex-start; /* Align items from the top */
+    margin-top: 20px; /* Space from top */
+}
+
+#settingsTable, #optionsMenu {
+    margin: 0 10px; /* Space around each container */
+}
+
+#optionsMenu {
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items within options menu */
+}
+
+.optionsMenuHeader {
+    font-family: 'Noto Sans Display', sans-serif; /* Example font */
+    font-size: 20px; /* Font size */
+    color: #6441a5; /* Twitch-like purple color */
+    margin-bottom: 15px; /* Spacing after the header */
+    text-align: center; /* Center the header text */
+}
+
+#showAvatarOption {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Align items vertically */
+    justify-content: center; /* Center items horizontally */
+}
+
+.showAvatarLabel {
+    margin-right: 10px; /* Spacing between label and switch */
+    font-family: Verdana, sans-serif; /* Example font */
+    color: #6441a5; /* Twitch-like purple color */
+    font-size: 12px; /* Font size */
+}
+
 .delete-group-btn:hover {
     background-color: #ff3333; /* Darker red on hover */
 }
+
+       /* Style for the switch */
+       .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #6441a5;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #6441a5;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(33px);
+            -ms-transform: translateX(23px);
+            transform: translateX(23px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
 
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
@@ -315,34 +395,40 @@ input[type="text"] {
 </style>
 </head>
 <body>
-    <div id="showAvatarOption">
-        <label>
-          <input type="checkbox" id="showAvatarCheckbox">
-          Show avatar for Twitch channels
-        </label>
-      </div>
-    <div id="settingsTable">
-        <p id="favoriteListText" style="display: none; text-align: center; font-size: 18px;">Your Favorite Lists:</p>
-        <div id="groupListContainer">
-          <ul id="groupList"></ul>
+    <div id="settingsContainer">
+        <div id="settingsTable">
+            <p id="favoriteListText" style="display: none; text-align: center; font-size: 18px;">Your Favorite Lists:</p>
+            <div id="groupListContainer">
+                <ul id="groupList"></ul>
+            </div>
+            <button id="addFavoriteGroupButton">➕ Add favorite group for live streams</button>
         </div>
-        <button id="addFavoriteGroupButton">➕ Add favorite group for live streams</button>
+        <div id="optionsMenu">
+            <h2 class="optionsMenuHeader">Options Menu</h2>
+            <div id="showAvatarOption" class="optionItem">
+                <div class="showAvatarLabel">Show avatar for channels</div>
+                <label class="switch">
+                    <input type="checkbox" id="showAvatarCheckbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
     </div>
-  <!-- The Modal -->
-  <div id="myModal" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>➕ Add Favorite Group</h3>
-      <input type="text" id="groupName" placeholder="Group Name">
-      <button id="saveGroup">Save Group</button>
-      <div id="streamerDropdown" class="dropdown-menu"> 
-        <div id="dropdownOverlay" class="dropdown-overlay"></div>
-        <!-- Dynamically populated dropdown content will go here -->
-      </div>
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>➕ Add Favorite Group</h3>
+            <input type="text" id="groupName" placeholder="Group Name">
+            <button id="saveGroup">Save Group</button>
+            <div id="streamerDropdown" class="dropdown-menu"> 
+                <div id="dropdownOverlay" class="dropdown-overlay"></div>
+                <!-- Dynamically populated dropdown content will go here -->
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="settings.js"></script>
+    <script src="settings.js"></script>
 </body>
 </html>
