@@ -21,6 +21,7 @@ body {
   color: #6441a575; /* Text color */
   margin-bottom: 1px; /* Spacing after the header */
   text-transform: uppercase; /* Capitalize text */
+  text-align: left;
 }
 
 
@@ -75,11 +76,13 @@ body {
   }
   /* New Wrapper Style */
   .channel-category-wrapper {
+    justify-content: flex-start;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Distribute space */
+   
     flex-grow: 1;
   }
+  
   
   .channel-name, .stream-category {
     margin-right: 5px; /* Spacing between channel name and category */
@@ -100,15 +103,17 @@ body {
   }
   
   .stream-category {
-    display: inline-block; /* Change from block to inline-block */
-    color: #88888885; /* Example color */
-    font-size: 0.9em; /* Smaller font size */
-    margin-left: 10px; /* Align with the channel name */
-    white-space: nowrap; /* Prevent text from wrapping */
-    overflow: hidden; /* Hide overflow */
-    text-overflow: ellipsis; /* Add ellipsis for overflow text */
-    max-width: 120px; /* Adjust as needed based on available space */
+    display: inline-block;
+    color: #88888885;
+    font-size: 0.9em;
+    margin-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    text-align: left; /* Align text to the left */
   }
+  
   .viewers {
     flex-grow: 0; /* Prevent it from growing */
     margin-right: 10px;
