@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
   spinner.id = "spinner";
   spinner.src = "css/loading.webp";
   spinner.style.display = "none";
-  buttonContainer.appendChild(spinner);
 
   chrome.storage.local.get(["twitchAccessToken"], function (result) {
     if (!result.twitchAccessToken) {
@@ -27,9 +26,10 @@ document.addEventListener("DOMContentLoaded", function () {
       description.textContent = "Log in with Twitch to see live channels you follow!";
       description.id = "description";
       buttonContainer.appendChild(description);
+      buttonContainer.appendChild(spinner); // Place the spinner next to the description
     }
   });
-
+  
     // Event listener for the settings icon
     document.getElementById("settingsIcon").addEventListener("click", function() {
       var screenWidth = 654; // Define the width you want for the window
