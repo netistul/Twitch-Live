@@ -399,24 +399,24 @@ function updatePreview() {
 }
 
 function showTemporaryInfo(message) {
-    var infoDiv = document.createElement("div");
-    infoDiv.textContent = message;
-    infoDiv.style.position = "fixed";
-    infoDiv.style.bottom = "20px";
-    infoDiv.style.left = "50%";
-    infoDiv.style.transform = "translateX(-50%)";
-    infoDiv.style.backgroundColor = "#4CAF50"; // You can choose your color
-    infoDiv.style.color = "white";
-    infoDiv.style.padding = "10px";
-    infoDiv.style.borderRadius = "5px";
-    infoDiv.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
-    infoDiv.style.zIndex = "1000";
-    infoDiv.style.textAlign = "center";
+  var infoDiv = document.createElement("div");
+  infoDiv.textContent = message;
+  infoDiv.style.position = "fixed";
+  infoDiv.style.bottom = "20px";
+  infoDiv.style.left = "50%";
+  infoDiv.style.transform = "translateX(-50%)";
+  infoDiv.style.backgroundColor = "#4CAF50"; // You can choose your color
+  infoDiv.style.color = "white";
+  infoDiv.style.padding = "10px";
+  infoDiv.style.borderRadius = "5px";
+  infoDiv.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
+  infoDiv.style.zIndex = "1000";
+  infoDiv.style.textAlign = "center";
 
-    document.body.appendChild(infoDiv);
+  document.body.appendChild(infoDiv);
 
-    // Remove the infoDiv after 3 seconds
-    setTimeout(function () {
-        infoDiv.remove();
-    }, 3000); // Adjust time as needed
+  // Remove the infoDiv after 3 seconds
+  setTimeout(function () {
+    infoDiv.remove();
+  }, 3000); // Adjust time as needed
 }
