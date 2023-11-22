@@ -62,6 +62,24 @@ function fetchUserProfile(accessToken) {
   .catch((error) => console.error("Error fetching user profile:", error));
 }
 
+function fetchUserProfile(accessToken) {
+  fetch("https://api.twitch.tv/helix/users", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Client-Id": twitchClientId,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    const userId = data.data[0].id;
+    chrome.storage.local.set({ userId: userId }, () => {
+      console.log("User ID saved");
+      fetchFollowList(accessToken, userId, true); // Passing true for the OAuth completion
+    });
+  })
+  .catch((error) => console.error("Error fetching user profile:", error));
+}
+
 function fetchFollowList(accessToken, userId, isOAuthComplete = false, cursor = "", followedList = []) {
   let url = `https://api.twitch.tv/helix/channels/followed?user_id=${userId}&first=100`;
   if (cursor) {
@@ -86,13 +104,22 @@ function fetchFollowList(accessToken, userId, isOAuthComplete = false, cursor = 
         console.log("Followed Channels saved in local storage");
         fetchStreamData(accessToken, followedList);
         if (isOAuthComplete) {
-          chrome.runtime.sendMessage({ action: "oauthComplete" });
+          chrome.runtime.sendMessage({ action: "oauthComplete" }, function(response) {
+            if (chrome.runtime.lastError) {
+              // Handle message send error
+              console.log("Error sending message to popup:", chrome.runtime.lastError.message);
+            } else {
+              // Message sent successfully
+              console.log("Message sent successfully to popup");
+            }
+          });
         }
       });
     }
   })
   .catch((error) => console.error("Error fetching follow list:", error));
 }
+
 
 function fetchStreamData(accessToken, followedList) {
   console.log("Fetching stream data...");
@@ -154,8 +181,11 @@ function fetchStreamData(accessToken, followedList) {
     const liveStreams = streamData.filter(data => data !== null);
     chrome.storage.local.set({ liveStreams: liveStreams }, () => {
       console.log("Live stream data updated in local storage", liveStreams);
+      // Update the badge text
+      chrome.action.setBadgeText({ text: liveStreams.length.toString() });
+      chrome.action.setBadgeBackgroundColor({ color: '#6441a5' }); // Twitch purple color
     });
-  });
+  });  
 }
 
 
@@ -172,10 +202,11 @@ setInterval(() => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {
     console.log("Context menu item clicked - Disconnecting Twitch account");
-
     // Clear the entire local storage for this extension
     chrome.storage.local.clear(() => {
       console.log("Local storage cleared - Twitch account disconnected");
+      // Reset the badge text
+      chrome.action.setBadgeText({ text: '' });
     });
   }
 });

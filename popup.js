@@ -53,122 +53,154 @@ document.addEventListener("DOMContentLoaded", function () {
   ) {
     if (message.action === "oauthComplete") {
       spinner.style.display = "none"; // Hide the spinner
-      setTimeout(() => window.location.reload(), 1300); // 1 second delay
+
+      // Start an interval to refresh every 500ms
+      let refreshInterval = setInterval(updateLiveStreams, 500);
+
+      // Stop refreshing after 5 seconds
+      setTimeout(() => {
+        clearInterval(refreshInterval);
+      }, 5000);
     }
   });
 });
 
 function updateLiveStreams() {
-  chrome.storage.local.get(["liveStreams", "favoriteGroups", "showAvatar"], function (result) {
-    const liveStreams = result.liveStreams || [];
-    const favoriteGroups = result.favoriteGroups || [];
-    const showAvatar = result.showAvatar === true;
+  chrome.storage.local.get(
+    ["liveStreams", "favoriteGroups", "showAvatar"],
+    function (result) {
+      const liveStreams = result.liveStreams || [];
+      const favoriteGroups = result.favoriteGroups || [];
+      const showAvatar = result.showAvatar === true;
 
-    const container = document.getElementById("buttonContainer");
+      const container = document.getElementById("buttonContainer");
 
-    // Remember the current scroll position
-    const currentScrollPosition = container.scrollTop;
+      // Remember the current scroll position
+      const currentScrollPosition = container.scrollTop;
 
-    container.innerHTML = "";
+      container.innerHTML = "";
 
-    const scrollContainer = document.createElement("div");
-    scrollContainer.id = "scrollContainer";
+      const scrollContainer = document.createElement("div");
+      scrollContainer.id = "scrollContainer";
 
-    function appendStreamLink(stream, container) {
-      const channelLink = document.createElement("a");
-      channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
-      channelLink.className = "stream-info";
-      channelLink.target = "_blank";
+      function appendStreamLink(stream, container) {
+        const channelLink = document.createElement("a");
+        channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
+        channelLink.className = "stream-info";
+        channelLink.target = "_blank";
 
-      if (showAvatar && stream.avatar) {
-        const avatarImg = document.createElement("img");
-        avatarImg.src = stream.avatar;
-        avatarImg.className = "stream-avatar";
-        avatarImg.alt = `${stream.channelName}'s avatar`;
-        avatarImg.style.width = "30px";
-        avatarImg.style.height = "30px";
-        avatarImg.style.borderRadius = "15px";
-        avatarImg.style.marginRight = "5px";
-        channelLink.appendChild(avatarImg);
+        if (showAvatar && stream.avatar) {
+          const avatarImg = document.createElement("img");
+          avatarImg.src = stream.avatar;
+          avatarImg.className = "stream-avatar";
+          avatarImg.alt = `${stream.channelName}'s avatar`;
+          avatarImg.style.width = "30px";
+          avatarImg.style.height = "30px";
+          avatarImg.style.borderRadius = "15px";
+          avatarImg.style.marginRight = "5px";
+          channelLink.appendChild(avatarImg);
+        }
+
+        const wrapperDiv = document.createElement("div");
+        wrapperDiv.className = "channel-category-wrapper";
+
+        const channelNameSpan = document.createElement("span");
+        channelNameSpan.className = "channel-name";
+        channelNameSpan.textContent = stream.channelName;
+        wrapperDiv.appendChild(channelNameSpan);
+
+        const categorySpan = document.createElement("span");
+        categorySpan.className = "stream-category";
+        categorySpan.textContent = stream.category;
+        wrapperDiv.appendChild(categorySpan);
+
+        const viewersSpan = document.createElement("span");
+        viewersSpan.className = "viewers";
+        viewersSpan.textContent = stream.viewers;
+        wrapperDiv.appendChild(viewersSpan);
+
+        channelLink.appendChild(wrapperDiv);
+
+        container.appendChild(channelLink); // Append to the provided container
       }
 
-      const wrapperDiv = document.createElement("div");
-      wrapperDiv.className = "channel-category-wrapper";
+      let anyFavoriteGroupLive = false; // Flag to check if any favorite group has live streams
 
-      const channelNameSpan = document.createElement("span");
-      channelNameSpan.className = "channel-name";
-      channelNameSpan.textContent = stream.channelName;
-      wrapperDiv.appendChild(channelNameSpan);
+      // Display group headers and their live streams
+      favoriteGroups.forEach((group) => {
+        const liveGroupStreams = liveStreams.filter((stream) =>
+          group.streamers
+            .map((s) => s.toLowerCase())
+            .includes(stream.channelName.toLowerCase())
+        );
 
-      const categorySpan = document.createElement("span");
-      categorySpan.className = "stream-category";
-      categorySpan.textContent = stream.category;
-      wrapperDiv.appendChild(categorySpan);
+        if (liveGroupStreams.length > 0) {
+          anyFavoriteGroupLive = true; // Set flag if there are live streams in any favorite group
 
-      const viewersSpan = document.createElement("span");
-      viewersSpan.className = "viewers";
-      viewersSpan.textContent = stream.viewers;
-      wrapperDiv.appendChild(viewersSpan);
+          const groupNameHeader = document.createElement("h3");
+          groupNameHeader.textContent = group.name.toUpperCase();
+          groupNameHeader.classList.add("group-header");
+          scrollContainer.appendChild(groupNameHeader);
 
-      channelLink.appendChild(wrapperDiv);
+          liveGroupStreams.forEach((stream) => {
+            appendStreamLink(stream, scrollContainer);
+          });
+        }
+      });
 
-      container.appendChild(channelLink); // Append to the provided container
-    }
+      // Determine if there are any ungrouped channels
+      const ungroupedStreams = liveStreams.filter((stream) => {
+        return !favoriteGroups.some((group) =>
+          group.streamers
+            .map((s) => s.toLowerCase())
+            .includes(stream.channelName.toLowerCase())
+        );
+      });
 
-    let anyFavoriteGroupLive = false; // Flag to check if any favorite group has live streams
-
-    // Display group headers and their live streams
-    favoriteGroups.forEach((group) => {
-      const liveGroupStreams = liveStreams.filter((stream) =>
-        group.streamers
-          .map((s) => s.toLowerCase())
-          .includes(stream.channelName.toLowerCase())
-      );
-
-      if (liveGroupStreams.length > 0) {
-        anyFavoriteGroupLive = true; // Set flag if there are live streams in any favorite group
-
-        const groupNameHeader = document.createElement("h3");
-        groupNameHeader.textContent = group.name.toUpperCase();
-        groupNameHeader.classList.add("group-header");
-        scrollContainer.appendChild(groupNameHeader);
-
-        liveGroupStreams.forEach((stream) => {
-          appendStreamLink(stream, scrollContainer);
-        });
+      // Only display "MORE TWITCH CHANNELS" if there are live streams in favorite groups
+      if (ungroupedStreams.length > 0 && anyFavoriteGroupLive) {
+        const otherChannelsHeader = document.createElement("h3");
+        otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
+        otherChannelsHeader.classList.add("group-header");
+        scrollContainer.appendChild(otherChannelsHeader);
       }
-    });
 
-    // Determine if there are any ungrouped channels
-    const ungroupedStreams = liveStreams.filter((stream) => {
-      return !favoriteGroups.some((group) =>
-        group.streamers
-          .map((s) => s.toLowerCase())
-          .includes(stream.channelName.toLowerCase())
-      );
-    });
+      ungroupedStreams.forEach((stream) => {
+        appendStreamLink(stream, scrollContainer);
+      });
 
-    // Only display "MORE TWITCH CHANNELS" if there are live streams in favorite groups
-    if (ungroupedStreams.length > 0 && anyFavoriteGroupLive) {
-      const otherChannelsHeader = document.createElement("h3");
-      otherChannelsHeader.textContent = "MORE TWITCH CHANNELS";
-      otherChannelsHeader.classList.add("group-header");
-      scrollContainer.appendChild(otherChannelsHeader);
+      container.appendChild(scrollContainer);
+
+      // Adjust the height of the scrollable container if necessary
+      const maxHeight = 600;
+      if (scrollContainer.scrollHeight > maxHeight) {
+        scrollContainer.style.height = `${maxHeight}px`;
+      }
+
+      // Restore the previous scroll position
+      container.scrollTop = currentScrollPosition;
     }
-
-    ungroupedStreams.forEach((stream) => {
-      appendStreamLink(stream, scrollContainer);
-    });
-
-    container.appendChild(scrollContainer);
-
-    // Adjust the height of the scrollable container if necessary
-    const maxHeight = 600;
-    if (scrollContainer.scrollHeight > maxHeight) {
-      scrollContainer.style.height = `${maxHeight}px`;
-    }
-
-    // Restore the previous scroll position
-    container.scrollTop = currentScrollPosition;
-  });
+  );
 }
+
+// When the popup opens
+chrome.runtime.sendMessage({ popupOpen: true }, () => {
+  if (chrome.runtime.lastError) {
+    console.log("Error in sending message: ", chrome.runtime.lastError.message);
+  } else {
+    console.log("Popup open message sent");
+  }
+});
+
+window.addEventListener("unload", function () {
+  chrome.runtime.sendMessage({ popupOpen: false }, () => {
+    if (chrome.runtime.lastError) {
+      console.log(
+        "Error in sending message: ",
+        chrome.runtime.lastError.message
+      );
+    } else {
+      console.log("Popup close message sent");
+    }
+  });
+});
