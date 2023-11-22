@@ -2,7 +2,7 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
   margin: 10px;
-  min-width: 400px; /* Set minimum width to 355px */
+  min-width: 400px;
 }
 
 #header {
@@ -128,8 +128,10 @@ body {
   }
   
   #settingsIcon {
-    width: 35px; /* Set the maximum width */
-    height: 35px; /* Set the maximum height */
+    width: 10%; /* Example of using relative size */
+    height: 10%; /* Maintain aspect ratio */
+    max-width: 35px; /* Limit the size to not be too large */
+    max-height: 35px;
     border-radius: 50%; /* Make it circular */
     object-fit: cover;
   }
@@ -162,13 +164,22 @@ body {
 
 
 #scrollContainer {
-  max-height: 90vh; /* Adjusted maximum height */
-  overflow-y: auto; /* Enable vertical scroll */
+  max-height: calc(556px - 1px);
+  overflow-y: auto;
+}
+
+/* Increase height for high-resolution screens */
+@media screen and (min-width: 1920px) {
+  #scrollContainer {
+    max-height: 90vh; /* Adjust as needed for larger screens */
+    /* ... other styles ... */
+  }
 }
 
 #buttonContainer {
   overflow: hidden; /* Prevents buttonContainer from being scrollable */
-  /* Other styles... */
+  margin-bottom: 0; /* Removes bottom margin */
+  padding-bottom: 0; /* Removes bottom padding */
 }
 
 /* For the entire popup window */
@@ -193,6 +204,10 @@ body::-webkit-scrollbar-thumb:hover {
 body {
   scrollbar-width: thin;  /* Width of the scrollbar */
   scrollbar-color: #6441a5 #efeff1;  /* Thumb and track colors */
+  margin-bottom: 0; /* Removes bottom margin */
+  padding-bottom: 0; /* Removes bottom padding */
+  overflow: hidden; /* Hide overflow */
+  height: 1px; /* Set the fixed height */
 }
 
   
