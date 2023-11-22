@@ -134,13 +134,15 @@ body {
     max-height: 35px;
     border-radius: 50%; /* Make it circular */
     object-fit: cover;
+    opacity: 0.5; /* 50% opacity */
   }
-
+  
   #settingsIcon:hover {
     box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
     border-radius: 20px; /* Keep the avatar round */
     cursor: pointer; /* Change cursor to indicate interactivity */
   }
+  
 
  /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */

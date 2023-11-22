@@ -8,12 +8,12 @@ function displayGroups() {
 
     if (groups.length === 0) {
       groupListContainer.innerHTML = `
-                <p style="font-size: 16px;">
-                    <img src="css/nogroup.gif">
-                    <strong>No Favorite Groups Created Yet</strong><br><br>
-                    This is a list that will help you filter your favorite live streams from the popup into new category groups. <br><br>
-                    You can create a group and add any Twitch channel to it, organizing your streams.
-                </p>`;
+      <p style="font-size: 16px; text-align: center;">
+      <img src="css/nogroup.gif" style="display: block; margin: 0 auto;">
+      <strong>No Favorite Groups Created Yet</strong><br><br>
+      This is a list that will help you filter your favorite live streams from the popup into new category groups. <br><br>
+      You can create a group and add any Twitch channel to it, organizing your streams.
+    </p>`;
       favoriteListText.style.display = "none";
     } else {
       favoriteListText.style.display = "block";
@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updatePreview(); // Update preview on checkbox change
       });
     });
-  
+
   displayUserInfo();
   displayGroups();
 });
@@ -423,54 +423,60 @@ function showTemporaryInfo(message) {
 }
 
 function displayUserInfo() {
-  chrome.storage.local.get(['userDisplayName', 'userAvatar'], function (result) {
-    const userInfoDiv = document.getElementById('userInfo');
-    if (result.userDisplayName && result.userAvatar) {
-      userInfoDiv.innerHTML = `
+  chrome.storage.local.get(
+    ["userDisplayName", "userAvatar"],
+    function (result) {
+      const userInfoDiv = document.getElementById("userInfo");
+      if (result.userDisplayName && result.userAvatar) {
+        userInfoDiv.innerHTML = `
         <div style="display: flex; align-items: center; position: relative;">
-          <p style="margin-right: 10px;">Logged as:</p>
+          <p style="margin-right: 10px; font-family: Verdana;">Logged as:</p>
           <div class="user-avatar-container" style="cursor: pointer;">
-            <img src="${result.userAvatar}" alt="User Avatar" style="width: 40px; height: 40px; border-radius: 20px; margin-right: 3px;">
+            <img src="${result.userAvatar}" alt="User Avatar" style="width: 37px; height: 37px; border-radius: 20px; margin-right: 3px;">
             <div class="logout-dropdown" style="display: none; position: absolute; background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 5px; top: 50px; left: 0;">
               <a href="#" id="logoutButton">🔒 Logout</a>
             </div>
           </div>
-          <p>${result.userDisplayName}</p>
+          <p style="font-family: Verdana;">${result.userDisplayName}</p>
         </div>
       `;
 
-      const avatarContainer = document.querySelector('.user-avatar-container');
-      const dropdown = avatarContainer.querySelector('.logout-dropdown');
+        const avatarContainer = document.querySelector(
+          ".user-avatar-container"
+        );
+        const dropdown = avatarContainer.querySelector(".logout-dropdown");
 
-      // Toggle dropdown on click
-      avatarContainer.addEventListener('click', (event) => {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        event.stopPropagation(); // Prevent the document click event from firing immediately
-      });
+        // Toggle dropdown on click
+        avatarContainer.addEventListener("click", (event) => {
+          dropdown.style.display =
+            dropdown.style.display === "block" ? "none" : "block";
+          event.stopPropagation(); // Prevent the document click event from firing immediately
+        });
 
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (event) => {
-        if (!avatarContainer.contains(event.target)) {
-          dropdown.style.display = 'none';
-        }
-      });
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (event) => {
+          if (!avatarContainer.contains(event.target)) {
+            dropdown.style.display = "none";
+          }
+        });
 
-      // Event listener for the logout button
-      const logoutButton = document.getElementById('logoutButton');
-logoutButton.addEventListener('click', (e) => {
-  e.preventDefault();
-  chrome.runtime.sendMessage({ action: 'disconnectTwitch' }, function(response) {
-    if (response && response.status === 'success') {
-      // If logout is successful, refresh the page
-      window.location.reload();
+        // Event listener for the logout button
+        const logoutButton = document.getElementById("logoutButton");
+        logoutButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          chrome.runtime.sendMessage(
+            { action: "disconnectTwitch" },
+            function (response) {
+              if (response && response.status === "success") {
+                // If logout is successful, refresh the page
+                window.location.reload();
+              }
+            }
+          );
+        });
+      } else {
+        userInfoDiv.textContent = "Not logged in";
+      }
     }
-  });
-});
-
-    } else {
-      userInfoDiv.textContent = 'Not logged in';
-    }
-  });
+  );
 }
-
-
