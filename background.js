@@ -200,11 +200,13 @@ setInterval(() => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {
     console.log("Context menu item clicked - Disconnecting Twitch account");
-    // Clear the entire local storage for this extension
-    chrome.storage.local.clear(() => {
-      console.log("Local storage cleared - Twitch account disconnected");
-      // Reset the badge text
+    
+    // Remove specific items from the local storage
+    chrome.storage.local.remove(["twitchAccessToken", "followedList", "liveStreams"], () => {
+      console.log("Access token, followed list, and live streams removed from storage.");
       chrome.action.setBadgeText({ text: '' });
     });
   }
 });
+
+
