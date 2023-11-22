@@ -7,6 +7,12 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Disconnect Twitch Account",
     contexts: ["action"],
   });
+  chrome.contextMenus.create({
+    id: "openSettings",
+    title: "Open Twitch Live Settings",
+    contexts: ["action"],
+  });
+
   fetchList();
   setInterval(fetchList, 3600000); // 1 hour
 });
@@ -207,6 +213,20 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       chrome.action.setBadgeText({ text: '' });
     });
   }
-});
+  else if (info.menuItemId === "openSettings") {
+    console.log("Context menu item clicked - Opening Settings");
 
+    // Hardcode the width and height for the window
+    var screenWidth = 700;
+    var screenHeight = 600;
+
+    // Open the settings page in a new window
+    chrome.windows.create({
+      url: "settings.html",
+      type: "popup",
+      width: screenWidth,
+      height: screenHeight
+    });
+  }
+});
 
