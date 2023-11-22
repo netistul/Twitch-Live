@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("settingsIcon")
     .addEventListener("click", function () {
-      var screenWidth = 700; // Define the width you want for the window
+      var screenWidth = 535; // Define the width you want for the window
       var screenHeight = Math.min(window.screen.availHeight, 600);
 
       window.open(

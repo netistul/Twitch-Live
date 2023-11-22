@@ -217,7 +217,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     console.log("Context menu item clicked - Opening Settings");
 
     // Hardcode the width and height for the window
-    var screenWidth = 700;
+    var screenWidth = 535;
     var screenHeight = 600;
 
     // Open the settings page in a new window

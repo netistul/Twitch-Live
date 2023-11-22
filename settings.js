@@ -10,9 +10,9 @@ function displayGroups() {
       groupListContainer.innerHTML = `
                 <p style="font-size: 16px;">
                     <img src="css/nogroup.gif">
-                    <strong>No Favorite Groups Created Yet</strong><br>
-                    This is a list that will help you filter your favorite live streams from the popup into new category groups. 
-                    You can create a group and add any Twitch channel to it, organizing your streams for easy access.
+                    <strong>No Favorite Groups Created Yet</strong><br><br>
+                    This is a list that will help you filter your favorite live streams from the popup into new category groups. <br><br>
+                    You can create a group and add any Twitch channel to it, organizing your streams.
                 </p>`;
       favoriteListText.style.display = "none";
     } else {
