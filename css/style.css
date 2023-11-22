@@ -2,17 +2,22 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
   margin: 10px;
-  min-width: 355px; /* Set minimum width to 355px */
+  min-width: 400px; /* Set minimum width to 355px */
 }
 
 #header {
-  display: flex; /* Use flexbox for alignment */
-  justify-content: space-between; /* Space out the items */
-  align-items: center; /* Align items vertically */
-  font-size: 20px;
-  color: #6441a5a9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 19px;
+  background-color: #6441a548; /* Twitch's purple color */
+  color: white; /* White text for contrast */
   margin-bottom: 0px;
-  margin-top: 10px;
+  margin-top: 0px;
+  padding: 0px 0px; /* Add some padding */
+  border-radius: 1px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  font-weight: bold; /* Make the font bold */
 }
 
 .group-header {
@@ -26,11 +31,11 @@ body {
 
 
 .separator {
-  height: 1px;
+  height: 0px;
   background-color: #6441a564;
-  margin-top: 1px; /* Reduce top margin to bring closer to header */
-  margin-bottom: 12px;
-  width: 355px; /* Keep the separator at 355px */
+  margin-top: 0px; /* Reduce top margin to bring closer to header */
+  margin-bottom: 15px;
+  width: 400px; /* Keep the separator at 355px */
 }
 
   #loginButton {
@@ -170,7 +175,7 @@ body {
 
 /* For the entire popup window */
 body::-webkit-scrollbar {
-  width: 10px;  /* Width of the scrollbar */
+  width: 5px;  /* Width of the scrollbar */
 }
 
 body::-webkit-scrollbar-track {

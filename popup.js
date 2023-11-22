@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   updateLiveStreams();
-  setInterval(updateLiveStreams, 5000);
+  setInterval(updateLiveStreams, 10000);
 
   const buttonContainer = document.getElementById("buttonContainer");
 
