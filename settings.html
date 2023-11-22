@@ -382,6 +382,47 @@ input[type="text"] {
     font-size: 13px;
 }
 
+.user-avatar-container {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .user-avatar-container img:hover {
+    box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
+    border-radius: 20px; /* Keep the avatar round */
+  }
+
+  .logout-dropdown {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-40%);
+    z-index: 10;
+    white-space: nowrap; /* Prevent wrapping to a new line */
+  }
+
+  .logout-dropdown a {
+    font-size: 16px;
+    text-decoration: none;
+    color: black;
+    display: inline-flex; /* Use inline-flex for proper alignment */
+    align-items: center;
+    padding: 3px 33px; /* Add some padding for better spacing */
+  }
+
+  .logout-dropdown a:hover {
+    background-color: #f0f0f0;
+  }
+
+  .logout-dropdown a img {
+    margin-right: 5px;
+  }
+
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 ::-webkit-scrollbar {
@@ -420,6 +461,9 @@ input[type="text"] {
             <button id="addFavoriteGroupButton">➕ Add new favorite group for Twitch live streams</button>
         </div>
         <div id="optionsMenu">
+            <div id="userInfo">
+                <!-- User information will be displayed here -->
+              </div>
             <h2 class="optionsMenuHeader">Options Menu</h2>
             <div id="showAvatarOption" class="optionItem">
                 <div class="showAvatarLabel">Show avatar for channels</div>
@@ -430,7 +474,7 @@ input[type="text"] {
             </div>
             <div id="previewContainer" class="preview-container"></div>
         </div>
-        
+    
     </div>
     <!-- The Modal -->
     <div id="myModal" class="modal">

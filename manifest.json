@@ -3,8 +3,8 @@
   "name": "Twitch Live",
   "version": "1.0",
   "icons": {
-    "48": "icon.png",
-    "128": "icon.png"
+    "48": "css/icon.png",
+    "128": "css/icon.png"
   },
   "permissions": [
     "storage",

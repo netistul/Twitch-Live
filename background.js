@@ -48,6 +48,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     });
   }
+  // Handle the logout message
+  if (message.action === "disconnectTwitch") {
+    console.log("Disconnecting Twitch account via settings page");
+    // Remove specific items from the local storage
+    chrome.storage.local.remove([
+      "twitchAccessToken", 
+      "followedList", 
+      "liveStreams", 
+      "userId",         // Removing user ID
+      "userAvatar",     // Removing user avatar
+      "userDisplayName" // Removing user display name
+    ], () => {
+      console.log("Access token, followed list, live streams, and user information removed from storage.");
+      chrome.action.setBadgeText({ text: '' });
+      // Optionally, send a response back
+      sendResponse({status: 'success'});
+    });
+    return true; // indicates you wish to send a response asynchronously (important for Chrome v80+)
+  }
 });
 
 function fetchUserProfile(accessToken) {
@@ -60,28 +79,37 @@ function fetchUserProfile(accessToken) {
   .then((response) => response.json())
   .then((data) => {
     const userProfile = data.data[0];
-    const userId = userProfile.id;
-    const avatarUrl = userProfile.profile_image_url;  // Extract the avatar URL
+    const userId = userProfile.id; // Twitch user ID
+    const avatarUrl = userProfile.profile_image_url; // Twitch user avatar URL
+    const displayName = userProfile.display_name; // Twitch user display name
 
-    // Store both the user ID and avatar URL in local storage
-    chrome.storage.local.set({ userId: userId, userAvatar: avatarUrl }, () => {
-      console.log("User ID and Avatar saved");
-      fetchFollowList(accessToken, userId, true); // Passing true for the OAuth completion
+    // Store user ID, avatar URL, and display name in local storage
+    chrome.storage.local.set({ 
+      userId: userId, 
+      userAvatar: avatarUrl, 
+      userDisplayName: displayName // Storing the display name
+    }, () => {
+      console.log("User ID, Avatar, and Display Name saved");
+      fetchFollowList(accessToken, userId, true); // Continue with your other operations
 
       // Send a message to the popup to indicate the profile has been updated
       chrome.runtime.sendMessage({ action: 'profileUpdated' }, function(response) {
         if (chrome.runtime.lastError) {
-          // Handle message send error
+          // Handle any message send error
           console.log("Error sending message to popup:", chrome.runtime.lastError.message);
         } else {
-          // Message sent successfully
+          // Confirm the message was sent successfully
           console.log("Message sent successfully to popup");
         }
       });
     });
   })
-  .catch((error) => console.error("Error fetching user profile:", error));
+  .catch((error) => {
+    // Handle any errors in the fetch operation
+    console.error("Error fetching user profile:", error);
+  });
 }
+
 
 
 function fetchFollowList(accessToken, userId, isOAuthComplete = false, cursor = "", followedList = []) {
@@ -223,8 +251,15 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     console.log("Context menu item clicked - Disconnecting Twitch account");
     
     // Remove specific items from the local storage
-    chrome.storage.local.remove(["twitchAccessToken", "followedList", "liveStreams"], () => {
-      console.log("Access token, followed list, and live streams removed from storage.");
+    chrome.storage.local.remove([
+      "twitchAccessToken", 
+      "followedList", 
+      "liveStreams", 
+      "userId",         // Removing user ID
+      "userAvatar",     // Removing user avatar
+      "userDisplayName" // Removing user display name
+    ], () => {
+      console.log("Access token, followed list, live streams, and user information removed from storage.");
       chrome.action.setBadgeText({ text: '' });
     });
   }
@@ -243,5 +278,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       height: screenHeight
     });
   }
+  
 });
+
 

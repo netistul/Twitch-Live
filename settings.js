@@ -347,7 +347,8 @@ document.addEventListener("DOMContentLoaded", function () {
         updatePreview(); // Update preview on checkbox change
       });
     });
-
+  
+  displayUserInfo();
   displayGroups();
 });
 
@@ -420,3 +421,56 @@ function showTemporaryInfo(message) {
     infoDiv.remove();
   }, 3000); // Adjust time as needed
 }
+
+function displayUserInfo() {
+  chrome.storage.local.get(['userDisplayName', 'userAvatar'], function (result) {
+    const userInfoDiv = document.getElementById('userInfo');
+    if (result.userDisplayName && result.userAvatar) {
+      userInfoDiv.innerHTML = `
+        <div style="display: flex; align-items: center; position: relative;">
+          <p style="margin-right: 10px;">Logged as:</p>
+          <div class="user-avatar-container" style="cursor: pointer;">
+            <img src="${result.userAvatar}" alt="User Avatar" style="width: 40px; height: 40px; border-radius: 20px; margin-right: 3px;">
+            <div class="logout-dropdown" style="display: none; position: absolute; background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 5px; top: 50px; left: 0;">
+              <a href="#" id="logoutButton">🔒 Logout</a>
+            </div>
+          </div>
+          <p>${result.userDisplayName}</p>
+        </div>
+      `;
+
+      const avatarContainer = document.querySelector('.user-avatar-container');
+      const dropdown = avatarContainer.querySelector('.logout-dropdown');
+
+      // Toggle dropdown on click
+      avatarContainer.addEventListener('click', (event) => {
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        event.stopPropagation(); // Prevent the document click event from firing immediately
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (event) => {
+        if (!avatarContainer.contains(event.target)) {
+          dropdown.style.display = 'none';
+        }
+      });
+
+      // Event listener for the logout button
+      const logoutButton = document.getElementById('logoutButton');
+logoutButton.addEventListener('click', (e) => {
+  e.preventDefault();
+  chrome.runtime.sendMessage({ action: 'disconnectTwitch' }, function(response) {
+    if (response && response.status === 'success') {
+      // If logout is successful, refresh the page
+      window.location.reload();
+    }
+  });
+});
+
+    } else {
+      userInfoDiv.textContent = 'Not logged in';
+    }
+  });
+}
+
+

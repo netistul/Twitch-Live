@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
       loginButton.addEventListener("click", function () {
         spinner.style.display = "block"; // Show the spinner
         loginButton.style.display = "none"; // Hide the login button
+        const description = document.getElementById("description");
+        description.style.display = "none"; // Hide the description text
         chrome.runtime.sendMessage({ action: "startOAuth" });
       });
       buttonContainer.appendChild(loginButton);

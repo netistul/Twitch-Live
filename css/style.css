@@ -137,9 +137,8 @@ body {
   }
 
   #settingsIcon:hover {
-    color: #ff5722; /* Change the color to a different one on hover */
-    transform: scale(1.2); /* Add a scaling effect on hover (optional) */
-    transition: color 0.3s, transform 0.3s; /* Add a smooth transition effect */
+    box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
+    border-radius: 20px; /* Keep the avatar round */
     cursor: pointer; /* Change cursor to indicate interactivity */
   }
 
