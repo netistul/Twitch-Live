@@ -22,7 +22,7 @@ function fetchList() {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "startOAuth") {
-    const redirectUri = "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
+    const redirectUri = "https://fdghigkcpnnjfidmkfdfngojlapiaich.chromiumapp.org/";
 
     chrome.identity.launchWebAuthFlow({
       url: `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:read:follows`,
@@ -62,23 +62,6 @@ function fetchUserProfile(accessToken) {
   .catch((error) => console.error("Error fetching user profile:", error));
 }
 
-function fetchUserProfile(accessToken) {
-  fetch("https://api.twitch.tv/helix/users", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Client-Id": twitchClientId,
-    },
-  })
-  .then((response) => response.json())
-  .then((data) => {
-    const userId = data.data[0].id;
-    chrome.storage.local.set({ userId: userId }, () => {
-      console.log("User ID saved");
-      fetchFollowList(accessToken, userId, true); // Passing true for the OAuth completion
-    });
-  })
-  .catch((error) => console.error("Error fetching user profile:", error));
-}
 
 function fetchFollowList(accessToken, userId, isOAuthComplete = false, cursor = "", followedList = []) {
   let url = `https://api.twitch.tv/helix/channels/followed?user_id=${userId}&first=100`;
@@ -133,9 +116,21 @@ function fetchStreamData(accessToken, followedList) {
         "Client-Id": twitchClientId,
       },
     })
-    .then(response => response.json())
+    .then(response => {
+      if (response.status === 401) {
+        console.log("Access token expired. Deleting token and triggering re-authentication.");
+        // Delete the expired token
+        chrome.storage.local.remove("twitchAccessToken", () => {
+          console.log("Expired token removed from storage.");
+          // You could also send a message to the popup to update the UI
+          // chrome.runtime.sendMessage({ action: "updateUIForLogin" });
+        });
+        return null;
+      }
+      return response.json();
+    })
     .then(streamData => {
-      if (streamData.data && streamData.data.length > 0) {
+      if (streamData && streamData.data && streamData.data.length > 0) {
         const stream = streamData.data[0];
         console.log(`Live Channel: ${channel.broadcaster_name}, Viewers: ${stream.viewer_count}`);
 
@@ -158,15 +153,18 @@ function fetchStreamData(accessToken, followedList) {
           }).then(response => response.json())
         ])
         .then(([categoryData, userData]) => {
-          const categoryName = categoryData.data && categoryData.data.length > 0 ? categoryData.data[0].name : "Unknown Category";
-          const avatarUrl = userData.data && userData.data.length > 0 ? userData.data[0].profile_image_url : "";
-          return {
-            channelName: channel.broadcaster_name,
-            viewers: stream.viewer_count,
-            category: categoryName, // Add the category name
-            avatar: avatarUrl, // Add the avatar URL
-            live: true,
-          };
+          if (categoryData && userData) {
+            const categoryName = categoryData.data && categoryData.data.length > 0 ? categoryData.data[0].name : "Unknown Category";
+            const avatarUrl = userData.data && userData.data.length > 0 ? userData.data[0].profile_image_url : "";
+            return {
+              channelName: channel.broadcaster_name,
+              viewers: stream.viewer_count,
+              category: categoryName, // Add the category name
+              avatar: avatarUrl, // Add the avatar URL
+              live: true,
+            };
+          }
+          return null;
         });
       }
       return null;
