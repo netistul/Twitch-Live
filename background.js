@@ -13,9 +13,13 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ["action"],
   });
 
+  // Open settings.html when the extension is first installed
+  chrome.tabs.create({ url: "settings.html" });
+
   fetchList();
   setInterval(fetchList, 3600000); // 1 hour
 });
+
 
 function fetchList() {
   console.log("fetchList called");
