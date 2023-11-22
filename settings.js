@@ -423,12 +423,24 @@ function showTemporaryInfo(message) {
 }
 
 function displayUserInfo() {
-  chrome.storage.local.get(
-    ["userDisplayName", "userAvatar"],
-    function (result) {
-      const userInfoDiv = document.getElementById("userInfo");
-      if (result.userDisplayName && result.userAvatar) {
-        userInfoDiv.innerHTML = `
+  chrome.storage.local.get(["userDisplayName", "userAvatar", "twitchAccessToken"], function (result) {
+    const userInfoDiv = document.getElementById("userInfo");
+
+    if (!result.twitchAccessToken) {
+      const loginButton = document.createElement("button");
+      loginButton.id = "loginButton";
+      loginButton.textContent = "Login with Twitch";
+      loginButton.classList.add("login-button"); // Use the class for styling
+
+      loginButton.addEventListener("click", function () {
+        // Optionally add a spinner or loading indication here
+        chrome.runtime.sendMessage({ action: "startOAuth" });
+      });
+
+      userInfoDiv.appendChild(loginButton);
+    } else if (result.userDisplayName && result.userAvatar) {
+      // User is logged in, display their information
+      userInfoDiv.innerHTML = `
         <div style="display: flex; align-items: center; position: relative;">
           <p style="margin-right: 10px; font-family: Verdana;">Logged as:</p>
           <div class="user-avatar-container" style="cursor: pointer;">
@@ -441,42 +453,44 @@ function displayUserInfo() {
         </div>
       `;
 
-        const avatarContainer = document.querySelector(
-          ".user-avatar-container"
-        );
-        const dropdown = avatarContainer.querySelector(".logout-dropdown");
+      const avatarContainer = document.querySelector(".user-avatar-container");
+      const dropdown = avatarContainer.querySelector(".logout-dropdown");
 
-        // Toggle dropdown on click
-        avatarContainer.addEventListener("click", (event) => {
-          dropdown.style.display =
-            dropdown.style.display === "block" ? "none" : "block";
-          event.stopPropagation(); // Prevent the document click event from firing immediately
-        });
+      // Toggle dropdown on avatar click
+      avatarContainer.addEventListener("click", (event) => {
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        event.stopPropagation(); // Prevent document click event from firing immediately
+      });
 
-        // Close dropdown when clicking outside
-        document.addEventListener("click", (event) => {
-          if (!avatarContainer.contains(event.target)) {
-            dropdown.style.display = "none";
+      // Close dropdown when clicking outside
+      document.addEventListener("click", (event) => {
+        if (!avatarContainer.contains(event.target)) {
+          dropdown.style.display = "none";
+        }
+      });
+
+      // Event listener for the logout button
+      const logoutButton = document.getElementById("logoutButton");
+      logoutButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: "disconnectTwitch" }, function (response) {
+          if (response && response.status === "success") {
+            // Refresh the page upon successful logout
+            window.location.reload();
           }
         });
-
-        // Event listener for the logout button
-        const logoutButton = document.getElementById("logoutButton");
-        logoutButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          chrome.runtime.sendMessage(
-            { action: "disconnectTwitch" },
-            function (response) {
-              if (response && response.status === "success") {
-                // If logout is successful, refresh the page
-                window.location.reload();
-              }
-            }
-          );
-        });
-      } else {
-        userInfoDiv.textContent = "Not logged in";
-      }
+      });
+    } else {
+      // Case where the user is not logged in and no user info is available
+      userInfoDiv.textContent = "Not logged in";
     }
-  );
+  });
 }
+
+// Listener for OAuth completion in settings.js
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.action === "oauthComplete") {
+    // Update UI or reload the page to reflect the login state
+    displayUserInfo(); // Or you can use window.location.reload() to refresh the entire page
+  }
+});
