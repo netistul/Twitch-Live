@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   updateLiveStreams();
+  updateSettingsIcon();
   setInterval(updateLiveStreams, 10000);
 
   const buttonContainer = document.getElementById("buttonContainer");
@@ -182,6 +183,29 @@ function updateLiveStreams() {
     }
   );
 }
+
+// Function to update the settings icon based on user login status
+function updateSettingsIcon() {
+  const settingsIcon = document.getElementById('settingsIcon');
+
+  chrome.storage.local.get(['userAvatar', 'twitchAccessToken'], function (result) {
+    if (result.userAvatar && result.twitchAccessToken) {
+      // User is logged in, update the settings icon to user's avatar
+      settingsIcon.src = result.userAvatar;
+    } else {
+      // User is not logged in, use the default settings icon
+      settingsIcon.src = 'css/settings.png';
+    }
+  });
+}
+
+// In popup.js to update avatar .png
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message.action === 'profileUpdated') {
+    // Update the settings icon when the profile is updated
+    updateSettingsIcon();
+  }
+});
 
 // When the popup opens
 chrome.runtime.sendMessage({ popupOpen: true }, () => {

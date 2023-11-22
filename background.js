@@ -28,7 +28,7 @@ function fetchList() {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "startOAuth") {
-    const redirectUri = "https://fdghigkcpnnjfidmkfdfngojlapiaich.chromiumapp.org/";
+    const redirectUri = "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
 
     chrome.identity.launchWebAuthFlow({
       url: `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:read:follows`,
@@ -59,10 +59,25 @@ function fetchUserProfile(accessToken) {
   })
   .then((response) => response.json())
   .then((data) => {
-    const userId = data.data[0].id;
-    chrome.storage.local.set({ userId: userId }, () => {
-      console.log("User ID saved");
+    const userProfile = data.data[0];
+    const userId = userProfile.id;
+    const avatarUrl = userProfile.profile_image_url;  // Extract the avatar URL
+
+    // Store both the user ID and avatar URL in local storage
+    chrome.storage.local.set({ userId: userId, userAvatar: avatarUrl }, () => {
+      console.log("User ID and Avatar saved");
       fetchFollowList(accessToken, userId, true); // Passing true for the OAuth completion
+
+      // Send a message to the popup to indicate the profile has been updated
+      chrome.runtime.sendMessage({ action: 'profileUpdated' }, function(response) {
+        if (chrome.runtime.lastError) {
+          // Handle message send error
+          console.log("Error sending message to popup:", chrome.runtime.lastError.message);
+        } else {
+          // Message sent successfully
+          console.log("Message sent successfully to popup");
+        }
+      });
     });
   })
   .catch((error) => console.error("Error fetching user profile:", error));
