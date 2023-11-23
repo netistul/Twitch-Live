@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <!-- Specify UTF-8 Encoding -->
     <title>Extension Settings</title>
-    <link rel="stylesheet" type="text/css" href="css/darklight.css">
+    <link rel="stylesheet" type="text/css" href="css/settings-dark.css">
     <style>
       body {
         background-color: #efeff1; /* Light gray background */
@@ -389,6 +389,10 @@
         align-items: center;
         font-family: Verdana, sans-serif;
         font-size: 13px;
+        white-space: nowrap; /* Prevents text from wrapping to the next line */
+  overflow: hidden; /* Hides text that overflows the container */
+  text-overflow: ellipsis; /* Adds ellipsis to text that overflows */
+  padding: 5px; /* Add some padding */
       }
 
       .user-avatar-container {
@@ -399,6 +403,18 @@
       #showAvatarCheckbox {
         display: none;
       }
+      .stream-avatar {
+  margin-right: 5px; /* Space after avatar */
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+}
+
+.stream-info-text {
+  font-size: 14px; /* Initial font size */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
       .user-avatar-container img:hover {
         box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */

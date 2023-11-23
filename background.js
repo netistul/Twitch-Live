@@ -308,7 +308,7 @@ function fetchStreamData(accessToken, followedList) {
 
         // Update the badge with the live stream count
         chrome.action.setBadgeText({ text: liveCount.toString() });
-        chrome.action.setBadgeBackgroundColor({ color: "#6441a5" }); // Twitch purple color
+        chrome.action.setBadgeBackgroundColor({ color: "#6366f1" }); // Twitch purple color
       });
     });
   });
@@ -356,7 +356,7 @@ function updateBadgeAtStartup() {
   chrome.storage.local.get("liveStreamCount", (result) => {
     if (result.liveStreamCount !== undefined) {
       chrome.action.setBadgeText({ text: result.liveStreamCount.toString() });
-      chrome.action.setBadgeBackgroundColor({ color: "#6441a5" });
+      chrome.action.setBadgeBackgroundColor({ color: "#6366f1" });
     } else {
       console.log("No cached live stream count found.");
     }

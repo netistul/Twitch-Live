@@ -1,0 +1,30 @@
+.dark-mode {
+  background-color: #121212; /* Dark background */
+  color: #eeeeee; /* Light text color */
+}
+
+.dark-mode #header {
+  background-color: rgba(59, 58, 60, 0.11); /* Darker header background */
+  color: rgba(154, 146, 146, 0.347);
+}
+
+.dark-mode .stream-info {
+  background-color: #1e1e22; /* Darker header background */
+}
+
+.dark-mode .stream-info:hover {
+  background-color: #3127507f;
+}
+
+.dark-mode .stream-info::after {
+  border-bottom: 1px dashed #322e2e3e;
+}
+
+.dark-mode #scrollContainer::-webkit-scrollbar-track {
+    background-color: #adadb7; /* Light gray track */
+  }
+
+.dark-mode .viewers {
+    color: #c86464;
+}
+  

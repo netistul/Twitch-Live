@@ -336,10 +336,6 @@ body.dark-mode {
 
 /* Stream preview */
 .dark-mode .stream-preview {
-    display: flex;
-    align-items: center;
-    font-family: Verdana, sans-serif;
-    font-size: 13px;
     color: #fff; /* Light text color */
 }
 
@@ -359,12 +355,6 @@ body.dark-mode {
     background-color: #2c2f33; /* Dark background for dropdown */
     color: #ffffff; /* Light text color */
     border: 1px solid #444; /* Dark border */
-    padding: 5px;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-40%);
-    z-index: 10;
-    white-space: nowrap;
 }
 
 .dark-mode .logout-dropdown a {
