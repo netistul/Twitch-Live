@@ -457,15 +457,17 @@ function displayUserInfo() {
       } else if (result.userDisplayName && result.userAvatar) {
         // User is logged in, display their information
         userInfoDiv.innerHTML = `
-        <div style="display: flex; align-items: center; position: relative;">
-          <p style="margin-right: 10px; font-family: Verdana;">Logged as:</p>
-          <div class="user-avatar-container" style="cursor: pointer;">
-            <img src="${result.userAvatar}" alt="User Avatar" style="width: 30px; height: 30px; border-radius: 20px; margin-right: 3px;">
-            <div class="logout-dropdown" style="display: none; position: absolute; background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 5px; top: 33px; left: 0;">
-              <a href="#" id="logoutButton">🔒 Logout</a>
+        <div id="userTable">
+          <div class="user-row">
+            <div class="user-cell">Logged as:</div>
+            <div class="user-cell user-avatar-container">
+              <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
+              <div class="logout-dropdown">
+                <a href="#" id="logoutButton">🔒 Logout</a>
+              </div>
             </div>
+            <div class="user-cell">${result.userDisplayName}</div>
           </div>
-          <p style="font-family: Verdana;">${result.userDisplayName}</p>
         </div>
       `;
 
