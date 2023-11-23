@@ -1,8 +1,10 @@
 function displayGroups() {
-  chrome.storage.local.get("favoriteGroups", function (data) {
+  chrome.storage.local.get(["favoriteGroups", "twitchAccessToken", "followedList"], function (data) {
     var groups = data.favoriteGroups || [];
     var groupListContainer = document.getElementById("groupListContainer");
     var favoriteListText = document.getElementById("favoriteListText");
+    var isLoggedIn = data.twitchAccessToken != null;
+    var hasFollowers = data.followedList && data.followedList.length > 0;
 
     groupListContainer.innerHTML = "";
 
@@ -17,7 +19,6 @@ function displayGroups() {
       favoriteListText.style.display = "none";
     } else {
       favoriteListText.style.display = "block";
-
       var groupList = document.createElement("ul");
       groupList.id = "groupList";
 
@@ -29,7 +30,6 @@ function displayGroups() {
         groupNameSpan.textContent = group.name;
         groupItem.appendChild(groupNameSpan);
 
-        // Create the first column of streamers
         var streamersList = document.createElement("ul");
         streamersList.classList.add("streamers-list");
         streamersList.style.listStyleType = "none";
@@ -42,7 +42,6 @@ function displayGroups() {
           streamerItem.style.alignItems = "center";
           streamerItem.style.fontSize = "70%";
 
-          // Add Twitch icon
           var twitchIcon = document.createElement("img");
           twitchIcon.src = "css/twitch.png";
           twitchIcon.alt = "Twitch";
@@ -63,14 +62,9 @@ function displayGroups() {
           };
           streamerItem.appendChild(deleteStreamerBtn);
 
-          // Append streamer item to the current list
           streamersList.appendChild(streamerItem);
 
-          // If 5 streamers have been added or we reach the end, append the list and start a new one
-          if (
-            (streamerIndex % 5 === 4 && streamerIndex !== 0) ||
-            streamerIndex === group.streamers.length - 1
-          ) {
+          if ((streamerIndex % 5 === 4 && streamerIndex !== 0) || streamerIndex === group.streamers.length - 1) {
             groupItem.appendChild(streamersList);
             streamersList = document.createElement("ul");
             streamersList.classList.add("streamers-list");
@@ -83,19 +77,25 @@ function displayGroups() {
         buttonContainer.classList.add("button-container");
 
         var addStreamerBtn = document.createElement("button");
-        addStreamerBtn.className = "add-streamer-btn"; // Apply the class for styling
+        addStreamerBtn.className = "add-streamer-btn";
         addStreamerBtn.textContent = "Add a Twitch Channel";
-        addStreamerBtn.onclick = function () {
-          showAddStreamerDropdown(index);
-          chrome.runtime.sendMessage({ action: "oauthComplete" });
-        };
+
+        if (isLoggedIn && hasFollowers) {
+          addStreamerBtn.onclick = function () {
+            showAddStreamerDropdown(index);
+            chrome.runtime.sendMessage({ action: "oauthComplete" });
+          };
+        } else {
+          addStreamerBtn.onclick = function () {
+            alert("Log in or follow more streamers to have Twitch channels here!");
+          };
+        }
         buttonContainer.appendChild(addStreamerBtn);
 
         var deleteBtn = document.createElement("button");
-        deleteBtn.className = "delete-group-btn"; // Apply the class for styling
+        deleteBtn.className = "delete-group-btn";
         deleteBtn.textContent = "Delete this list";
         deleteBtn.onclick = function () {
-          chrome.runtime.sendMessage({ action: "oauthComplete" });
           deleteGroup(index);
           displayGroups();
         };
@@ -104,6 +104,7 @@ function displayGroups() {
         groupItem.appendChild(buttonContainer);
         groupList.appendChild(groupItem);
       });
+
       groupListContainer.appendChild(groupList);
     }
   });

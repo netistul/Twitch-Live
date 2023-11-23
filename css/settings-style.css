@@ -305,7 +305,7 @@ input[type="text"] {
   margin-right: 10px; /* Spacing between label and switch */
   font-family: Verdana, sans-serif; /* Example font */
   color: #6441a5; /* Twitch-like purple color */
-  font-size: 13px; /* Font size */
+  font-size: 14px; /* Font size */
 }
 
 .delete-group-btn:hover {
