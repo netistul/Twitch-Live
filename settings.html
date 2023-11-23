@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <!-- Specify UTF-8 Encoding -->
     <title>Extension Settings</title>
+    <link rel="stylesheet" type="text/css" href="css/darklight.css">
     <style>
       body {
         background-color: #efeff1; /* Light gray background */
@@ -585,11 +586,10 @@
           <!-- Separator -->
   <div class="separator"></div>
         <!-- Dark Mode Toggle Switch -->
-<div id="darkModeOption" class="optionItem">
-  <label for="darkModeToggle" class="darkModeLabel">Dark Mode:</label>
-  <label class="switch">
-    <input type="checkbox" id="darkModeToggle">
-    <span class="slider round"></span>
+<div id="darkModeOption" class="optionItem btn-color-mode-switch">
+  <input type="checkbox" id="darkModeToggle">
+  <label for="darkModeToggle" class="btn-color-mode-switch-inner" data-on="Dark" data-off="Light">
+    <span class="slider-text" id="themeSwitchText">Click it for dark theme</span>
   </label>
 </div>
 

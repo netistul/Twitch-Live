@@ -520,12 +520,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-// Function to toggle dark mode
+// Function to toggle dark mode and update text
 function toggleDarkMode(isDarkMode) {
+  const themeSwitchText = document.getElementById('themeSwitchText');
   if (isDarkMode) {
     document.body.classList.add('dark-mode');
+    themeSwitchText.textContent = '💡 Click it for light theme'; // When in dark mode
   } else {
     document.body.classList.remove('dark-mode');
+    themeSwitchText.textContent = '🌙 Click it for dark theme'; // When in light mode
   }
 }
 
@@ -537,18 +540,18 @@ document.addEventListener('DOMContentLoaded', function() {
   chrome.storage.local.get('darkMode', function(data) {
     const isDarkMode = data.darkMode || false;
     darkModeToggle.checked = isDarkMode;
-    toggleDarkMode(isDarkMode);
+    toggleDarkMode(isDarkMode); // Also updates the text
   });
 
-  // Save dark mode setting and send a message to the background script
+  // Save dark mode setting and update text
   darkModeToggle.addEventListener('change', function() {
     const isDarkMode = this.checked;
     chrome.storage.local.set({ 'darkMode': isDarkMode }, function() {
-      toggleDarkMode(isDarkMode);
+      toggleDarkMode(isDarkMode); // Also updates the text
 
       // Send a message to the background script
       chrome.runtime.sendMessage({ action: "oauthComplete" });
-  
-      });
     });
   });
+});
+
