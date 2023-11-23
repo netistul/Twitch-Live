@@ -27,3 +27,14 @@
 .dark-mode .viewers {
   color: #c86464;
 }
+
+.dark-mode .access-count {
+  display: none; /* Hide access count by default */
+  font-size: 10px; /* Smaller font size */
+  color: #9999993d; /* Lighter color for a subtle appearance */
+  margin-left: 10px; /* Space from the channel name */
+}
+
+.dark-mode .channel-category-wrapper:hover .access-count {
+  display: block; /* Show access count on hover */
+}

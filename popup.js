@@ -71,11 +71,12 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function updateLiveStreams() {
-  chrome.storage.local.get(["liveStreams", "favoriteGroups", "showAvatar", "channelAccess"], function(result) {
+  chrome.storage.local.get(["liveStreams", "favoriteGroups", "showAvatar", "channelAccess", "hideAccessedCount"], function(result) {
     const liveStreams = result.liveStreams || [];
     const favoriteGroups = result.favoriteGroups || [];
     const showAvatar = result.showAvatar === true;
     const channelAccess = result.channelAccess || {};
+    const hideAccessedCount = result.hideAccessedCount || false;
 
     // Sort channels based on access count
     liveStreams.sort((a, b) => (channelAccess[b.channelName] || 0) - (channelAccess[a.channelName] || 0));
@@ -87,70 +88,7 @@ function updateLiveStreams() {
     const scrollContainer = document.createElement("div");
     scrollContainer.id = "scrollContainer";
 
-    function appendStreamLink(stream, container) {
-      const channelItem = document.createElement("div");
-      channelItem.className = "stream-item";
-
-      const channelLink = document.createElement("a");
-      channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
-      channelLink.className = "stream-info";
-      channelLink.target = "_blank";
-
-      channelLink.addEventListener("click", function() {
-        incrementChannelAccess(stream.channelName);
-      });
-
-      if (showAvatar && stream.avatar) {
-        const avatarImg = document.createElement("img");
-        avatarImg.src = stream.avatar;
-        avatarImg.className = "stream-avatar";
-        avatarImg.alt = `${stream.channelName}'s avatar`;
-        avatarImg.style.width = "30px";
-        avatarImg.style.height = "30px";
-        avatarImg.style.borderRadius = "15px";
-        avatarImg.style.marginRight = "5px";
-        channelLink.appendChild(avatarImg);
-      }
-
-      const wrapperDiv = document.createElement("div");
-      wrapperDiv.className = "channel-category-wrapper";
-
-      const channelNameSpan = document.createElement("span");
-      channelNameSpan.className = "channel-name";
-      channelNameSpan.textContent = stream.channelName;
-      wrapperDiv.appendChild(channelNameSpan);
-
-      // Display the access count for the channel
-      const accessCount = channelAccess[stream.channelName] || 0;
-      const accessCountSpan = document.createElement("span");
-      accessCountSpan.className = "access-count";
-      accessCountSpan.textContent = `Accessed: ${accessCount} times`;
-      accessCountSpan.style.display = "none";
-      wrapperDiv.appendChild(accessCountSpan);
-
-      const categorySpan = document.createElement("span");
-      categorySpan.className = "stream-category";
-      categorySpan.textContent = stream.category;
-      wrapperDiv.appendChild(categorySpan);
-
-      const viewersSpan = document.createElement("span");
-      viewersSpan.className = "viewers";
-      viewersSpan.textContent = stream.viewers;
-      wrapperDiv.appendChild(viewersSpan);
-
-      channelLink.appendChild(wrapperDiv);
-      channelItem.appendChild(channelLink);
-
-      container.appendChild(channelItem);
-
-      // Hover effect to show access count
-      channelItem.onmouseover = function() {
-        accessCountSpan.style.display = "block";
-      };
-      channelItem.onmouseout = function() {
-        accessCountSpan.style.display = "none";
-      };
-    }
+    let anyFavoriteGroupLive = false; // Flag to check if any favorite group has live streams
 
     favoriteGroups.forEach(group => {
       const liveGroupStreams = liveStreams.filter(stream =>
@@ -158,13 +96,15 @@ function updateLiveStreams() {
       );
 
       if (liveGroupStreams.length > 0) {
+        anyFavoriteGroupLive = true;
+
         const groupNameHeader = document.createElement("h3");
         groupNameHeader.textContent = group.name.toUpperCase();
         groupNameHeader.classList.add("group-header");
         scrollContainer.appendChild(groupNameHeader);
 
         liveGroupStreams.forEach(stream => {
-          appendStreamLink(stream, scrollContainer);
+          appendStreamLink(stream, scrollContainer, hideAccessedCount, showAvatar, channelAccess);
         });
       }
     });
@@ -175,7 +115,7 @@ function updateLiveStreams() {
       )
     );
 
-    if (ungroupedStreams.length > 0) {
+    if (ungroupedStreams.length > 0 && anyFavoriteGroupLive) {
       const otherChannelsHeader = document.createElement("h3");
       otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
       otherChannelsHeader.classList.add("group-header");
@@ -183,7 +123,7 @@ function updateLiveStreams() {
     }
 
     ungroupedStreams.forEach(stream => {
-      appendStreamLink(stream, scrollContainer);
+      appendStreamLink(stream, scrollContainer, hideAccessedCount, showAvatar, channelAccess);
     });
 
     container.appendChild(scrollContainer);
@@ -191,16 +131,80 @@ function updateLiveStreams() {
   });
 }
 
+function appendStreamLink(stream, container, hideAccessedCount, showAvatar, channelAccess) {
+  const channelItem = document.createElement("div");
+  channelItem.className = "stream-item";
+
+  const channelLink = document.createElement("a");
+  channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
+  channelLink.className = "stream-info";
+  channelLink.target = "_blank";
+
+  channelLink.addEventListener("click", function() {
+    incrementChannelAccess(stream.channelName);
+  });
+
+  if (showAvatar && stream.avatar) {
+    const avatarImg = document.createElement("img");
+    avatarImg.src = stream.avatar;
+    avatarImg.className = "stream-avatar";
+    avatarImg.alt = `${stream.channelName}'s avatar`;
+    avatarImg.style.width = "30px";
+    avatarImg.style.height = "30px";
+    avatarImg.style.borderRadius = "15px";
+    avatarImg.style.marginRight = "5px";
+    channelLink.appendChild(avatarImg);
+  }
+
+  const wrapperDiv = document.createElement("div");
+  wrapperDiv.className = "channel-category-wrapper";
+
+  const channelNameSpan = document.createElement("span");
+  channelNameSpan.className = "channel-name";
+  channelNameSpan.textContent = stream.channelName;
+  wrapperDiv.appendChild(channelNameSpan);
+
+  if (!hideAccessedCount) {
+    // Display the access count for the channel
+    const accessCount = channelAccess[stream.channelName] || 0;
+    const accessCountSpan = document.createElement("span");
+    accessCountSpan.className = "access-count";
+    accessCountSpan.textContent = `Accessed: ${accessCount} times`;
+    accessCountSpan.style.display = "none";
+    wrapperDiv.appendChild(accessCountSpan);
+
+    channelItem.onmouseover = function() {
+      accessCountSpan.style.display = "block";
+    };
+    channelItem.onmouseout = function() {
+      accessCountSpan.style.display = "none";
+    };
+  }
+
+  const categorySpan = document.createElement("span");
+  categorySpan.className = "stream-category";
+  categorySpan.textContent = stream.category;
+  wrapperDiv.appendChild(categorySpan);
+
+  const viewersSpan = document.createElement("span");
+  viewersSpan.className = "viewers";
+  viewersSpan.textContent = stream.viewers;
+  wrapperDiv.appendChild(viewersSpan);
+
+  channelLink.appendChild(wrapperDiv);
+  channelItem.appendChild(channelLink);
+
+  container.appendChild(channelItem);
+}
 
 function incrementChannelAccess(channelName) {
   chrome.storage.local.get(["channelAccess"], function(result) {
       let channelAccess = result.channelAccess || {};
       channelAccess[channelName] = (channelAccess[channelName] || 0) + 1;
-      chrome.storage.local.set({channelAccess: channelAccess}, function() {
-      });
+
+      chrome.storage.local.set({channelAccess: channelAccess});
   });
 }
-
 
 // Function to update the settings icon based on user login status
 function updateSettingsIcon() {

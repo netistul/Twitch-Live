@@ -146,8 +146,8 @@ body {
 
 .access-count {
   display: none; /* Hide access count by default */
-  font-size: 12px; /* Smaller font size */
-  color: #9999991a; /* Lighter color for a subtle appearance */
+  font-size: 10px; /* Smaller font size */
+  color: #312f2f3b; /* Lighter color for a subtle appearance */
   margin-left: 10px; /* Space from the channel name */
 }
 

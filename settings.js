@@ -345,6 +345,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target == modal) {
       modal.style.display = "none";
     }
+
+      // Load and set the "Do not show accessed count" preference
+  chrome.storage.local.get("hideAccessedCount", function (data) {
+    document.getElementById("hideAccessedCountCheckbox").checked = data.hideAccessedCount === true;
+  });
+
+  // Save the "Do not show accessed count" preference when changed
+  document.getElementById("hideAccessedCountCheckbox").addEventListener("change", function () {
+    chrome.storage.local.set({ hideAccessedCount: this.checked }, function () {
+      console.log("Hide Accessed Count preference updated:", this.checked);
+    });
+  });
+  
   };
 
   saveButton.addEventListener("click", function () {
