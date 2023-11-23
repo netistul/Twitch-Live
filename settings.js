@@ -194,7 +194,18 @@ function showAddStreamerDropdown(groupIndex) {
       // Create dropdown items
       followedList.forEach(function (channel) {
         var dropdownItem = document.createElement("a");
-        dropdownItem.textContent = channel.broadcaster_name;
+        dropdownItem.className = "dropdown-item"; // Add a class for styling
+
+        // Create an image element for the Twitch logo
+        var twitchLogo = document.createElement("img");
+        twitchLogo.src = "css/twitch.png"; // Replace with the correct path to your Twitch logo image
+        twitchLogo.alt = "Twitch Logo";
+        twitchLogo.style.width = "13px"; // Adjust the size as needed
+
+        // Append the Twitch logo and set it as the content of the dropdown item
+        dropdownItem.appendChild(twitchLogo);
+        dropdownItem.appendChild(document.createTextNode(" " + channel.broadcaster_name)); // Add a space before the channel name
+
         dropdownItem.onclick = function () {
           // Add Streamer to the group
           chrome.storage.local.get("favoriteGroups", function (data) {
@@ -345,6 +356,7 @@ document.addEventListener("DOMContentLoaded", function () {
       chrome.storage.local.set({ showAvatar: this.checked }, function () {
         console.log("Show Avatar preference updated:", this.checked);
         updatePreview(); // Update preview on checkbox change
+        chrome.runtime.sendMessage({ action: "oauthComplete" });
       });
     });
 
@@ -423,28 +435,30 @@ function showTemporaryInfo(message) {
 }
 
 function displayUserInfo() {
-  chrome.storage.local.get(["userDisplayName", "userAvatar", "twitchAccessToken"], function (result) {
-    const userInfoDiv = document.getElementById("userInfo");
+  chrome.storage.local.get(
+    ["userDisplayName", "userAvatar", "twitchAccessToken"],
+    function (result) {
+      const userInfoDiv = document.getElementById("userInfo");
 
-    if (!result.twitchAccessToken) {
-      const loginButton = document.createElement("button");
-      loginButton.id = "loginButton";
-      loginButton.textContent = "Login with Twitch";
-      loginButton.classList.add("login-button"); // Use the class for styling
+      if (!result.twitchAccessToken) {
+        const loginButton = document.createElement("button");
+        loginButton.id = "loginButton";
+        loginButton.textContent = "Login with Twitch";
+        loginButton.classList.add("login-button"); // Use the class for styling
 
-      loginButton.addEventListener("click", function () {
-        // Optionally add a spinner or loading indication here
-        chrome.runtime.sendMessage({ action: "startOAuth" });
-      });
+        loginButton.addEventListener("click", function () {
+          // Optionally add a spinner or loading indication here
+          chrome.runtime.sendMessage({ action: "startOAuth" });
+        });
 
-      userInfoDiv.appendChild(loginButton);
-    } else if (result.userDisplayName && result.userAvatar) {
-      // User is logged in, display their information
-      userInfoDiv.innerHTML = `
+        userInfoDiv.appendChild(loginButton);
+      } else if (result.userDisplayName && result.userAvatar) {
+        // User is logged in, display their information
+        userInfoDiv.innerHTML = `
         <div style="display: flex; align-items: center; position: relative;">
           <p style="margin-right: 10px; font-family: Verdana;">Logged as:</p>
           <div class="user-avatar-container" style="cursor: pointer;">
-            <img src="${result.userAvatar}" alt="User Avatar" style="width: 37px; height: 37px; border-radius: 20px; margin-right: 3px;">
+            <img src="${result.userAvatar}" alt="User Avatar" style="width: 35px; height: 35px; border-radius: 20px; margin-right: 3px;">
             <div class="logout-dropdown" style="display: none; position: absolute; background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 5px; top: 50px; left: 0;">
               <a href="#" id="logoutButton">🔒 Logout</a>
             </div>
@@ -453,38 +467,45 @@ function displayUserInfo() {
         </div>
       `;
 
-      const avatarContainer = document.querySelector(".user-avatar-container");
-      const dropdown = avatarContainer.querySelector(".logout-dropdown");
+        const avatarContainer = document.querySelector(
+          ".user-avatar-container"
+        );
+        const dropdown = avatarContainer.querySelector(".logout-dropdown");
 
-      // Toggle dropdown on avatar click
-      avatarContainer.addEventListener("click", (event) => {
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-        event.stopPropagation(); // Prevent document click event from firing immediately
-      });
+        // Toggle dropdown on avatar click
+        avatarContainer.addEventListener("click", (event) => {
+          dropdown.style.display =
+            dropdown.style.display === "block" ? "none" : "block";
+          event.stopPropagation(); // Prevent document click event from firing immediately
+        });
 
-      // Close dropdown when clicking outside
-      document.addEventListener("click", (event) => {
-        if (!avatarContainer.contains(event.target)) {
-          dropdown.style.display = "none";
-        }
-      });
-
-      // Event listener for the logout button
-      const logoutButton = document.getElementById("logoutButton");
-      logoutButton.addEventListener("click", (e) => {
-        e.preventDefault();
-        chrome.runtime.sendMessage({ action: "disconnectTwitch" }, function (response) {
-          if (response && response.status === "success") {
-            // Refresh the page upon successful logout
-            window.location.reload();
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (event) => {
+          if (!avatarContainer.contains(event.target)) {
+            dropdown.style.display = "none";
           }
         });
-      });
-    } else {
-      // Case where the user is not logged in and no user info is available
-      userInfoDiv.textContent = "Not logged in";
+
+        // Event listener for the logout button
+        const logoutButton = document.getElementById("logoutButton");
+        logoutButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          chrome.runtime.sendMessage(
+            { action: "disconnectTwitch" },
+            function (response) {
+              if (response && response.status === "success") {
+                // Refresh the page upon successful logout
+                window.location.reload();
+              }
+            }
+          );
+        });
+      } else {
+        // Case where the user is not logged in and no user info is available
+        userInfoDiv.textContent = "Not logged in";
+      }
     }
-  });
+  );
 }
 
 // Listener for OAuth completion in settings.js
