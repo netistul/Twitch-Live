@@ -21,7 +21,7 @@ body {
 }
 
 .group-header {
-  font-family: 'Noto Sans Display', sans-serif; /* Example font */
+  font-family: "Noto Sans Display", sans-serif; /* Example font */
   font-size: 13px; /* Font size */
   color: #6441a575; /* Text color */
   margin-bottom: 1px; /* Spacing after the header */
@@ -29,122 +29,122 @@ body {
   text-align: left;
 }
 
-  #loginButton {
-    background-color: #6441a5;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    white-space: nowrap;
-    width: 100%;
-  }
-  
-  #loginButton:hover {
-    background-color: #503484;
-  }
-  
-  #description {
-    margin-top: 20px;
-    font-size: 14px;
-  }
-  
-  .stream-info {
-    display: flex;
-    font-family: Verdana, sans-serif;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    padding: 7px 7px 3px;
-    text-decoration: none;
-    color: black;
-    transition: background-color 0.3s;
-    position: relative;
-  }
-  .stream-info::after {
-    content: '';
-    position: absolute;
-    bottom: 1px; /* Closer to the bottom of the stream-info */
-    left: 12px;
-    right: 12px;
-    border-bottom: 1px dashed #9999996e;
-  }
-  /* New Wrapper Style */
-  .channel-category-wrapper {
-    justify-content: flex-start;
-    display: flex;
-    align-items: center;
-   
-    flex-grow: 1;
-  }
-  
-  
-  .channel-name, .stream-category {
-    margin-right: 5px; /* Spacing between channel name and category */
-  }
-  
-  .stream-info:last-child::after {
-    display: none; /* Hide the separator for the last item */
-  }
-  
-  .stream-info:hover {
-    background-color: #e0d4f7;
-  }
-  
-  .channel-name {
-    flex-grow: 1;
-    text-align: left;
-    margin-right: 5px; /* Adjust the space between channel name and category */
-  }
-  
-  .stream-category {
-    display: inline-block;
-    color: #88888885;
-    font-size: 0.9em;
-    margin-left: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 120px;
-    text-align: left; /* Align text to the left */
-  }
-  
-  .viewers {
-    flex-grow: 0; /* Prevent it from growing */
-    margin-right: 10px;
-  }
-  
-  .stream-info:link, .stream-info:visited {
-    color: inherit;
-  }
+#loginButton {
+  background-color: #6441a5;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  white-space: nowrap;
+  width: 100%;
+}
 
-  .stream-avatar {
-    margin-right: 5px; /* Space after avatar */
-  }
-  
-  .stream-info:hover {
-    text-decoration: none;
-  }
-  
-  #settingsIcon {
-    width: 10%; /* Example of using relative size */
-    height: 10%; /* Maintain aspect ratio */
-    max-width: 35px; /* Limit the size to not be too large */
-    max-height: 35px;
-    border-radius: 50%; /* Make it circular */
-    object-fit: cover;
-    opacity: 0.5; /* 50% opacity */
-  }
-  
-  #settingsIcon:hover {
-    box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
-    border-radius: 20px; /* Keep the avatar round */
-    cursor: pointer; /* Change cursor to indicate interactivity */
-  }
-  
+#loginButton:hover {
+  background-color: #503484;
+}
 
- /* Custom Scrollbar Styles */
+#description {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.stream-info {
+  display: flex;
+  font-family: Verdana, sans-serif;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  padding: 7px 7px 3px;
+  text-decoration: none;
+  color: black;
+  transition: background-color 0.3s;
+  position: relative;
+}
+.stream-info::after {
+  content: "";
+  position: absolute;
+  bottom: 1px; /* Closer to the bottom of the stream-info */
+  left: 12px;
+  right: 12px;
+  border-bottom: 1px dashed #9999996e;
+}
+/* New Wrapper Style */
+.channel-category-wrapper {
+  justify-content: flex-start;
+  display: flex;
+  align-items: center;
+
+  flex-grow: 1;
+}
+
+.channel-name,
+.stream-category {
+  margin-right: 5px; /* Spacing between channel name and category */
+}
+
+.stream-info:last-child::after {
+  display: none; /* Hide the separator for the last item */
+}
+
+.stream-info:hover {
+  background-color: #e0d4f7;
+}
+
+.channel-name {
+  flex-grow: 1;
+  text-align: left;
+  margin-right: 5px; /* Adjust the space between channel name and category */
+}
+
+.stream-category {
+  display: inline-block;
+  color: #88888885;
+  font-size: 0.9em;
+  margin-left: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  text-align: left; /* Align text to the left */
+}
+
+.viewers {
+  flex-grow: 0; /* Prevent it from growing */
+  margin-right: 10px;
+}
+
+.stream-info:link,
+.stream-info:visited {
+  color: inherit;
+}
+
+.stream-avatar {
+  margin-right: 5px; /* Space after avatar */
+}
+
+.stream-info:hover {
+  text-decoration: none;
+}
+
+#settingsIcon {
+  width: 10%; /* Example of using relative size */
+  height: 10%; /* Maintain aspect ratio */
+  max-width: 35px; /* Limit the size to not be too large */
+  max-height: 35px;
+  border-radius: 50%; /* Make it circular */
+  object-fit: cover;
+  opacity: 0.5; /* 50% opacity */
+}
+
+#settingsIcon:hover {
+  box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
+  border-radius: 20px; /* Keep the avatar round */
+  cursor: pointer; /* Change cursor to indicate interactivity */
+}
+
+/* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 #scrollContainer::-webkit-scrollbar {
   width: 3px; /* Width of the scrollbar */
@@ -162,7 +162,6 @@ body {
 #scrollContainer::-webkit-scrollbar-thumb:hover {
   background-color: #503484; /* Darker purple on hover */
 }
-
 
 #scrollContainer {
   max-height: calc(556px - 1px);
@@ -185,31 +184,28 @@ body {
 
 /* For the entire popup window */
 body::-webkit-scrollbar {
-  width: 5px;  /* Width of the scrollbar */
+  width: 5px; /* Width of the scrollbar */
 }
 
 body::-webkit-scrollbar-track {
-  background-color: #efeff1;  /* Light gray track */
+  background-color: #efeff1; /* Light gray track */
 }
 
 body::-webkit-scrollbar-thumb {
-  background-color: #6441a51d;  /* Twitch-like purple thumb */
-  border-radius: 5px;  /* Rounded corners for the thumb */
+  background-color: #6441a51d; /* Twitch-like purple thumb */
+  border-radius: 5px; /* Rounded corners for the thumb */
 }
 
 body::-webkit-scrollbar-thumb:hover {
-  background-color: #503484;  /* Darker purple on hover */
+  background-color: #503484; /* Darker purple on hover */
 }
 
 /* For the entire popup window */
 body {
-  scrollbar-width: thin;  /* Width of the scrollbar */
-  scrollbar-color: #6441a5 #efeff1;  /* Thumb and track colors */
+  scrollbar-width: thin; /* Width of the scrollbar */
+  scrollbar-color: #6441a5 #efeff1; /* Thumb and track colors */
   margin-bottom: 0; /* Removes bottom margin */
   padding-bottom: 0; /* Removes bottom padding */
   overflow: hidden; /* Hide overflow */
   height: 1px; /* Set the fixed height */
 }
-
-  
-    

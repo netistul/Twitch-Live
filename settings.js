@@ -205,9 +205,16 @@ function showAddStreamerDropdown(groupIndex) {
         twitchLogo.alt = "Twitch Logo";
         twitchLogo.style.width = "13px"; // Adjust the size as needed
 
-        // Append the Twitch logo and set it as the content of the dropdown item
+        // Append the Twitch logo to the dropdown item
         dropdownItem.appendChild(twitchLogo);
-        dropdownItem.appendChild(document.createTextNode(" " + channel.broadcaster_name)); // Add a space before the channel name
+
+        // Create a span element for the channel name with increased font size
+        var channelNameSpan = document.createElement("span");
+        channelNameSpan.className = "dropdown-channel-name"; // Apply the new class
+        channelNameSpan.textContent = " " + channel.broadcaster_name; // Add a space before the channel name
+
+        // Append the channel name span to the dropdown item
+        dropdownItem.appendChild(channelNameSpan);
 
         dropdownItem.onclick = function () {
           // Add Streamer to the group
@@ -279,14 +286,39 @@ function showAddStreamerDropdown(groupIndex) {
 // Global function to filter dropdown
 function filterDropdown(dropdownMenu, searchValue) {
   var dropdownItems = dropdownMenu.getElementsByTagName("a");
+  var noResultsFound = true; // Flag to track if any results are found
+
   for (var i = 0; i < dropdownItems.length; i++) {
     var item = dropdownItems[i];
     var textValue = item.textContent || item.innerText;
     if (textValue.toLowerCase().indexOf(searchValue) > -1) {
       item.style.display = "";
+      noResultsFound = false; // Set to false if any item is visible
     } else {
       item.style.display = "none";
     }
+  }
+
+  // Check if the no results message already exists
+  var noResultsMessage = dropdownMenu.querySelector(".no-results-message");
+  if (noResultsFound) {
+    if (!noResultsMessage) {
+      // Create and display a no results message
+      noResultsMessage = document.createElement("div");
+      noResultsMessage.className = "no-results-message";
+      noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
+      noResultsMessage.style.color = "red"; // Optional: style as needed
+      noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
+      noResultsMessage.style.marginLeft = "40px"; 
+      dropdownMenu.appendChild(noResultsMessage);
+    } else {
+      // Update the existing no results message
+      noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
+      noResultsMessage.style.display = ""; // Make sure it's visible
+    }
+  } else if (noResultsMessage) {
+    // Hide the no results message if results are found
+    noResultsMessage.style.display = "none";
   }
 }
 
@@ -375,7 +407,8 @@ function updatePreview() {
 
     if (liveStreams.length > 0) {
       if (!previewStream) {
-        previewStream = liveStreams[Math.floor(Math.random() * liveStreams.length)];
+        previewStream =
+          liveStreams[Math.floor(Math.random() * liveStreams.length)];
       }
 
       previewContainer.innerHTML = "";
@@ -404,9 +437,9 @@ function updatePreview() {
 
       previewContainer.appendChild(previewDiv);
 
-      previewContainer.style.display = 'flex';
+      previewContainer.style.display = "flex";
     } else {
-      previewContainer.style.display = 'none';
+      previewContainer.style.display = "none";
     }
   });
 }
@@ -452,14 +485,15 @@ function displayUserInfo() {
         });
 
         userInfoDiv.appendChild(loginButton);
-              // Create and append the informative text
-              const infoText = document.createElement("p");
-              infoText.innerHTML = "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
-              infoText.style.marginTop = "10px"; // Add some spacing
-              infoText.style.fontSize = "14px"; // Adjust font size as needed
-              infoText.style.color = "#646464"; // Optional: Adjust the text color
-              userInfoDiv.appendChild(infoText);
-            } else if (result.userDisplayName && result.userAvatar) {
+        // Create and append the informative text
+        const infoText = document.createElement("p");
+        infoText.innerHTML =
+          "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
+        infoText.style.marginTop = "10px"; // Add some spacing
+        infoText.style.fontSize = "14px"; // Adjust font size as needed
+        infoText.style.color = "#646464"; // Optional: Adjust the text color
+        userInfoDiv.appendChild(infoText);
+      } else if (result.userDisplayName && result.userAvatar) {
         // User is logged in, display their information
         userInfoDiv.innerHTML = `
   <div id="userTable">
@@ -477,7 +511,6 @@ function displayUserInfo() {
     </div>
   </div>
 `;
-
 
         const avatarContainer = document.querySelector(
           ".user-avatar-container"
@@ -531,31 +564,31 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 // Function to toggle dark mode and update text
 function toggleDarkMode(isDarkMode) {
-  const themeSwitchText = document.getElementById('themeSwitchText');
+  const themeSwitchText = document.getElementById("themeSwitchText");
   if (isDarkMode) {
-    document.body.classList.add('dark-mode');
-    themeSwitchText.textContent = '💡 Click it for light theme'; // When in dark mode
+    document.body.classList.add("dark-mode");
+    themeSwitchText.textContent = "💡 Click it for light theme"; // When in dark mode
   } else {
-    document.body.classList.remove('dark-mode');
-    themeSwitchText.textContent = '🌙 Click it for dark theme'; // When in light mode
+    document.body.classList.remove("dark-mode");
+    themeSwitchText.textContent = "🌙 Click it for dark theme"; // When in light mode
   }
 }
 
 // Event listener for the dark mode toggle
-document.addEventListener('DOMContentLoaded', function() {
-  const darkModeToggle = document.getElementById('darkModeToggle');
+document.addEventListener("DOMContentLoaded", function () {
+  const darkModeToggle = document.getElementById("darkModeToggle");
 
   // Load dark mode setting
-  chrome.storage.local.get('darkMode', function(data) {
+  chrome.storage.local.get("darkMode", function (data) {
     const isDarkMode = data.darkMode || false;
     darkModeToggle.checked = isDarkMode;
     toggleDarkMode(isDarkMode); // Also updates the text
   });
 
   // Save dark mode setting and update text
-  darkModeToggle.addEventListener('change', function() {
+  darkModeToggle.addEventListener("change", function () {
     const isDarkMode = this.checked;
-    chrome.storage.local.set({ 'darkMode': isDarkMode }, function() {
+    chrome.storage.local.set({ darkMode: isDarkMode }, function () {
       toggleDarkMode(isDarkMode); // Also updates the text
 
       // Send a message to the background script
@@ -564,16 +597,16 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-    // Function to toggle dark mode in settings.html
-    function applyDarkModeSetting() {
-      chrome.storage.local.get('darkMode', function(data) {
-        if (data.darkMode) {
-          document.body.classList.add('dark-mode');
-        } else {
-          document.body.classList.remove('dark-mode');
-        }
-      });
+// Function to toggle dark mode in settings.html
+function applyDarkModeSetting() {
+  chrome.storage.local.get("darkMode", function (data) {
+    if (data.darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
     }
+  });
+}
 
-    // Apply dark mode setting when the page loads
-    document.addEventListener('DOMContentLoaded', applyDarkModeSetting);
+// Apply dark mode setting when the page loads
+document.addEventListener("DOMContentLoaded", applyDarkModeSetting);

@@ -21,10 +21,9 @@
 }
 
 .dark-mode #scrollContainer::-webkit-scrollbar-track {
-    background-color: #adadb7; /* Light gray track */
-  }
+  background-color: #adadb7; /* Light gray track */
+}
 
 .dark-mode .viewers {
-    color: #c86464;
+  color: #c86464;
 }
-  

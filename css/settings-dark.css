@@ -2,507 +2,509 @@
 
 /* Body Style */
 body.dark-mode {
-    background-color: #0f0f12; /* Dark background for the body */
-    color: #c7c7c7; /* Lighter text color for better readability */
+  background-color: #0f0f12; /* Dark background for the body */
+  color: #c7c7c7; /* Lighter text color for better readability */
 }
 
 /* Settings Table Style */
 .dark-mode #settingsTable {
-    background-color: #1e1e22; /* Dark background for the table */
-    color: #c7c7c7; /* Light text color */
-    border: 1px solid #2a2a2e; /* Subtle border for the table */
+  background-color: #1e1e22; /* Dark background for the table */
+  color: #c7c7c7; /* Light text color */
+  border: 1px solid #2a2a2e; /* Subtle border for the table */
 }
 /* Button Style */
 .dark-mode #addFavoriteGroupButton {
-    background-color: #6441a5; /* Twitch purple background */
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-    align-self: center;
-    transition: background-color 0.3s ease;
+  background-color: #6441a5; /* Twitch purple background */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  align-self: center;
+  transition: background-color 0.3s ease;
 }
 
 .dark-mode #addFavoriteGroupButton:hover {
-    background-color: #503484; /* Slightly darker purple on hover */
+  background-color: #503484; /* Slightly darker purple on hover */
 }
 
 /* Group List Container Style */
 .dark-mode #groupListContainer {
-    background-color: #1e1e22; /* Dark background */
-    color: #c7c7c7;
-    width: 100%;
-    margin-top: 1px;
+  background-color: #1e1e22; /* Dark background */
+  color: #c7c7c7;
+  width: 100%;
+  margin-top: 1px;
 }
 
 /* Group List Style */
 .dark-mode #groupList {
-    background-color: #1e1e22; /* Dark background */
-    color: #c7c7c7;
-    list-style-type: none;
-    padding: 0;
+  background-color: #1e1e22; /* Dark background */
+  color: #c7c7c7;
+  list-style-type: none;
+  padding: 0;
 }
 
 /* Group Item Style */
 .dark-mode .group-item {
-    background-color: #2c2f33; /* Dark background */
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
+  background-color: #2c2f33; /* Dark background */
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
 }
 
 /* Streamers List Style */
 .dark-mode .streamers-list {
-    background-color: #2c2f33; /* Dark background */
-    color: #ffffff;
-    flex-basis: calc(50% - 10px);
-    list-style-type: none;
-    padding: 0;
-    margin-right: 10px;
+  background-color: #2c2f33; /* Dark background */
+  color: #ffffff;
+  flex-basis: calc(50% - 10px);
+  list-style-type: none;
+  padding: 0;
+  margin-right: 10px;
 }
 
 /* Button Container Style */
 .dark-mode #button-container {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
 }
 
 /* List Item Style */
 .dark-mode #groupList > li {
-    background-color: #2c2f33; /* Dark background */
-    color: #ffffff; /* Dark background for list items */
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
+  background-color: #2c2f33; /* Dark background */
+  color: #ffffff; /* Dark background for list items */
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
 }
 
 .dark-mode #groupList > li > ul {
-    padding: 0;
+  padding: 0;
 }
 
 /* List Items Style */
 .dark-mode #groupList > li > ul > li {
-    background-color: #2c2f33; /* Dark background for list items */
-    color: #ffffff; /* Light text color for readability */
+  background-color: #2c2f33; /* Dark background for list items */
+  color: #ffffff; /* Light text color for readability */
 }
 
 /* Empty List Message Style */
 .dark-mode .empty-list-message {
-    color: #c7c7c7; /* Light text color */
+  color: #c7c7c7; /* Light text color */
 }
 
 .dark-mode .empty-list-message span {
-    color: #c7c7c7;
+  color: #c7c7c7;
 }
 
 /* Streamer Name and Remove Button Style */
-.dark-mode .streamer-name, .dark-mode .streamer-remove-btn {
-    color: #ffffff;
+.dark-mode .streamer-name,
+.dark-mode .streamer-remove-btn {
+  color: #ffffff;
 }
 /* Modal Styles */
 .dark-mode .modal {
-    background-color: rgba(0, 0, 0, 0.8); /* Dark background with opacity */
+  background-color: rgba(0, 0, 0, 0.8); /* Dark background with opacity */
 }
 
 /* Modal Content */
 .dark-mode .modal-content {
-    background-color: #2c2f33; /* Dark gray background */
-    color: #ffffff; /* Light text color */
-    border: 2px solid #444; /* Dark border */
+  background-color: #2c2f33; /* Dark gray background */
+  color: #ffffff; /* Light text color */
+  border: 2px solid #444; /* Dark border */
 }
 
 /* Close Button */
 .dark-mode .close {
-    color: #aaaaaa;
+  color: #aaaaaa;
 }
 
 .dark-mode .close:hover,
 .dark-mode .close:focus {
-    color: #ffffff;
+  color: #ffffff;
 }
 
 /* Styled Input */
 .dark-mode input[type="text"] {
-    background-color: #2c2f33; /* Darker background for input */
-    color: #ffffff; /* Light text color for readability */
-    border: 1px solid #444; /* Dark border */
-    padding: 10px;
-    border-radius: 5px;
-    width: 100%;
+  background-color: #2c2f33; /* Darker background for input */
+  color: #ffffff; /* Light text color for readability */
+  border: 1px solid #444; /* Dark border */
+  padding: 10px;
+  border-radius: 5px;
+  width: 100%;
 }
 
 /* Styled Buttons */
-.dark-mode .button, .dark-mode #saveGroup {
-    background-color: #6441a5; /* Twitch-like purple color */
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.dark-mode .button,
+.dark-mode #saveGroup {
+  background-color: #6441a5; /* Twitch-like purple color */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.dark-mode .button:hover, .dark-mode #saveGroup:hover {
-    background-color: #503484; /* Darker purple on hover */
+.dark-mode .button:hover,
+.dark-mode #saveGroup:hover {
+  background-color: #503484; /* Darker purple on hover */
 }
 
 /* Dropdown Menu Style */
 .dark-mode .dropdown-menu {
-    background-color: #2c2f33; /* Dark background */
-    color: white;
-    border: 1px solid #444;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    width: 60%;
-    margin: 15% auto;
-    padding: 30px;
-    cursor: pointer;
+  background-color: #2c2f33; /* Dark background */
+  color: white;
+  border: 1px solid #444;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  width: 60%;
+  margin: 15% auto;
+  padding: 30px;
+  cursor: pointer;
 }
 
 .dark-mode .dropdown-menu a {
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    display: block;
-    transition: background-color 0.3s ease;
-    border-bottom: 1px solid #444;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s ease;
+  border-bottom: 1px solid #444;
 }
 
 .dark-mode .dropdown-menu a:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .dark-mode .dropdown-menu a:hover {
-    background-color: #392765; /* Dark purple background on hover */
+  background-color: #392765; /* Dark purple background on hover */
 }
 
 /* Show Class Style */
 .dark-mode .show {
-    display: block;
+  display: block;
 }
 
 /* Favorite List Text Style */
 .dark-mode #favoriteListText {
-    text-align: center;
-    font-size: 18px;
-    margin-bottom: 5px;
-    color: white;
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 5px;
+  color: white;
 }
 
 /* Dropdown Overlay Style */
 .dark-mode .dropdown-overlay {
-    background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 /* Add Twitch Channel Button Style */
 .dark-mode .add-streamer-btn {
-    background-color: #6441a5;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+  background-color: #6441a5;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
 }
 
 .dark-mode .add-streamer-btn:hover {
-    background-color: #503484;
+  background-color: #503484;
 }
 
 /* Delete List Button Style */
 .dark-mode .delete-group-btn {
-    background-color: #ff4c4c;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+  background-color: #ff4c4c;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
 }
 
 .dark-mode .delete-group-btn:hover {
-    background-color: #be2633;
+  background-color: #be2633;
 }
 
 /* Settings Container Style */
 .dark-mode #settingsContainer {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-top: 20px;
 }
 
 /* Settings Table and Options Menu Style */
-.dark-mode #settingsTable, .dark-mode #optionsMenu {
-    margin: 0 10px;
+.dark-mode #settingsTable,
+.dark-mode #optionsMenu {
+  margin: 0 10px;
 }
 
 /* Options Menu Header Style */
 .dark-mode .optionsMenuHeader {
-    font-family: "Noto Sans Display", sans-serif;
-    font-size: 20px;
-    color: #c7c7c7;
-    margin-bottom: 15px;
-    text-align: center;
+  font-family: "Noto Sans Display", sans-serif;
+  font-size: 20px;
+  color: #c7c7c7;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 /* Show Avatar Option Style */
 .dark-mode #showAvatarOption {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Show Avatar Label Style */
 .dark-mode .showAvatarLabel {
-    margin-right: 10px;
-    font-family: Verdana, sans-serif;
-    color: #c7c7c7;
-    font-size: 13px;
+  margin-right: 10px;
+  font-family: Verdana, sans-serif;
+  color: #c7c7c7;
+  font-size: 13px;
 }
 
 /* Style for the switch */
 .dark-mode .switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
 }
 
 /* The slider in dark mode */
 .dark-mode .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #333; /* Dark background for slider */
-    transition: 0.4s;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #333; /* Dark background for slider */
+  transition: 0.4s;
 }
 
 .dark-mode .slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 5px;
-    background-color: white; /* White knob for contrast */
-    transition: 0.4s;
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 5px;
+  background-color: white; /* White knob for contrast */
+  transition: 0.4s;
 }
 
 .dark-mode input:checked + .slider {
-    background-color: #6441a5; /* Twitch purple color for checked state */
+  background-color: #6441a5; /* Twitch purple color for checked state */
 }
 
 .dark-mode input:focus + .slider {
-    box-shadow: 0 0 1px #6441a5; /* Focus shadow */
+  box-shadow: 0 0 1px #6441a5; /* Focus shadow */
 }
 
 .dark-mode input:checked + .slider:before {
-    transform: translateX(23px); /* Move knob to right on check */
+  transform: translateX(23px); /* Move knob to right on check */
 }
 
 /* Rounded sliders */
 .dark-mode .slider.round {
-    border-radius: 34px;
+  border-radius: 34px;
 }
 
 .dark-mode .slider.round:before {
-    border-radius: 50%;
+  border-radius: 50%;
 }
 
 /* Preview container */
 .dark-mode .preview-container {
-    margin-top: 10px;
-    border: 1px solid #444; /* Dark border */
-    padding: 10px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    background-color: #2c2f33; /* Dark background */
+  margin-top: 10px;
+  border: 1px solid #444; /* Dark border */
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  background-color: #2c2f33; /* Dark background */
 }
 
 /* Stream preview */
 .dark-mode .stream-preview {
-    color: #fff; /* Light text color */
+  color: #fff; /* Light text color */
 }
 
 .dark-mode .stream-preview .channel-name {
-    color: #FFFFFF; /* White color for channel name */
-    /* Other styles for channel name */
-  }
-  
- .dark-mode .stream-preview .viewers-count {
-    color: #c86464; /* Light grey color for viewers count */
-    /* Other styles for viewers count */
-  }
-  
+  color: #ffffff; /* White color for channel name */
+  /* Other styles for channel name */
+}
+
+.dark-mode .stream-preview .viewers-count {
+  color: #c86464; /* Light grey color for viewers count */
+  /* Other styles for viewers count */
+}
 
 /* User avatar container */
 .dark-mode .user-avatar-container {
-    position: relative;
-    cursor: pointer;
+  position: relative;
+  cursor: pointer;
 }
 
 .dark-mode .user-avatar-container img:hover {
-    box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
-    border-radius: 20px;
+  box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
+  border-radius: 20px;
 }
 
 /* Logout Dropdown Style */
 .dark-mode .logout-dropdown {
-    background-color: #2c2f33; /* Dark background for dropdown */
-    color: #ffffff; /* Light text color */
-    border: 1px solid #444; /* Dark border */
+  background-color: #2c2f33; /* Dark background for dropdown */
+  color: #ffffff; /* Light text color */
+  border: 1px solid #444; /* Dark border */
 }
 
 .dark-mode .logout-dropdown a {
-    font-size: 16px;
-    text-decoration: none;
-    color: #ffffff; /* Light text color */
-    padding: 3px 33px;
+  font-size: 16px;
+  text-decoration: none;
+  color: #ffffff; /* Light text color */
+  padding: 3px 33px;
 }
 
 .dark-mode .logout-dropdown a:hover {
-    background-color: #392765; /* Dark purple background on hover */
+  background-color: #392765; /* Dark purple background on hover */
 }
 
 .dark-mode .logout-dropdown a img {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 /* Login Button Style */
 .dark-mode #loginButton {
-    background-color: #6441a5; /* Twitch purple background */
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    width: 100%;
+  background-color: #6441a5; /* Twitch purple background */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
 }
 
 .dark-mode #loginButton:hover {
-    background-color: #503484; /* Darker purple on hover */
+  background-color: #503484; /* Darker purple on hover */
 }
 
 /* User Table Style */
 .dark-mode #userTable {
-    background-color: #2c2f33; /* Dark background for table */
-    color: #ffffff; /* Light text color */
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px 0;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  background-color: #2c2f33; /* Dark background for table */
+  color: #ffffff; /* Light text color */
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .dark-mode .user-row {
-    display: table-row;
+  display: table-row;
 }
 
 .dark-mode .user-cell {
-    display: table-cell;
-    padding: -5px;
-    font-family: Verdana;
-    white-space: nowrap;
+  display: table-cell;
+  padding: -5px;
+  font-family: Verdana;
+  white-space: nowrap;
 }
 
 /* User Avatar Container Style */
 .dark-mode .user-avatar-container {
-    position: relative;
-    cursor: pointer;
+  position: relative;
+  cursor: pointer;
 }
 
 .dark-mode .user-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 20px;
-    margin-right: 0px;
-    margin-left: 4px;
-    vertical-align: middle;
+  width: 30px;
+  height: 30px;
+  border-radius: 20px;
+  margin-right: 0px;
+  margin-left: 4px;
+  vertical-align: middle;
 }
 
 /* Dark Mode Option Style */
 .dark-mode #darkModeOption {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dark-mode .darkModeLabel {
-    margin-right: 10px;
-    font-family: Verdana, sans-serif;
-    color: #c7c7c7; /* Light text color for dark mode */
-    font-size: 13px;
+  margin-right: 10px;
+  font-family: Verdana, sans-serif;
+  color: #c7c7c7; /* Light text color for dark mode */
+  font-size: 13px;
 }
 .dark-mode.separator {
-    height: 1px;
-    background-color: #ccc; /* Light gray color for the separator */
-    margin: 20px 0; /* Space above and below the separator */
-  }
-
-
-
+  height: 1px;
+  background-color: #ccc; /* Light gray color for the separator */
+  margin: 20px 0; /* Space above and below the separator */
+}
 
 /* Container for the switch */
 .btn-color-mode-switch {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 /* Hidden checkbox */
 .btn-color-mode-switch input[type="checkbox"] {
-    opacity: 0;
-    position: absolute;
-    width: 100%; /* Use full width of the container */
-    height: 100%; /* Use full height of the container */
-    z-index: 2; /* Ensure it's above the label */
+  opacity: 0;
+  position: absolute;
+  width: 100%; /* Use full width of the container */
+  height: 100%; /* Use full height of the container */
+  z-index: 2; /* Ensure it's above the label */
 }
 
 /* Visible part of the switch */
 .btn-color-mode-switch-inner {
-    display: block;
-    position: relative;
-    width: 190px;
-    height: 50px;
-    background: #E0E0E0;
-    border-radius: 26px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+  display: block;
+  position: relative;
+  width: 190px;
+  height: 50px;
+  background: #e0e0e0;
+  border-radius: 26px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 /* Change background when switch is checked */
-.btn-color-mode-switch input[type="checkbox"]:checked + .btn-color-mode-switch-inner {
-    background: #151515;
+.btn-color-mode-switch
+  input[type="checkbox"]:checked
+  + .btn-color-mode-switch-inner {
+  background: #151515;
 }
 
 /* Text inside the switch */
 .slider-text {
-    position: absolute;
-    font-size: 14px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
-    text-align: center;
-    pointer-events: none;
-    color: #0e0d0d;
-    z-index: 1; /* Ensure text is visible, but below the checkbox */
+  position: absolute;
+  font-size: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  color: #0e0d0d;
+  z-index: 1; /* Ensure text is visible, but below the checkbox */
 }
 
 /* Change text color for dark mode */
 #darkModeToggle:checked + .btn-color-mode-switch-inner .slider-text {
-    color: #fff;
+  color: #fff;
 }
