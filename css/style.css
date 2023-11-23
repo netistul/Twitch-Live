@@ -144,6 +144,17 @@ body {
   cursor: pointer; /* Change cursor to indicate interactivity */
 }
 
+.access-count {
+  display: none; /* Hide access count by default */
+  font-size: 12px; /* Smaller font size */
+  color: #9999991a; /* Lighter color for a subtle appearance */
+  margin-left: 10px; /* Space from the channel name */
+}
+
+.channel-category-wrapper:hover .access-count {
+  display: block; /* Show access count on hover */
+}
+
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 #scrollContainer::-webkit-scrollbar {
