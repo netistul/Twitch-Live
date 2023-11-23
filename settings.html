@@ -395,6 +395,10 @@
         cursor: pointer;
       }
 
+      #showAvatarCheckbox {
+        display: none;
+      }
+
       .user-avatar-container img:hover {
         box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
         border-radius: 20px; /* Keep the avatar round */
@@ -497,6 +501,29 @@
         color: #333; /* Text color for the "Logout" link */
       }
 
+      #darkModeToggle {
+        display: none;
+      }
+
+      #darkModeOption {
+  display: flex; /* Use flexbox for layout */
+  align-items: center; /* Align items vertically */
+  justify-content: center; /* Center items horizontally */
+}
+
+.darkModeLabel {
+  margin-right: 10px; /* Spacing between label and switch */
+  font-family: Verdana, sans-serif; /* Example font */
+  color: #6441a5; /* Twitch-like purple color */
+  font-size: 13px; /* Font size */
+}
+
+.separator {
+  height: 1px;
+  background-color: #ccc; /* Light gray color for the separator */
+  margin: 20px 0; /* Space above and below the separator */
+}
+
       /* Custom Scrollbar Styles */
       /* For Webkit browsers like Chrome, Safari */
       ::-webkit-scrollbar {
@@ -539,6 +566,7 @@
           ➕ Add new favorite group for Twitch live streams
         </button>
       </div>
+
       <div id="optionsMenu">
         <div id="userInfo">
           <!-- User information will be displayed here -->
@@ -547,18 +575,28 @@
         <div id="showAvatarOption" class="optionItem">
           <div class="showAvatarLabel">Display avatar on the left</div>
           <label class="switch">
-            <input
-              type="checkbox"
-              id="showAvatarCheckbox"
-              style="display: none"
-            />
-            <!-- Hide the checkbox -->
+            <input type="checkbox" id="showAvatarCheckbox" />
             <span class="slider round"></span>
           </label>
         </div>
-        <div id="previewContainer" class="preview-container"></div>
+        <div id="previewContainer" class="preview-container">
+          <!-- Preview container content -->
+        </div>
+          <!-- Separator -->
+  <div class="separator"></div>
+        <!-- Dark Mode Toggle Switch -->
+<div id="darkModeOption" class="optionItem">
+  <label for="darkModeToggle" class="darkModeLabel">Dark Mode:</label>
+  <label class="switch">
+    <input type="checkbox" id="darkModeToggle">
+    <span class="slider round"></span>
+  </label>
+</div>
+
       </div>
-    </div>
+      
+            
+  </div>
     <!-- The Modal -->
     <div id="myModal" class="modal">
       <!-- Modal content -->

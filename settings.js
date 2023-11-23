@@ -519,3 +519,36 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     displayUserInfo(); // Or you can use window.location.reload() to refresh the entire page
   }
 });
+
+// Function to toggle dark mode
+function toggleDarkMode(isDarkMode) {
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+}
+
+// Event listener for the dark mode toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const darkModeToggle = document.getElementById('darkModeToggle');
+
+  // Load dark mode setting
+  chrome.storage.local.get('darkMode', function(data) {
+    const isDarkMode = data.darkMode || false;
+    darkModeToggle.checked = isDarkMode;
+    toggleDarkMode(isDarkMode);
+  });
+
+  // Save dark mode setting and send a message to the background script
+  darkModeToggle.addEventListener('change', function() {
+    const isDarkMode = this.checked;
+    chrome.storage.local.set({ 'darkMode': isDarkMode }, function() {
+      toggleDarkMode(isDarkMode);
+
+      // Send a message to the background script
+      chrome.runtime.sendMessage({ action: "oauthComplete" });
+  
+      });
+    });
+  });

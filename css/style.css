@@ -1,3 +1,12 @@
+.dark-mode {
+  background-color: #121212; /* Dark background */
+  color: #ffffff; /* Light text color */
+}
+
+.dark-mode #header {
+  background-color: #1e1e1e; /* Darker header background */
+}
+
 body {
   font-family: Arial, sans-serif;
   text-align: center;

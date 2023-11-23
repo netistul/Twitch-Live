@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  applyDarkMode();
   updateLiveStreams();
   updateSettingsIcon();
   setInterval(updateLiveStreams, 10000);
@@ -55,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
     sendResponse
   ) {
     if (message.action === "oauthComplete") {
+      applyDarkMode();
       spinner.style.display = "none"; // Hide the spinner
 
       // Start an interval to refresh every 500ms
@@ -230,3 +232,13 @@ window.addEventListener("unload", function () {
     }
   });
 });
+
+function applyDarkMode() {
+  chrome.storage.local.get("darkMode", function(data) {
+    if(data.darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  });
+}
