@@ -87,6 +87,7 @@ function displayGroups() {
         addStreamerBtn.textContent = "Add a Twitch Channel";
         addStreamerBtn.onclick = function () {
           showAddStreamerDropdown(index);
+          chrome.runtime.sendMessage({ action: "oauthComplete" });
         };
         buttonContainer.appendChild(addStreamerBtn);
 
@@ -94,6 +95,7 @@ function displayGroups() {
         deleteBtn.className = "delete-group-btn"; // Apply the class for styling
         deleteBtn.textContent = "Delete this list";
         deleteBtn.onclick = function () {
+          chrome.runtime.sendMessage({ action: "oauthComplete" });
           deleteGroup(index);
           displayGroups();
         };
@@ -119,6 +121,7 @@ function deleteStreamer(groupIndex, streamerIndex) {
 
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
         console.log("Streamer deleted");
+        chrome.runtime.sendMessage({ action: "oauthComplete" });
         displayGroups();
       });
     }
@@ -354,9 +357,8 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("showAvatarCheckbox")
     .addEventListener("change", function () {
       chrome.storage.local.set({ showAvatar: this.checked }, function () {
-        console.log("Show Avatar preference updated:", this.checked);
-        updatePreview(); // Update preview on checkbox change
         chrome.runtime.sendMessage({ action: "oauthComplete" });
+        updatePreview(); // Update preview on checkbox change
       });
     });
 
@@ -458,8 +460,8 @@ function displayUserInfo() {
         <div style="display: flex; align-items: center; position: relative;">
           <p style="margin-right: 10px; font-family: Verdana;">Logged as:</p>
           <div class="user-avatar-container" style="cursor: pointer;">
-            <img src="${result.userAvatar}" alt="User Avatar" style="width: 35px; height: 35px; border-radius: 20px; margin-right: 3px;">
-            <div class="logout-dropdown" style="display: none; position: absolute; background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 5px; top: 50px; left: 0;">
+            <img src="${result.userAvatar}" alt="User Avatar" style="width: 30px; height: 30px; border-radius: 20px; margin-right: 3px;">
+            <div class="logout-dropdown" style="display: none; position: absolute; background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 5px; top: 33px; left: 0;">
               <a href="#" id="logoutButton">🔒 Logout</a>
             </div>
           </div>
