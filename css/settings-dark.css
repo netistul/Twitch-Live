@@ -231,7 +231,7 @@ body.dark-mode {
 }
 
 .dark-mode .delete-group-btn:hover {
-    background-color: #e63946;
+    background-color: #be2633;
 }
 
 /* Settings Container Style */
@@ -338,6 +338,17 @@ body.dark-mode {
 .dark-mode .stream-preview {
     color: #fff; /* Light text color */
 }
+
+.dark-mode .stream-preview .channel-name {
+    color: #FFFFFF; /* White color for channel name */
+    /* Other styles for channel name */
+  }
+  
+ .dark-mode .stream-preview .viewers-count {
+    color: #c86464; /* Light grey color for viewers count */
+    /* Other styles for viewers count */
+  }
+  
 
 /* User avatar container */
 .dark-mode .user-avatar-container {

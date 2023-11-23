@@ -373,14 +373,12 @@ function updatePreview() {
     var liveStreams = data.liveStreams || [];
     var previewContainer = document.getElementById("previewContainer");
 
-    // Check if there are live streams
     if (liveStreams.length > 0) {
-      // Select a random stream only if it has not been selected before
       if (!previewStream) {
         previewStream = liveStreams[Math.floor(Math.random() * liveStreams.length)];
       }
 
-      previewContainer.innerHTML = ""; // Clear previous content
+      previewContainer.innerHTML = "";
 
       var showAvatar = document.getElementById("showAvatarCheckbox").checked;
 
@@ -391,30 +389,23 @@ function updatePreview() {
         var avatarImg = document.createElement("img");
         avatarImg.src = previewStream.avatar;
         avatarImg.className = "stream-avatar";
-        avatarImg.style.width = "30px";
-        avatarImg.style.height = "30px";
-        avatarImg.style.borderRadius = "15px";
-        avatarImg.style.marginRight = "5px";
         previewDiv.appendChild(avatarImg);
       }
 
       var channelNameSpan = document.createElement("span");
       channelNameSpan.textContent = previewStream.channelName;
+      channelNameSpan.className = "channel-name"; // Added class for channel name
       previewDiv.appendChild(channelNameSpan);
-
-      // Add a space text node between channel name and viewers
-      previewDiv.appendChild(document.createTextNode(" "));
 
       var viewersSpan = document.createElement("span");
       viewersSpan.innerHTML = `\u00A0- ${previewStream.viewers} viewers`;
+      viewersSpan.className = "viewers-count"; // Added class for viewers count
       previewDiv.appendChild(viewersSpan);
 
       previewContainer.appendChild(previewDiv);
 
-      // Ensure the preview container is visible
       previewContainer.style.display = 'flex';
     } else {
-      // Hide the preview container if there are no live streams
       previewContainer.style.display = 'none';
     }
   });
@@ -461,22 +452,32 @@ function displayUserInfo() {
         });
 
         userInfoDiv.appendChild(loginButton);
-      } else if (result.userDisplayName && result.userAvatar) {
+              // Create and append the informative text
+              const infoText = document.createElement("p");
+              infoText.innerHTML = "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
+              infoText.style.marginTop = "10px"; // Add some spacing
+              infoText.style.fontSize = "14px"; // Adjust font size as needed
+              infoText.style.color = "#646464"; // Optional: Adjust the text color
+              userInfoDiv.appendChild(infoText);
+            } else if (result.userDisplayName && result.userAvatar) {
         // User is logged in, display their information
         userInfoDiv.innerHTML = `
-        <div id="userTable">
-          <div class="user-row">
-            <div class="user-cell">Logged as:</div>
-            <div class="user-cell user-avatar-container">
-              <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
-              <div class="logout-dropdown">
-                <a href="#" id="logoutButton">🔒 Logout</a>
-              </div>
-            </div>
-            <div class="user-cell">${result.userDisplayName}</div>
-          </div>
+  <div id="userTable">
+    <div class="user-row">
+      <div class="user-cell">Logged as:</div>
+      <div class="user-cell user-avatar-container">
+        <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
+        <div class="logout-dropdown">
+          <a href="#" id="logoutButton">
+            <img src="css/logout.png" alt="Logout" class="logout-icon"> Logout
+          </a>
         </div>
-      `;
+      </div>
+      <div class="user-cell">${result.userDisplayName}</div>
+    </div>
+  </div>
+`;
+
 
         const avatarContainer = document.querySelector(
           ".user-avatar-container"
@@ -524,6 +525,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === "oauthComplete") {
     // Update UI or reload the page to reflect the login state
     displayUserInfo(); // Or you can use window.location.reload() to refresh the entire page
+    setTimeout(updatePreview, 2000);
   }
 });
 
