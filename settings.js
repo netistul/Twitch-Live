@@ -371,14 +371,15 @@ var previewStream = null;
 function updatePreview() {
   chrome.storage.local.get("liveStreams", function (data) {
     var liveStreams = data.liveStreams || [];
+    var previewContainer = document.getElementById("previewContainer");
+
+    // Check if there are live streams
     if (liveStreams.length > 0) {
       // Select a random stream only if it has not been selected before
       if (!previewStream) {
-        previewStream =
-          liveStreams[Math.floor(Math.random() * liveStreams.length)];
+        previewStream = liveStreams[Math.floor(Math.random() * liveStreams.length)];
       }
 
-      var previewContainer = document.getElementById("previewContainer");
       previewContainer.innerHTML = ""; // Clear previous content
 
       var showAvatar = document.getElementById("showAvatarCheckbox").checked;
@@ -409,6 +410,12 @@ function updatePreview() {
       previewDiv.appendChild(viewersSpan);
 
       previewContainer.appendChild(previewDiv);
+
+      // Ensure the preview container is visible
+      previewContainer.style.display = 'flex';
+    } else {
+      // Hide the preview container if there are no live streams
+      previewContainer.style.display = 'none';
     }
   });
 }
@@ -555,3 +562,16 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+    // Function to toggle dark mode in settings.html
+    function applyDarkModeSetting() {
+      chrome.storage.local.get('darkMode', function(data) {
+        if (data.darkMode) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      });
+    }
+
+    // Apply dark mode setting when the page loads
+    document.addEventListener('DOMContentLoaded', applyDarkModeSetting);
