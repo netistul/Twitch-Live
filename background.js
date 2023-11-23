@@ -53,7 +53,7 @@ function openSettingsPage() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "startOAuth") {
     const redirectUri =
-      "https://fdghigkcpnnjfidmkfdfngojlapiaich.chromiumapp.org/";
+      "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
 
     chrome.identity.launchWebAuthFlow(
       {
@@ -368,14 +368,13 @@ function createContextMenuItems() {
   chrome.contextMenus.removeAll(() => {
     // Now, create new context menu items
     chrome.contextMenus.create({
-      id: "disconnectTwitch",
-      title: "Disconnect Twitch Account",
-      contexts: ["action"],
-    });
-
-    chrome.contextMenus.create({
       id: "openSettings",
       title: "Open Twitch Live Settings",
+      contexts: ["action"],
+    });
+    chrome.contextMenus.create({
+      id: "disconnectTwitch",
+      title: "Disconnect Twitch Account",
       contexts: ["action"],
     });
   });

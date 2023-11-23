@@ -14,7 +14,7 @@ body {
 }
 
 #addFavoriteGroupButton {
-  background-color: #6441a5; /* Purple background */
+  background-color: #6441a5c3; /* Purple background */
   color: white;
   padding: 10px 20px;
   border: none;
@@ -215,9 +215,9 @@ input[type="text"] {
 }
 
 .dropdown-channel-name {
-    font-size: 16px; /* Set the desired font size */
-    /* Other styling as needed */
-  }  
+  font-size: 16px; /* Set the desired font size */
+  /* Other styling as needed */
+}
 
 .show {
   display: block;
@@ -290,7 +290,7 @@ input[type="text"] {
 .optionsMenuHeader {
   font-family: "Noto Sans Display", sans-serif; /* Example font */
   font-size: 20px; /* Font size */
-  color: #6441a5; /* Twitch-like purple color */
+  color: #6441a57b; /* Twitch-like purple color */
   margin-bottom: 15px; /* Spacing after the header */
   text-align: center; /* Center the header text */
 }
@@ -366,6 +366,38 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+/* Text inside the switch */
+.slider-text {
+  position: absolute;
+  font-size: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  color: #0e0d0d;
+  z-index: 1; /* Ensure text is visible, but below the checkbox */
+}
+
+/* Container for the switch */
+.btn-color-mode-switch {
+  position: relative;
+  display: inline-block;
+}
+
+/* Visible part of the switch */
+.btn-color-mode-switch-inner {
+  display: block;
+  position: relative;
+  width: 190px;
+  height: 50px;
+  background: #e0e0e0;
+  border-radius: 26px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .preview-container {

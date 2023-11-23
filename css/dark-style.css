@@ -17,7 +17,7 @@
 }
 
 .dark-mode .stream-info::after {
-  border-bottom: 1px dashed #322e2e3e;
+  border-bottom: 1px dashed #c8646427;
 }
 
 .dark-mode #scrollContainer::-webkit-scrollbar-track {

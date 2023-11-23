@@ -10,13 +10,13 @@ body {
   justify-content: space-between;
   align-items: center;
   font-size: 19px;
-  background-color: #6441a548; /* Twitch's purple color */
+  background-color: #6441a523; /* Twitch's purple color */
   color: white; /* White text for contrast */
   margin-bottom: 0px;
   margin-top: 0px;
   padding: 0px 0px; /* Add some padding */
   border-radius: 1px; /* Rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.096); /* Subtle shadow for depth */
   font-weight: bold; /* Make the font bold */
 }
 

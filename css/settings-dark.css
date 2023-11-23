@@ -14,16 +14,8 @@ body.dark-mode {
 }
 /* Button Style */
 .dark-mode #addFavoriteGroupButton {
-  background-color: #6441a5; /* Twitch purple background */
+  background-color: rgb(43, 43, 64); /* Twitch purple background */
   color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  margin-top: 10px;
-  align-self: center;
-  transition: background-color 0.3s ease;
 }
 
 .dark-mode #addFavoriteGroupButton:hover {
@@ -144,11 +136,6 @@ body.dark-mode {
 .dark-mode #saveGroup {
   background-color: #6441a5; /* Twitch-like purple color */
   color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .dark-mode .button:hover,
@@ -161,21 +148,11 @@ body.dark-mode {
   background-color: #2c2f33; /* Dark background */
   color: white;
   border: 1px solid #444;
-  border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  width: 60%;
-  margin: 15% auto;
-  padding: 30px;
-  cursor: pointer;
 }
 
 .dark-mode .dropdown-menu a {
   color: white;
-  padding: 10px 20px;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s ease;
   border-bottom: 1px solid #444;
 }
 
@@ -207,7 +184,7 @@ body.dark-mode {
 
 /* Add Twitch Channel Button Style */
 .dark-mode .add-streamer-btn {
-  background-color: #6441a5;
+  background-color: #6441a596;
   color: white;
   padding: 5px 10px;
   border: none;
@@ -218,12 +195,12 @@ body.dark-mode {
 }
 
 .dark-mode .add-streamer-btn:hover {
-  background-color: #503484;
+  background-color: #5a3b94;
 }
 
 /* Delete List Button Style */
 .dark-mode .delete-group-btn {
-  background-color: #ff4c4c;
+  background-color: #be2633;
   color: white;
   padding: 5px 10px;
   border: none;
@@ -234,7 +211,7 @@ body.dark-mode {
 }
 
 .dark-mode .delete-group-btn:hover {
-  background-color: #be2633;
+  background-color: #ff4c4c;
 }
 
 /* Settings Container Style */
@@ -245,97 +222,10 @@ body.dark-mode {
   margin-top: 20px;
 }
 
-/* Settings Table and Options Menu Style */
-.dark-mode #settingsTable,
-.dark-mode #optionsMenu {
-  margin: 0 10px;
-}
-
-/* Options Menu Header Style */
-.dark-mode .optionsMenuHeader {
-  font-family: "Noto Sans Display", sans-serif;
-  font-size: 20px;
-  color: #c7c7c7;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-/* Show Avatar Option Style */
-.dark-mode #showAvatarOption {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Show Avatar Label Style */
-.dark-mode .showAvatarLabel {
-  margin-right: 10px;
-  font-family: Verdana, sans-serif;
-  color: #c7c7c7;
-  font-size: 13px;
-}
-
-/* Style for the switch */
-.dark-mode .switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-/* The slider in dark mode */
-.dark-mode .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #333; /* Dark background for slider */
-  transition: 0.4s;
-}
-
-.dark-mode .slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 5px;
-  background-color: white; /* White knob for contrast */
-  transition: 0.4s;
-}
-
-.dark-mode input:checked + .slider {
-  background-color: #6441a5; /* Twitch purple color for checked state */
-}
-
-.dark-mode input:focus + .slider {
-  box-shadow: 0 0 1px #6441a5; /* Focus shadow */
-}
-
-.dark-mode input:checked + .slider:before {
-  transform: translateX(23px); /* Move knob to right on check */
-}
-
-/* Rounded sliders */
-.dark-mode .slider.round {
-  border-radius: 34px;
-}
-
-.dark-mode .slider.round:before {
-  border-radius: 50%;
-}
-
 /* Preview container */
 .dark-mode .preview-container {
-  margin-top: 10px;
   border: 1px solid #444; /* Dark border */
-  padding: 10px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  background-color: #2c2f33; /* Dark background */
+  background-color: #1e1e22; /* Dark background */
 }
 
 /* Stream preview */
@@ -351,17 +241,6 @@ body.dark-mode {
 .dark-mode .stream-preview .viewers-count {
   color: #c86464; /* Light grey color for viewers count */
   /* Other styles for viewers count */
-}
-
-/* User avatar container */
-.dark-mode .user-avatar-container {
-  position: relative;
-  cursor: pointer;
-}
-
-.dark-mode .user-avatar-container img:hover {
-  box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
-  border-radius: 20px;
 }
 
 /* Logout Dropdown Style */
@@ -386,55 +265,11 @@ body.dark-mode {
   margin-right: 5px;
 }
 
-/* Login Button Style */
-.dark-mode #loginButton {
-  background-color: #6441a5; /* Twitch purple background */
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  width: 100%;
-}
-
-.dark-mode #loginButton:hover {
-  background-color: #503484; /* Darker purple on hover */
-}
-
 /* User Table Style */
 .dark-mode #userTable {
   background-color: #2c2f33; /* Dark background for table */
   color: #ffffff; /* Light text color */
-  border-radius: 5px;
-  padding: 10px;
-  margin: 10px 0;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-.dark-mode .user-row {
-  display: table-row;
-}
-
-.dark-mode .user-cell {
-  display: table-cell;
-  padding: -5px;
-  font-family: Verdana;
-  white-space: nowrap;
-}
-
-/* User Avatar Container Style */
-.dark-mode .user-avatar-container {
-  position: relative;
-  cursor: pointer;
-}
-
-.dark-mode .user-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 20px;
-  margin-right: 0px;
-  margin-left: 4px;
-  vertical-align: middle;
 }
 
 /* Dark Mode Option Style */
@@ -445,42 +280,10 @@ body.dark-mode {
 }
 
 .dark-mode .darkModeLabel {
-  margin-right: 10px;
-  font-family: Verdana, sans-serif;
   color: #c7c7c7; /* Light text color for dark mode */
-  font-size: 13px;
 }
 .dark-mode.separator {
-  height: 1px;
   background-color: #ccc; /* Light gray color for the separator */
-  margin: 20px 0; /* Space above and below the separator */
-}
-
-/* Container for the switch */
-.btn-color-mode-switch {
-  position: relative;
-  display: inline-block;
-}
-
-/* Hidden checkbox */
-.btn-color-mode-switch input[type="checkbox"] {
-  opacity: 0;
-  position: absolute;
-  width: 100%; /* Use full width of the container */
-  height: 100%; /* Use full height of the container */
-  z-index: 2; /* Ensure it's above the label */
-}
-
-/* Visible part of the switch */
-.btn-color-mode-switch-inner {
-  display: block;
-  position: relative;
-  width: 190px;
-  height: 50px;
-  background: #e0e0e0;
-  border-radius: 26px;
-  transition: all 0.3s ease;
-  cursor: pointer;
 }
 
 /* Change background when switch is checked */
@@ -488,20 +291,6 @@ body.dark-mode {
   input[type="checkbox"]:checked
   + .btn-color-mode-switch-inner {
   background: #151515;
-}
-
-/* Text inside the switch */
-.slider-text {
-  position: absolute;
-  font-size: 14px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
-  text-align: center;
-  pointer-events: none;
-  color: #0e0d0d;
-  z-index: 1; /* Ensure text is visible, but below the checkbox */
 }
 
 /* Change text color for dark mode */

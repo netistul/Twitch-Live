@@ -44,9 +44,9 @@ function displayGroups() {
 
           // Add Twitch icon
           var twitchIcon = document.createElement("img");
-          twitchIcon.src = "css/twitch.png"; // Update with the correct path
+          twitchIcon.src = "css/twitch.png";
           twitchIcon.alt = "Twitch";
-          twitchIcon.style.width = "20px"; // Adjust size as needed
+          twitchIcon.style.width = "20px";
           twitchIcon.style.marginRight = "3px";
           streamerItem.appendChild(twitchIcon);
 
@@ -307,7 +307,7 @@ function filterDropdown(dropdownMenu, searchValue) {
       noResultsMessage = document.createElement("div");
       noResultsMessage.className = "no-results-message";
       noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
-      noResultsMessage.style.color = "red"; // Optional: style as needed
+      
       noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
       noResultsMessage.style.marginLeft = "40px"; 
       dropdownMenu.appendChild(noResultsMessage);
@@ -469,7 +469,7 @@ function showTemporaryInfo(message) {
 
 function displayUserInfo() {
   chrome.storage.local.get(
-    ["userDisplayName", "userAvatar", "twitchAccessToken"],
+    ["userDisplayName", "userAvatar", "twitchAccessToken", "loginTipShown"],
     function (result) {
       const userInfoDiv = document.getElementById("userInfo");
 
@@ -541,16 +541,60 @@ function displayUserInfo() {
               if (response && response.status === "success") {
                 // Refresh the page upon successful logout
                 window.location.reload();
+                chrome.storage.local.set({ loginTipShown: false });
               }
             }
           );
         });
+
+        // Show the login tip only if it hasn't been shown before
+        if (!result.loginTipShown) {
+          showLoginTip();
+          chrome.storage.local.set({ loginTipShown: true }); // Set the flag to true after showing the tip
+        }
+
       } else {
-        // Case where the user is not logged in and no user info is available
+        // No user info is available
         userInfoDiv.textContent = "Not logged in";
       }
     }
   );
+}
+
+function showLoginTip() {
+  const tipContainer = document.createElement("div");
+  tipContainer.id = "loginTip";
+  tipContainer.style.backgroundColor = "#6441a5"; // Twitch purple
+  tipContainer.style.color = "white";
+  tipContainer.style.padding = "10px";
+  tipContainer.style.borderRadius = "5px";
+  tipContainer.style.marginTop = "10px";
+  tipContainer.style.display = "flex";
+  tipContainer.style.flexDirection = "column"; // Changed to column layout
+  tipContainer.style.alignItems = "center"; // Center items vertically
+  tipContainer.style.justifyContent = "center"; // Center items horizontally
+  tipContainer.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
+  tipContainer.style.fontFamily = "'Arial', sans-serif";
+
+  const tipText = document.createElement("span");
+  tipText.textContent = "Pin popup extension for easy access!";
+  tipText.style.textAlign = "center"; // Ensure the text is centered
+  tipContainer.appendChild(tipText);
+
+  const tipImage = document.createElement("img");
+  tipImage.src = "css/infopin.png"; // Path to your pin image
+  tipImage.alt = "Pin Icon";
+  tipImage.style.width = "250px";
+  tipImage.style.marginTop = "5px"; // Space between text and image
+  tipContainer.appendChild(tipImage);
+
+  const userInfoDiv = document.getElementById("userInfo");
+  userInfoDiv.appendChild(tipContainer);
+
+  // Remove the tip after a few seconds
+  setTimeout(() => {
+    tipContainer.remove();
+  }, 20000);
 }
 
 // Listener for OAuth completion in settings.js
