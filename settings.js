@@ -1,3 +1,6 @@
+var isLoggedIn = false;
+var hasFollowers = false;
+
 function displayGroups() {
   chrome.storage.local.get(["favoriteGroups", "twitchAccessToken", "followedList"], function (data) {
     var groups = data.favoriteGroups || [];
@@ -598,14 +601,25 @@ function showLoginTip() {
   }, 20000);
 }
 
-// Listener for OAuth completion in settings.js
+// Listener for OAuth completion
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === "oauthComplete") {
-    // Update UI or reload the page to reflect the login state
-    displayUserInfo(); // Or you can use window.location.reload() to refresh the entire page
-    setTimeout(updatePreview, 2000);
+    // Fetch the latest data to check login status and followed channels
+    chrome.storage.local.get(["twitchAccessToken", "followedList"], function (result) {
+      isLoggedIn = !!result.twitchAccessToken;
+      hasFollowers = result.followedList && result.followedList.length > 0;
+
+      // Now update the UI based on the new status
+      displayUserInfo(); // Refreshes user info display
+      setTimeout(updatePreview, 2000); // Waits for 2 seconds before updating the preview
+
+      // Optionally, you can also refresh other parts of your extension's UI
+      // For example, refresh groups display
+      displayGroups();
+    });
   }
 });
+
 
 // Function to toggle dark mode and update text
 function toggleDarkMode(isDarkMode) {
