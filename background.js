@@ -305,51 +305,66 @@ function fetchStreamData(accessToken, followedList) {
   Promise.all(streamFetchPromises).then((streamData) => {
     const liveStreams = streamData.filter((data) => data !== null);
 
-    chrome.storage.local.get({ lastKnownLiveStreams: {}, startupTime: 0, enableNotifications: false }, (result) => {
-      let lastKnownLiveStreams = result.lastKnownLiveStreams;
-      const startupTime = result.startupTime;
-      const enableNotifications = result.enableNotifications;
-      const currentTime = Date.now();
+    chrome.storage.local.get(
+      { lastKnownLiveStreams: {}, startupTime: 0, enableNotifications: false },
+      (result) => {
+        let lastKnownLiveStreams = result.lastKnownLiveStreams;
+        const startupTime = result.startupTime;
+        const enableNotifications = result.enableNotifications;
+        const currentTime = Date.now();
 
-      liveStreams.forEach(stream => {
-        const wasLive = lastKnownLiveStreams[stream.channelName];
+        liveStreams.forEach((stream) => {
+          const wasLive = lastKnownLiveStreams[stream.channelName];
 
-        if (stream.live && !wasLive && (currentTime - startupTime > someThreshold) && enableNotifications) {
-          // Channel just went live after the startup threshold and notifications are enabled, send notification
-          sendLiveNotification(stream);
-        }
+          if (
+            stream.live &&
+            !wasLive &&
+            currentTime - startupTime > someThreshold &&
+            enableNotifications
+          ) {
+            // Channel just went live after the startup threshold and notifications are enabled, send notification
+            sendLiveNotification(stream);
+          }
 
-        // Update the last known live streams
-        lastKnownLiveStreams[stream.channelName] = stream.live;
-      });
-
-      chrome.storage.local.set({ lastKnownLiveStreams: lastKnownLiveStreams, liveStreams: liveStreams }, () => {
-        console.log("Live stream data and last known live streams updated in local storage");
-
-        // Cache the count of live streams
-        const liveCount = liveStreams.length;
-        chrome.storage.local.set({ liveStreamCount: liveCount }, () => {
-          console.log("Live stream count cached");
-
-          // Update the badge with the live stream count
-          chrome.action.setBadgeText({ text: liveCount.toString() });
-          chrome.action.setBadgeBackgroundColor({ color: "#6366f1" }); // Twitch purple color
+          // Update the last known live streams
+          lastKnownLiveStreams[stream.channelName] = stream.live;
         });
-      });
-    });
+
+        chrome.storage.local.set(
+          {
+            lastKnownLiveStreams: lastKnownLiveStreams,
+            liveStreams: liveStreams,
+          },
+          () => {
+            console.log(
+              "Live stream data and last known live streams updated in local storage"
+            );
+
+            // Cache the count of live streams
+            const liveCount = liveStreams.length;
+            chrome.storage.local.set({ liveStreamCount: liveCount }, () => {
+              console.log("Live stream count cached");
+
+              // Update the badge with the live stream count
+              chrome.action.setBadgeText({ text: liveCount.toString() });
+              chrome.action.setBadgeBackgroundColor({ color: "#6366f1" }); // Twitch purple color
+            });
+          }
+        );
+      }
+    );
   });
 }
 
 function sendLiveNotification(channel) {
-  chrome.notifications.create('liveNotification_' + channel.channelName, {
-    type: 'basic',
-    iconUrl: channel.avatar || 'default_icon.png', // Default icon if no avatar
+  chrome.notifications.create("liveNotification_" + channel.channelName, {
+    type: "basic",
+    iconUrl: channel.avatar || "default_icon.png", // Default icon if no avatar
     title: `${channel.channelName} is live!`,
     message: `${channel.channelName} is streaming ${channel.category}.`,
-    priority: 2
+    priority: 2,
   });
 }
-
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {
@@ -377,7 +392,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
     // Open the settings page in a new tab
     chrome.tabs.create({
-      url: "settings.html"
+      url: "settings.html",
     });
   }
 });

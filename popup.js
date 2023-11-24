@@ -33,18 +33,18 @@ document.addEventListener("DOMContentLoaded", function () {
       description.id = "description";
       buttonContainer.appendChild(description);
 
-          // Create and append the not logged in icon
-          const notLoggedInIcon = document.createElement("img");
-          notLoggedInIcon.src = "css/notlogged.webp"; // Change the source to the .webp file
-          notLoggedInIcon.alt = "Not Logged In";
-          
-          notLoggedInIcon.style.height = "auto"; // Maintain aspect ratio
-          notLoggedInIcon.style.marginTop = "10px";
-          notLoggedInIcon.style.display = "block"; // To enable margin auto to work
-          notLoggedInIcon.style.marginLeft = "auto";
-          notLoggedInIcon.style.marginRight = "auto";
-          
-    buttonContainer.appendChild(notLoggedInIcon);
+      // Create and append the not logged in icon
+      const notLoggedInIcon = document.createElement("img");
+      notLoggedInIcon.src = "css/notlogged.webp"; // Change the source to the .webp file
+      notLoggedInIcon.alt = "Not Logged In";
+
+      notLoggedInIcon.style.height = "auto"; // Maintain aspect ratio
+      notLoggedInIcon.style.marginTop = "10px";
+      notLoggedInIcon.style.display = "block"; // To enable margin auto to work
+      notLoggedInIcon.style.marginLeft = "auto";
+      notLoggedInIcon.style.marginRight = "auto";
+
+      buttonContainer.appendChild(notLoggedInIcon);
 
       buttonContainer.appendChild(spinner); // Place the spinner next to the description
     }
@@ -86,161 +86,182 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function updateLiveStreams() {
-  chrome.storage.local.get(["liveStreams", "favoriteGroups", "showAvatar", "channelAccess", "hideAccessedCount"], function(result) {
-    const liveStreams = result.liveStreams || [];
-    const favoriteGroups = result.favoriteGroups || [];
-    const showAvatar = result.showAvatar === true;
-    const channelAccess = result.channelAccess || {};
-    const hideAccessedCount = result.hideAccessedCount === false ? false : true; // Default to true
+  chrome.storage.local.get(
+    [
+      "liveStreams",
+      "favoriteGroups",
+      "showAvatar",
+      "channelAccess",
+      "hideAccessedCount",
+    ],
+    function (result) {
+      const liveStreams = result.liveStreams || [];
+      const favoriteGroups = result.favoriteGroups || [];
+      const showAvatar = result.showAvatar === true;
+      const channelAccess = result.channelAccess || {};
+      const hideAccessedCount =
+        result.hideAccessedCount === false ? false : true; // Default to true
 
-    // Sort channels based on access count
-    liveStreams.sort((a, b) => (channelAccess[b.channelName] || 0) - (channelAccess[a.channelName] || 0));
-
-    const container = document.getElementById("buttonContainer");
-    const currentScrollPosition = container.scrollTop;
-    container.innerHTML = "";
-
-    const scrollContainer = document.createElement("div");
-    scrollContainer.id = "scrollContainer";
-
-    let isAnyFavoriteGroupLive = false; // This will track if any favorite group is live
-
-    function appendStreamLink(stream, container) {
-      const channelItem = document.createElement("div");
-      channelItem.className = "stream-item";
-
-      const channelLink = document.createElement("a");
-      channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
-      channelLink.className = "stream-info";
-      channelLink.target = "_blank";
-
-      channelLink.addEventListener("click", function() {
-        incrementChannelAccess(stream.channelName);
-      });
-
-      if (showAvatar && stream.avatar) {
-        const avatarImg = document.createElement("img");
-        avatarImg.src = stream.avatar;
-        avatarImg.className = "stream-avatar";
-        avatarImg.alt = `${stream.channelName}'s avatar`;
-        avatarImg.style.width = "30px";
-        avatarImg.style.height = "30px";
-        avatarImg.style.borderRadius = "15px";
-        avatarImg.style.marginRight = "5px";
-        channelLink.appendChild(avatarImg);
-      }
-
-      const wrapperDiv = document.createElement("div");
-      wrapperDiv.className = "channel-category-wrapper";
-
-      const channelNameSpan = document.createElement("span");
-      channelNameSpan.className = "channel-name";
-      channelNameSpan.textContent = stream.channelName;
-      wrapperDiv.appendChild(channelNameSpan);
-
-      if (hideAccessedCount) {
-        // Display the access count for the channel
-        const accessCount = channelAccess[stream.channelName] || 0;
-        const accessCountSpan = document.createElement("span");
-        accessCountSpan.className = "access-count";
-        accessCountSpan.textContent = `Accessed: ${accessCount} times`;
-        accessCountSpan.style.display = "none";
-        wrapperDiv.appendChild(accessCountSpan);
-
-        channelItem.onmouseover = function() {
-          accessCountSpan.style.display = "block";
-        };
-        channelItem.onmouseout = function() {
-          accessCountSpan.style.display = "none";
-        };
-      }
-
-      const categorySpan = document.createElement("span");
-      categorySpan.className = "stream-category";
-      categorySpan.textContent = stream.category;
-      wrapperDiv.appendChild(categorySpan);
-
-      const viewersSpan = document.createElement("span");
-      viewersSpan.className = "viewers";
-      viewersSpan.textContent = stream.viewers;
-      wrapperDiv.appendChild(viewersSpan);
-
-      channelLink.appendChild(wrapperDiv);
-      channelItem.appendChild(channelLink);
-
-      container.appendChild(channelItem);
-    }
-
-    favoriteGroups.forEach(group => {
-      const liveGroupStreams = liveStreams.filter(stream =>
-        group.streamers.map(s => s.toLowerCase()).includes(stream.channelName.toLowerCase())
+      // Sort channels based on access count
+      liveStreams.sort(
+        (a, b) =>
+          (channelAccess[b.channelName] || 0) -
+          (channelAccess[a.channelName] || 0)
       );
 
-      if (liveGroupStreams.length > 0) {
-        isAnyFavoriteGroupLive = true; // Set to true if any favorite group is live
+      const container = document.getElementById("buttonContainer");
+      const currentScrollPosition = container.scrollTop;
+      container.innerHTML = "";
 
-        const groupNameHeader = document.createElement("h3");
-        groupNameHeader.textContent = group.name.toUpperCase();
-        groupNameHeader.classList.add("group-header");
-        scrollContainer.appendChild(groupNameHeader);
+      const scrollContainer = document.createElement("div");
+      scrollContainer.id = "scrollContainer";
 
-        liveGroupStreams.forEach(stream => {
-          appendStreamLink(stream, scrollContainer);
+      let isAnyFavoriteGroupLive = false; // This will track if any favorite group is live
+
+      function appendStreamLink(stream, container) {
+        const channelItem = document.createElement("div");
+        channelItem.className = "stream-item";
+
+        const channelLink = document.createElement("a");
+        channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
+        channelLink.className = "stream-info";
+        channelLink.target = "_blank";
+
+        channelLink.addEventListener("click", function () {
+          incrementChannelAccess(stream.channelName);
         });
+
+        if (showAvatar && stream.avatar) {
+          const avatarImg = document.createElement("img");
+          avatarImg.src = stream.avatar;
+          avatarImg.className = "stream-avatar";
+          avatarImg.alt = `${stream.channelName}'s avatar`;
+          avatarImg.style.width = "30px";
+          avatarImg.style.height = "30px";
+          avatarImg.style.borderRadius = "15px";
+          avatarImg.style.marginRight = "5px";
+          channelLink.appendChild(avatarImg);
+        }
+
+        const wrapperDiv = document.createElement("div");
+        wrapperDiv.className = "channel-category-wrapper";
+
+        const channelNameSpan = document.createElement("span");
+        channelNameSpan.className = "channel-name";
+        channelNameSpan.textContent = stream.channelName;
+        wrapperDiv.appendChild(channelNameSpan);
+
+        if (hideAccessedCount) {
+          // Display the access count for the channel
+          const accessCount = channelAccess[stream.channelName] || 0;
+          const accessCountSpan = document.createElement("span");
+          accessCountSpan.className = "access-count";
+          accessCountSpan.textContent = `Accessed: ${accessCount} times`;
+          accessCountSpan.style.display = "none";
+          wrapperDiv.appendChild(accessCountSpan);
+
+          channelItem.onmouseover = function () {
+            accessCountSpan.style.display = "block";
+          };
+          channelItem.onmouseout = function () {
+            accessCountSpan.style.display = "none";
+          };
+        }
+
+        const categorySpan = document.createElement("span");
+        categorySpan.className = "stream-category";
+        categorySpan.textContent = stream.category;
+        wrapperDiv.appendChild(categorySpan);
+
+        const viewersSpan = document.createElement("span");
+        viewersSpan.className = "viewers";
+        viewersSpan.textContent = stream.viewers;
+        wrapperDiv.appendChild(viewersSpan);
+
+        channelLink.appendChild(wrapperDiv);
+        channelItem.appendChild(channelLink);
+
+        container.appendChild(channelItem);
       }
-    });
 
-    const ungroupedStreams = liveStreams.filter(stream =>
-      !favoriteGroups.some(group =>
-        group.streamers.map(s => s.toLowerCase()).includes(stream.channelName.toLowerCase())
-      )
-    );
+      favoriteGroups.forEach((group) => {
+        const liveGroupStreams = liveStreams.filter((stream) =>
+          group.streamers
+            .map((s) => s.toLowerCase())
+            .includes(stream.channelName.toLowerCase())
+        );
 
-    // Display "MORE LIVE TWITCH CHANNELS" only if any favorite group is live
-    if (ungroupedStreams.length > 0 && isAnyFavoriteGroupLive) {
-      const otherChannelsHeader = document.createElement("h3");
-      otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
-      otherChannelsHeader.classList.add("group-header");
-      scrollContainer.appendChild(otherChannelsHeader);
+        if (liveGroupStreams.length > 0) {
+          isAnyFavoriteGroupLive = true; // Set to true if any favorite group is live
+
+          const groupNameHeader = document.createElement("h3");
+          groupNameHeader.textContent = group.name.toUpperCase();
+          groupNameHeader.classList.add("group-header");
+          scrollContainer.appendChild(groupNameHeader);
+
+          liveGroupStreams.forEach((stream) => {
+            appendStreamLink(stream, scrollContainer);
+          });
+        }
+      });
+
+      const ungroupedStreams = liveStreams.filter(
+        (stream) =>
+          !favoriteGroups.some((group) =>
+            group.streamers
+              .map((s) => s.toLowerCase())
+              .includes(stream.channelName.toLowerCase())
+          )
+      );
+
+      // Display "MORE LIVE TWITCH CHANNELS" only if any favorite group is live
+      if (ungroupedStreams.length > 0 && isAnyFavoriteGroupLive) {
+        const otherChannelsHeader = document.createElement("h3");
+        otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
+        otherChannelsHeader.classList.add("group-header");
+        scrollContainer.appendChild(otherChannelsHeader);
+      }
+
+      ungroupedStreams.forEach((stream) => {
+        appendStreamLink(stream, scrollContainer);
+      });
+
+      container.appendChild(scrollContainer);
+      container.scrollTop = currentScrollPosition;
     }
-
-    ungroupedStreams.forEach(stream => {
-      appendStreamLink(stream, scrollContainer);
-    });
-
-    container.appendChild(scrollContainer);
-    container.scrollTop = currentScrollPosition;
-  });
+  );
 }
 
-
 function incrementChannelAccess(channelName) {
-  chrome.storage.local.get(["channelAccess"], function(result) {
-      let channelAccess = result.channelAccess || {};
-      channelAccess[channelName] = (channelAccess[channelName] || 0) + 1;
+  chrome.storage.local.get(["channelAccess"], function (result) {
+    let channelAccess = result.channelAccess || {};
+    channelAccess[channelName] = (channelAccess[channelName] || 0) + 1;
 
-      chrome.storage.local.set({channelAccess: channelAccess});
+    chrome.storage.local.set({ channelAccess: channelAccess });
   });
 }
 
 // Function to update the settings icon based on user login status
 function updateSettingsIcon() {
-  const settingsIcon = document.getElementById('settingsIcon');
+  const settingsIcon = document.getElementById("settingsIcon");
 
-  chrome.storage.local.get(['userAvatar', 'twitchAccessToken'], function (result) {
-    if (result.userAvatar && result.twitchAccessToken) {
-      // User is logged in, update the settings icon to user's avatar
-      settingsIcon.src = result.userAvatar;
-    } else {
-      // User is not logged in, use the default settings icon
-      settingsIcon.src = 'css/settings.png';
+  chrome.storage.local.get(
+    ["userAvatar", "twitchAccessToken"],
+    function (result) {
+      if (result.userAvatar && result.twitchAccessToken) {
+        // User is logged in, update the settings icon to user's avatar
+        settingsIcon.src = result.userAvatar;
+      } else {
+        // User is not logged in, use the default settings icon
+        settingsIcon.src = "css/settings.png";
+      }
     }
-  });
+  );
 }
 
 // In popup.js to update avatar .png
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  if (message.action === 'profileUpdated') {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.action === "profileUpdated") {
     // Update the settings icon when the profile is updated
     updateSettingsIcon();
   }
@@ -269,8 +290,8 @@ window.addEventListener("unload", function () {
 });
 
 function applyDarkMode() {
-  chrome.storage.local.get("darkMode", function(data) {
-    if(data.darkMode) {
+  chrome.storage.local.get("darkMode", function (data) {
+    if (data.darkMode) {
       document.body.classList.add("dark-mode");
     } else {
       document.body.classList.remove("dark-mode");

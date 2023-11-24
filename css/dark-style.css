@@ -24,7 +24,6 @@
   border-bottom: 1px dashed #c8646427;
 }
 
-
 .dark-mode #scrollContainer::-webkit-scrollbar-track {
   background-color: #adadb7; /* Light gray track */
 }

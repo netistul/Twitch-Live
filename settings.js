@@ -288,20 +288,20 @@ function showAddStreamerDropdown(groupIndex) {
           // Append the channel name span to the dropdown item
           dropdownItem.appendChild(channelNameSpan);
 
-            // Create a Font Awesome plus icon and append it to the dropdown item
-  var plusIcon = document.createElement("i");
-  plusIcon.className = "fas fa-plus"; // Font Awesome plus icon class
-  plusIcon.style.float = "right"; // Position the icon to the right
-  plusIcon.style.marginRight = "10px"; // Add some margin to the right
-  plusIcon.style.opacity = "0"; // Initially hidden
-  dropdownItem.appendChild(plusIcon);
+          // Create a Font Awesome plus icon and append it to the dropdown item
+          var plusIcon = document.createElement("i");
+          plusIcon.className = "fas fa-plus"; // Font Awesome plus icon class
+          plusIcon.style.float = "right"; // Position the icon to the right
+          plusIcon.style.marginRight = "10px"; // Add some margin to the right
+          plusIcon.style.opacity = "0"; // Initially hidden
+          dropdownItem.appendChild(plusIcon);
 
-  dropdownItem.onmouseenter = function () {
-    plusIcon.style.opacity = "1"; // Show icon on hover
-  };
-  dropdownItem.onmouseleave = function () {
-    plusIcon.style.opacity = "0"; // Hide icon when not hovered
-  };
+          dropdownItem.onmouseenter = function () {
+            plusIcon.style.opacity = "1"; // Show icon on hover
+          };
+          dropdownItem.onmouseleave = function () {
+            plusIcon.style.opacity = "0"; // Hide icon when not hovered
+          };
 
           dropdownItem.onclick = function () {
             // Add Streamer to the group
@@ -384,44 +384,46 @@ function showAddStreamerDropdown(groupIndex) {
 // Global function to filter dropdown
 function filterDropdown(dropdownMenu, searchValue) {
   var dropdownItems = dropdownMenu.getElementsByTagName("a");
-  var noResultsFound = true; // Flag to track if any results are found
+  var noResultsFound = true;
 
   for (var i = 0; i < dropdownItems.length; i++) {
     var item = dropdownItems[i];
     var textValue = item.textContent || item.innerText;
+
     if (textValue.toLowerCase().indexOf(searchValue) > -1) {
       item.style.display = "";
-      noResultsFound = false; // Set to false if any item is visible
+      item.style.display = "flex"; // Reapply flexbox display
+      item.style.alignItems = "center"; // Reapply vertical centering
+      item.style.justifyContent = "space-between"; // Reapply space distribution
+      noResultsFound = false;
     } else {
       item.style.display = "none";
     }
   }
 
   // Check if the no results message already exists
-  // Check if the no results message already exists
-var noResultsMessage = dropdownMenu.querySelector(".no-results-message");
-if (noResultsFound) {
-  if (!noResultsMessage) {
-    // Create and display a no results message
-    noResultsMessage = document.createElement("div");
-    noResultsMessage.className = "no-results-message";
-    noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
+  var noResultsMessage = dropdownMenu.querySelector(".no-results-message");
+  if (noResultsFound) {
+    if (!noResultsMessage) {
+      // Create and display a no results message
+      noResultsMessage = document.createElement("div");
+      noResultsMessage.className = "no-results-message";
+      noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
 
-    noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
-    noResultsMessage.style.marginLeft = "20px";
-    noResultsMessage.style.fontSize = "1.1em"; // Increase font size by 10%
-    dropdownMenu.appendChild(noResultsMessage);
-  } else {
-    // Update the existing no results message
-    noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
-    noResultsMessage.style.display = ""; // Make sure it's visible
-    noResultsMessage.style.fontSize = "1.1em"; // Ensure font size is updated
+      noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
+      noResultsMessage.style.marginLeft = "20px";
+      noResultsMessage.style.fontSize = "1.1em"; // Increase font size by 10%
+      dropdownMenu.appendChild(noResultsMessage);
+    } else {
+      // Update the existing no results message
+      noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
+      noResultsMessage.style.display = ""; // Make sure it's visible
+      noResultsMessage.style.fontSize = "1.1em"; // Ensure font size is updated
+    }
+  } else if (noResultsMessage) {
+    // Hide the no results message if results are found
+    noResultsMessage.style.display = "none";
   }
-} else if (noResultsMessage) {
-  // Hide the no results message if results are found
-  noResultsMessage.style.display = "none";
-}
-
 }
 
 // DOMContentLoaded event listener
