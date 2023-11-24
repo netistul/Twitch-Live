@@ -229,10 +229,10 @@ function showAddStreamerDropdown(groupIndex) {
         message.id = "addChannelMessage";
         message.textContent = "Add a channel for list " + groupName;
         message.style.padding = "10px";
-        message.style.fontSize = "120%";
+        message.style.fontSize = "140%";
         message.style.fontWeight = "bold";
         message.style.color = "#efeff1"; // Ensure this color contrasts well with the background
-        message.style.backgroundColor = "#62507b"; // Example: dark background
+        message.style.backgroundColor = "rgba(98, 80, 123, 0.8)"; // Purple background with transparency
         message.style.borderRadius = "8px"; // Rounded corners
         message.style.textAlign = "center"; // Center align the text
         message.style.position = "fixed";

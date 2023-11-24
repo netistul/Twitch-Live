@@ -43,3 +43,27 @@
 .dark-mode .channel-category-wrapper:hover .access-count {
   display: block; /* Show access count on hover */
 }
+
+/* Custom Scrollbar Styles */
+/* For Webkit browsers like Chrome, Safari */
+.dark-mode #scrollContainer::-webkit-scrollbar {
+  width: 4px; /* Width of the scrollbar */
+}
+
+.dark-mode #scrollContainer::-webkit-scrollbar-track {
+  background-color: #0d0d0e; /* Light gray track */
+}
+
+.dark-mode #scrollContainer::-webkit-scrollbar-thumb {
+  background-color: #6441a575; /* Twitch-like purple thumb */
+  border-radius: 5px; /* Rounded corners for the thumb */
+}
+
+.dark-mode #scrollContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #503484; /* Darker purple on hover */
+}
+
+.dark-mode #scrollContainer {
+  max-height: calc(556px - 1px);
+  overflow-y: auto;
+}
