@@ -88,6 +88,8 @@ function updateLiveStreams() {
     const scrollContainer = document.createElement("div");
     scrollContainer.id = "scrollContainer";
 
+    let isAnyFavoriteGroupLive = false; // This will track if any favorite group is live
+
     function appendStreamLink(stream, container) {
       const channelItem = document.createElement("div");
       channelItem.className = "stream-item";
@@ -149,8 +151,9 @@ function updateLiveStreams() {
       wrapperDiv.appendChild(viewersSpan);
 
       channelLink.appendChild(wrapperDiv);
-channelItem.appendChild(channelLink); // channelLink should be inside channelItem
-container.appendChild(channelItem); // channelItem is appended to the container
+      channelItem.appendChild(channelLink);
+
+      container.appendChild(channelItem);
     }
 
     favoriteGroups.forEach(group => {
@@ -159,6 +162,8 @@ container.appendChild(channelItem); // channelItem is appended to the container
       );
 
       if (liveGroupStreams.length > 0) {
+        isAnyFavoriteGroupLive = true; // Set to true if any favorite group is live
+
         const groupNameHeader = document.createElement("h3");
         groupNameHeader.textContent = group.name.toUpperCase();
         groupNameHeader.classList.add("group-header");
@@ -176,7 +181,8 @@ container.appendChild(channelItem); // channelItem is appended to the container
       )
     );
 
-    if (ungroupedStreams.length > 0) {
+    // Display "MORE LIVE TWITCH CHANNELS" only if any favorite group is live
+    if (ungroupedStreams.length > 0 && isAnyFavoriteGroupLive) {
       const otherChannelsHeader = document.createElement("h3");
       otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
       otherChannelsHeader.classList.add("group-header");
