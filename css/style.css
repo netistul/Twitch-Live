@@ -66,8 +66,16 @@ body {
   content: "";
   position: absolute;
   bottom: 1px; /* Closer to the bottom of the stream-info */
+  margin-top: 5px;
   left: 12px;
   right: 12px;
+  border-bottom: 1px dashed #9999996e;
+}
+
+.stream-item::after {
+  content: "";
+  display: block;
+  margin-top: 0px; /* Adjust as needed */
   border-bottom: 1px dashed #9999996e;
 }
 /* New Wrapper Style */
