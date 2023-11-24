@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   applyDarkMode();
   updateLiveStreams();
   updateSettingsIcon();
-  setInterval(updateLiveStreams, 10000);
+  setInterval(updateLiveStreams, 30000);
 
   const buttonContainer = document.getElementById("buttonContainer");
 
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
         loginButton.style.display = "none"; // Hide the login button
         const description = document.getElementById("description");
         description.style.display = "none"; // Hide the description text
+        notLoggedInIcon.style.display = "none";
         chrome.runtime.sendMessage({ action: "startOAuth" });
       });
       buttonContainer.appendChild(loginButton);
@@ -31,6 +32,20 @@ document.addEventListener("DOMContentLoaded", function () {
         "Log in with Twitch to see live channels you follow!";
       description.id = "description";
       buttonContainer.appendChild(description);
+
+          // Create and append the not logged in icon
+          const notLoggedInIcon = document.createElement("img");
+          notLoggedInIcon.src = "css/notlogged.webp"; // Change the source to the .webp file
+          notLoggedInIcon.alt = "Not Logged In";
+          
+          notLoggedInIcon.style.height = "auto"; // Maintain aspect ratio
+          notLoggedInIcon.style.marginTop = "10px";
+          notLoggedInIcon.style.display = "block"; // To enable margin auto to work
+          notLoggedInIcon.style.marginLeft = "auto";
+          notLoggedInIcon.style.marginRight = "auto";
+          
+    buttonContainer.appendChild(notLoggedInIcon);
+
       buttonContainer.appendChild(spinner); // Place the spinner next to the description
     }
   });
