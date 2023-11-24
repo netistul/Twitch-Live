@@ -689,6 +689,8 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("hideAccessedCountCheckbox").addEventListener("change", function () {
     var isChecked = this.checked;
     chrome.storage.local.set({ hideAccessedCount: isChecked }, function () {
+            // Send a message to the background script
+            chrome.runtime.sendMessage({ action: "oauthComplete" });
       console.log("Hide Accessed Count preference updated:", isChecked);
     });
   });
