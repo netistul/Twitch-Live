@@ -656,7 +656,7 @@ input:checked + .slider:before {
 /* Style for bell icon label */
 .bell-icon-label {
   position: relative;
-  padding-left: 35px; /* Space for the bell icon */
+  padding-left: 33px; /* Space for the bell icon */
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -674,7 +674,7 @@ input:checked + .slider:before {
 
 /* Style for the label text */
 .label-text {
-  margin-left: 17px;
+  margin-left: 18px;
   font-family: Verdana, sans-serif;
 }
 
