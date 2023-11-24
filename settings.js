@@ -2,115 +2,123 @@ var isLoggedIn = false;
 var hasFollowers = false;
 
 function displayGroups() {
-  chrome.storage.local.get(["favoriteGroups", "twitchAccessToken", "followedList"], function (data) {
-    var groups = data.favoriteGroups || [];
-    var groupListContainer = document.getElementById("groupListContainer");
-    var favoriteListText = document.getElementById("favoriteListText");
-    var isLoggedIn = data.twitchAccessToken != null;
-    var hasFollowers = data.followedList && data.followedList.length > 0;
+  chrome.storage.local.get(
+    ["favoriteGroups", "twitchAccessToken", "followedList"],
+    function (data) {
+      var groups = data.favoriteGroups || [];
+      var groupListContainer = document.getElementById("groupListContainer");
+      var favoriteListText = document.getElementById("favoriteListText");
+      var isLoggedIn = data.twitchAccessToken != null;
+      var hasFollowers = data.followedList && data.followedList.length > 0;
 
-    groupListContainer.innerHTML = "";
+      groupListContainer.innerHTML = "";
 
-    if (groups.length === 0) {
-      groupListContainer.innerHTML = `
+      if (groups.length === 0) {
+        groupListContainer.innerHTML = `
       <p style="font-size: 16px; text-align: center;">
       <img src="css/nogroup.gif" style="display: block; margin: 0 auto;">
       <strong>No Favorite Groups Created Yet</strong><br><br>
       This is a list that will help you filter your favorite live streams from the popup into new category groups. <br><br>
       You can create a group and add any Twitch channel to it, organizing your streams.
     </p>`;
-      favoriteListText.style.display = "none";
-    } else {
-      favoriteListText.style.display = "block";
-      var groupList = document.createElement("ul");
-      groupList.id = "groupList";
+        favoriteListText.style.display = "none";
+      } else {
+        favoriteListText.style.display = "block";
+        var groupList = document.createElement("ul");
+        groupList.id = "groupList";
 
-      groups.forEach(function (group, index) {
-        var groupItem = document.createElement("li");
-        groupItem.classList.add("group-item");
+        groups.forEach(function (group, index) {
+          var groupItem = document.createElement("li");
+          groupItem.classList.add("group-item");
 
-        var groupNameSpan = document.createElement("span");
-        groupNameSpan.textContent = group.name;
-        groupItem.appendChild(groupNameSpan);
+          var groupNameSpan = document.createElement("span");
+          groupNameSpan.textContent = group.name;
+          groupItem.appendChild(groupNameSpan);
 
-        var streamersList = document.createElement("ul");
-        streamersList.classList.add("streamers-list");
-        streamersList.style.listStyleType = "none";
-        streamersList.style.padding = "0";
+          var streamersList = document.createElement("ul");
+          streamersList.classList.add("streamers-list");
+          streamersList.style.listStyleType = "none";
+          streamersList.style.padding = "0";
 
-        group.streamers.forEach(function (streamer, streamerIndex) {
-          var streamerItem = document.createElement("li");
-          streamerItem.style.display = "flex";
-          streamerItem.style.justifyContent = "space-between";
-          streamerItem.style.alignItems = "center";
-          streamerItem.style.fontSize = "70%";
+          group.streamers.forEach(function (streamer, streamerIndex) {
+            var streamerItem = document.createElement("li");
+            streamerItem.style.display = "flex";
+            streamerItem.style.justifyContent = "space-between";
+            streamerItem.style.alignItems = "center";
+            streamerItem.style.fontSize = "70%";
 
-          var twitchIcon = document.createElement("img");
-          twitchIcon.src = "css/twitch.png";
-          twitchIcon.alt = "Twitch";
-          twitchIcon.style.width = "20px";
-          twitchIcon.style.marginRight = "3px";
-          streamerItem.appendChild(twitchIcon);
+            var twitchIcon = document.createElement("img");
+            twitchIcon.src = "css/twitch.png";
+            twitchIcon.alt = "Twitch";
+            twitchIcon.style.width = "20px";
+            twitchIcon.style.marginRight = "3px";
+            streamerItem.appendChild(twitchIcon);
 
-          var streamerNameSpan = document.createElement("span");
-          streamerNameSpan.textContent = streamer;
-          streamerNameSpan.style.flexGrow = "1";
-          streamerItem.appendChild(streamerNameSpan);
+            var streamerNameSpan = document.createElement("span");
+            streamerNameSpan.textContent = streamer;
+            streamerNameSpan.style.flexGrow = "1";
+            streamerItem.appendChild(streamerNameSpan);
 
-          var deleteStreamerBtn = document.createElement("button");
-          deleteStreamerBtn.textContent = "x";
-          deleteStreamerBtn.style.width = "30px";
-          deleteStreamerBtn.onclick = function () {
-            deleteStreamer(index, streamerIndex);
-          };
-          streamerItem.appendChild(deleteStreamerBtn);
+            var deleteStreamerBtn = document.createElement("button");
+            deleteStreamerBtn.textContent = "x";
+            deleteStreamerBtn.style.width = "30px";
+            deleteStreamerBtn.onclick = function () {
+              deleteStreamer(index, streamerIndex);
+            };
+            streamerItem.appendChild(deleteStreamerBtn);
 
-          streamersList.appendChild(streamerItem);
+            streamersList.appendChild(streamerItem);
 
-          if ((streamerIndex % 5 === 4 && streamerIndex !== 0) || streamerIndex === group.streamers.length - 1) {
-            groupItem.appendChild(streamersList);
-            streamersList = document.createElement("ul");
-            streamersList.classList.add("streamers-list");
-            streamersList.style.listStyleType = "none";
-            streamersList.style.padding = "0";
+            if (
+              (streamerIndex % 5 === 4 && streamerIndex !== 0) ||
+              streamerIndex === group.streamers.length - 1
+            ) {
+              groupItem.appendChild(streamersList);
+              streamersList = document.createElement("ul");
+              streamersList.classList.add("streamers-list");
+              streamersList.style.listStyleType = "none";
+              streamersList.style.padding = "0";
+            }
+          });
+
+          var buttonContainer = document.createElement("div");
+          buttonContainer.classList.add("button-container");
+
+          var addStreamerBtn = document.createElement("button");
+          addStreamerBtn.className = "add-streamer-btn";
+          addStreamerBtn.textContent = "Add a Twitch Channel";
+
+          if (isLoggedIn && hasFollowers) {
+            addStreamerBtn.onclick = function () {
+              showAddStreamerDropdown(index);
+              chrome.runtime.sendMessage({ action: "oauthComplete" });
+            };
+          } else {
+            addStreamerBtn.onclick = function () {
+              alert(
+                "Log in or follow more streamers to have Twitch channels here!"
+              );
+            };
           }
+          buttonContainer.appendChild(addStreamerBtn);
+
+          var deleteBtn = document.createElement("button");
+          deleteBtn.className = "delete-group-btn";
+          deleteBtn.textContent = "Delete this list";
+          deleteBtn.onclick = function () {
+            deleteGroup(index);
+            displayGroups();
+          };
+          buttonContainer.appendChild(deleteBtn);
+
+          groupItem.appendChild(buttonContainer);
+          groupList.appendChild(groupItem);
         });
 
-        var buttonContainer = document.createElement("div");
-        buttonContainer.classList.add("button-container");
-
-        var addStreamerBtn = document.createElement("button");
-        addStreamerBtn.className = "add-streamer-btn";
-        addStreamerBtn.textContent = "Add a Twitch Channel";
-
-        if (isLoggedIn && hasFollowers) {
-          addStreamerBtn.onclick = function () {
-            showAddStreamerDropdown(index);
-            chrome.runtime.sendMessage({ action: "oauthComplete" });
-          };
-        } else {
-          addStreamerBtn.onclick = function () {
-            alert("Log in or follow more streamers to have Twitch channels here!");
-          };
-        }
-        buttonContainer.appendChild(addStreamerBtn);
-
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "delete-group-btn";
-        deleteBtn.textContent = "Delete this list";
-        deleteBtn.onclick = function () {
-          deleteGroup(index);
-          displayGroups();
-        };
-        buttonContainer.appendChild(deleteBtn);
-
-        groupItem.appendChild(buttonContainer);
-        groupList.appendChild(groupItem);
-      });
-
-      groupListContainer.appendChild(groupList);
+        groupListContainer.appendChild(groupList);
+      }
     }
-  });
+  );
 }
 
 // Global function to delete a streamer from a group
@@ -161,126 +169,186 @@ function getFollowedList() {
 // Global function to show the streamer dropdown
 function showAddStreamerDropdown(groupIndex) {
   getFollowedList()
-    .then((followedList) => {
-      // Close any existing dropdown
-      var existingDropdown = document.querySelector(".dropdown-menu");
-      var existingOverlay = document.getElementById("dropdownOverlay");
-      if (existingDropdown) {
-        existingDropdown.remove();
-      }
-      if (existingOverlay) {
-        existingOverlay.remove();
-      }
+      .then((followedList) => {
+          // Close any existing dropdown, overlay, and message
+          var existingDropdown = document.querySelector(".dropdown-menu");
+          var existingOverlay = document.getElementById("dropdownOverlay");
+          var existingMessage = document.getElementById("addChannelMessage");
+          if (existingDropdown) {
+              existingDropdown.remove();
+          }
+          if (existingOverlay) {
+              existingOverlay.remove();
+          }
+          if (existingMessage) {
+              existingMessage.remove();
+          }
 
-      // Create overlay for the dropdown
-      var overlay = document.createElement("div");
-      overlay.id = "dropdownOverlay";
-      overlay.style.position = "fixed";
-      overlay.style.width = "100%";
-      overlay.style.height = "100%";
-      overlay.style.top = "0";
-      overlay.style.left = "0";
-      overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      overlay.style.zIndex = "2";
+          // Create overlay for the dropdown
+          var overlay = document.createElement("div");
+          overlay.id = "dropdownOverlay";
+          overlay.style.position = "fixed";
+          overlay.style.width = "100%";
+          overlay.style.height = "100%";
+          overlay.style.top = "0";
+          overlay.style.left = "0";
+          overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+          overlay.style.zIndex = "2";
 
-      // Create dropdown menu container
-      var dropdownMenu = document.createElement("div");
-      dropdownMenu.className = "dropdown-menu";
+          // Create dropdown menu container
+          var dropdownMenu = document.createElement("div");
+          dropdownMenu.className = "dropdown-menu";
 
-      // Create search input
-      var searchInput = document.createElement("input");
-      searchInput.type = "text";
-      searchInput.placeholder = "Search streamer...";
-      searchInput.style.width = "91%";
-      searchInput.onkeyup = function () {
-        var searchValue = this.value.toLowerCase();
-        filterDropdown(dropdownMenu, searchValue);
-      };
-      dropdownMenu.appendChild(searchInput);
-
-      // Create dropdown items
-      followedList.forEach(function (channel) {
-        var dropdownItem = document.createElement("a");
-        dropdownItem.className = "dropdown-item"; // Add a class for styling
-
-        // Create an image element for the Twitch logo
-        var twitchLogo = document.createElement("img");
-        twitchLogo.src = "css/twitch.png"; // Replace with the correct path to your Twitch logo image
-        twitchLogo.alt = "Twitch Logo";
-        twitchLogo.style.width = "13px"; // Adjust the size as needed
-
-        // Append the Twitch logo to the dropdown item
-        dropdownItem.appendChild(twitchLogo);
-
-        // Create a span element for the channel name with increased font size
-        var channelNameSpan = document.createElement("span");
-        channelNameSpan.className = "dropdown-channel-name"; // Apply the new class
-        channelNameSpan.textContent = " " + channel.broadcaster_name; // Add a space before the channel name
-
-        // Append the channel name span to the dropdown item
-        dropdownItem.appendChild(channelNameSpan);
-
-        dropdownItem.onclick = function () {
-          // Add Streamer to the group
+          // Retrieve favorite groups and then build the dropdown
           chrome.storage.local.get("favoriteGroups", function (data) {
-            var groups = data.favoriteGroups || [];
-            if (groups[groupIndex]) {
-              groups[groupIndex].streamers.push(channel.broadcaster_name);
+              var groups = data.favoriteGroups || [];
+              var groupName = groups[groupIndex] ? groups[groupIndex].name : "Unknown";
 
-              chrome.storage.local.set({ favoriteGroups: groups }, function () {
-                console.log(
-                  "Streamer added:",
-                  channel.broadcaster_name,
-                  "to group",
-                  groups[groupIndex].name
-                );
-                displayGroups(); // Refresh the displayed groups
-                showTemporaryInfo("Channel added successfully!");
-              });
-            }
-          });
-          // Close the dropdown after selecting a channel
-          closeDropdown();
+              // Append the overlay and dropdown to the body first to calculate their position
+              document.body.appendChild(overlay);
+              document.body.appendChild(dropdownMenu);
+              dropdownMenu.style.display = "block";
+
+              // Set width, position, and height of dropdown
+              dropdownMenu.style.width = "300px";
+              dropdownMenu.style.position = "absolute";
+              dropdownMenu.style.overflowY = "auto";
+              dropdownMenu.style.maxHeight = "400px";
+
+              var screenWidth = window.innerWidth;
+              var dropdownWidth = dropdownMenu.offsetWidth;
+              var leftPosition = (screenWidth - dropdownWidth) / 2;
+              dropdownMenu.style.left = `${leftPosition}px`;
+              dropdownMenu.style.top = "50px";
+              dropdownMenu.style.zIndex = "3";
+
+              // Create and append the message element outside the dropdown
+              var message = document.createElement("div");
+              message.id = "addChannelMessage";
+              message.textContent = "Add a channel for list " + groupName;
+              message.style.padding = "10px";
+              message.style.fontSize = "150%";
+              message.style.fontWeight = "bold";
+              message.style.color = "#efeff1";
+              message.style.textAlign = "center"; // Center align the text
+              message.style.position = "fixed";
+              message.style.width = "300px"; // Match dropdown width
+              var leftAdjustment = 20;
+              message.style.left = `${leftPosition + leftAdjustment}px`;
+              message.style.top = "20px"; // Initial top position, adjust based on actual dropdown position
+              message.style.zIndex = "4"; // Ensure it's above the overlay
+              document.body.appendChild(message);
+              
+              // Adjust the message position based on the actual position of the dropdown
+              var dropdownRect = dropdownMenu.getBoundingClientRect();
+              var gapBetweenMessageAndDropdown = 38; // Decrease this value to move message closer to dropdown
+              message.style.top = (dropdownRect.top - message.offsetHeight + gapBetweenMessageAndDropdown) + "px";
+              
+        // Create search input
+        var searchInput = document.createElement("input");
+        searchInput.type = "text";
+        searchInput.placeholder = "Search streamer...";
+        searchInput.style.width = "91%";
+        searchInput.onkeyup = function () {
+          var searchValue = this.value.toLowerCase();
+          filterDropdown(dropdownMenu, searchValue);
         };
-        dropdownMenu.appendChild(dropdownItem);
-      });
+        dropdownMenu.appendChild(searchInput);
 
-      // Append the overlay and dropdown to the body
-      document.body.appendChild(overlay);
-      document.body.appendChild(dropdownMenu);
-      dropdownMenu.style.display = "block";
+        // Create dropdown items
+        followedList.forEach(function (channel) {
+          var dropdownItem = document.createElement("a");
+          dropdownItem.className = "dropdown-item"; // Add a class for styling
 
-      // Set width, position, and height of dropdown
-      dropdownMenu.style.width = "300px";
-      dropdownMenu.style.position = "absolute";
-      dropdownMenu.style.overflowY = "auto";
-      dropdownMenu.style.maxHeight = "400px";
+          // Create an image element for the Twitch logo
+          var twitchLogo = document.createElement("img");
+          twitchLogo.src = "css/twitch.png"; // Replace with the correct path to your Twitch logo image
+          twitchLogo.alt = "Twitch Logo";
+          twitchLogo.style.width = "13px"; // Adjust the size as needed
 
-      var screenWidth = window.innerWidth;
-      var dropdownWidth = dropdownMenu.offsetWidth;
-      var leftPosition = (screenWidth - dropdownWidth) / 2;
-      dropdownMenu.style.left = `${leftPosition}px`;
-      dropdownMenu.style.top = "50px";
-      dropdownMenu.style.zIndex = "3";
+          // Append the Twitch logo to the dropdown item
+          dropdownItem.appendChild(twitchLogo);
 
-      // Function to close dropdown and overlay
-      function closeDropdown() {
-        dropdownMenu.style.display = "none";
-        overlay.style.display = "none";
-        document.removeEventListener("click", closeDropdownEvent);
-      }
+          // Create a span element for the channel name with increased font size
+          var channelNameSpan = document.createElement("span");
+          channelNameSpan.className = "dropdown-channel-name"; // Apply the new class
+          channelNameSpan.textContent = " " + channel.broadcaster_name; // Add a space before the channel name
 
-      // Event to close dropdown when clicking outside
-      function closeDropdownEvent(event) {
-        if (!dropdownMenu.contains(event.target)) {
-          closeDropdown();
+          // Append the channel name span to the dropdown item
+          dropdownItem.appendChild(channelNameSpan);
+
+          dropdownItem.onclick = function () {
+            // Add Streamer to the group
+            chrome.storage.local.get("favoriteGroups", function (data) {
+              var groups = data.favoriteGroups || [];
+              if (groups[groupIndex]) {
+                groups[groupIndex].streamers.push(channel.broadcaster_name);
+
+                chrome.storage.local.set(
+                  { favoriteGroups: groups },
+                  function () {
+                    console.log(
+                      "Streamer added:",
+                      channel.broadcaster_name,
+                      "to group",
+                      groups[groupIndex].name
+                    );
+                    displayGroups(); // Refresh the displayed groups
+                    showTemporaryInfo("Channel added successfully!");
+                  }
+                );
+              }
+            });
+            // Close the dropdown after selecting a channel
+            closeDropdown();
+          };
+          dropdownMenu.appendChild(dropdownItem);
+        });
+
+        // Append the overlay and dropdown to the body
+        document.body.appendChild(overlay);
+        document.body.appendChild(dropdownMenu);
+        dropdownMenu.style.display = "block";
+
+        // Set width, position, and height of dropdown
+        dropdownMenu.style.width = "300px";
+        dropdownMenu.style.position = "absolute";
+        dropdownMenu.style.overflowY = "auto";
+        dropdownMenu.style.maxHeight = "400px";
+
+        var screenWidth = window.innerWidth;
+        var dropdownWidth = dropdownMenu.offsetWidth;
+        var leftPosition = (screenWidth - dropdownWidth) / 2;
+        dropdownMenu.style.left = `${leftPosition}px`;
+        dropdownMenu.style.top = "50px";
+        dropdownMenu.style.zIndex = "3";
+
+        // Adjust the position of the dropdown relative to the message
+        var messageHeight = message.offsetHeight;
+        dropdownMenu.style.top = 10 + messageHeight + "px";
+
+        // Function to close dropdown and overlay, also remove the message
+        function closeDropdown() {
+          dropdownMenu.style.display = "none";
+          overlay.style.display = "none";
+          var messageToRemove = document.getElementById("addChannelMessage");
+          if (messageToRemove) {
+            messageToRemove.remove();
+          }
+          document.removeEventListener("click", closeDropdownEvent);
         }
-      }
+        // Event to close dropdown when clicking outside
+        function closeDropdownEvent(event) {
+          if (!dropdownMenu.contains(event.target)) {
+            closeDropdown();
+          }
+        }
 
-      // Close dropdown and overlay when clicking outside
-      setTimeout(() => {
-        document.addEventListener("click", closeDropdownEvent);
-      }, 0);
+        // Close dropdown and overlay when clicking outside
+        setTimeout(() => {
+          document.addEventListener("click", closeDropdownEvent);
+        }, 0);
+      });
     })
     .catch((error) => {
       console.error(error);
@@ -311,9 +379,9 @@ function filterDropdown(dropdownMenu, searchValue) {
       noResultsMessage = document.createElement("div");
       noResultsMessage.className = "no-results-message";
       noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
-      
+
       noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
-      noResultsMessage.style.marginLeft = "40px"; 
+      noResultsMessage.style.marginLeft = "40px";
       dropdownMenu.appendChild(noResultsMessage);
     } else {
       // Update the existing no results message
@@ -345,7 +413,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target == modal) {
       modal.style.display = "none";
     }
-
   };
 
   saveButton.addEventListener("click", function () {
@@ -557,7 +624,6 @@ function displayUserInfo() {
           showLoginTip();
           chrome.storage.local.set({ loginTipShown: true }); // Set the flag to true after showing the tip
         }
-
       } else {
         // No user info is available
         userInfoDiv.textContent = "Not logged in";
@@ -606,21 +672,23 @@ function showLoginTip() {
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === "oauthComplete") {
     // Fetch the latest data to check login status and followed channels
-    chrome.storage.local.get(["twitchAccessToken", "followedList"], function (result) {
-      isLoggedIn = !!result.twitchAccessToken;
-      hasFollowers = result.followedList && result.followedList.length > 0;
+    chrome.storage.local.get(
+      ["twitchAccessToken", "followedList"],
+      function (result) {
+        isLoggedIn = !!result.twitchAccessToken;
+        hasFollowers = result.followedList && result.followedList.length > 0;
 
-      // Now update the UI based on the new status
-      displayUserInfo(); // Refreshes user info display
-      setTimeout(updatePreview, 2000); // Waits for 2 seconds before updating the preview
+        // Now update the UI based on the new status
+        displayUserInfo(); // Refreshes user info display
+        setTimeout(updatePreview, 2000); // Waits for 2 seconds before updating the preview
 
-      // Optionally, you can also refresh other parts of your extension's UI
-      // For example, refresh groups display
-      displayGroups();
-    });
+        // Optionally, you can also refresh other parts of your extension's UI
+        // For example, refresh groups display
+        displayGroups();
+      }
+    );
   }
 });
-
 
 // Function to toggle dark mode and update text
 function toggleDarkMode(isDarkMode) {
@@ -686,14 +754,16 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Save the "Do not show accessed count" preference when changed
-  document.getElementById("hideAccessedCountCheckbox").addEventListener("change", function () {
-    var isChecked = this.checked;
-    chrome.storage.local.set({ hideAccessedCount: isChecked }, function () {
-            // Send a message to the background script
-            chrome.runtime.sendMessage({ action: "oauthComplete" });
-      console.log("Hide Accessed Count preference updated:", isChecked);
+  document
+    .getElementById("hideAccessedCountCheckbox")
+    .addEventListener("change", function () {
+      var isChecked = this.checked;
+      chrome.storage.local.set({ hideAccessedCount: isChecked }, function () {
+        // Send a message to the background script
+        chrome.runtime.sendMessage({ action: "oauthComplete" });
+        console.log("Hide Accessed Count preference updated:", isChecked);
+      });
     });
-  });
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -703,7 +773,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Load and set the notification preference
   chrome.storage.local.get("enableNotifications", function (data) {
-    var isChecked = data.enableNotifications !== undefined ? data.enableNotifications : false;
+    var isChecked =
+      data.enableNotifications !== undefined ? data.enableNotifications : false;
     checkbox.checked = isChecked;
     updateLabelText(isChecked);
     console.log("Loaded Enable Notifications preference:", isChecked);
@@ -720,7 +791,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function to update the label text
   function updateLabelText(isChecked) {
-    labelText.textContent = isChecked ? "Live Twitch Notifications Enabled" : "Enable Live Notifications";
+    labelText.textContent = isChecked
+      ? "Live Twitch Notifications Enabled"
+      : "Enable Live Notifications";
   }
 });
-

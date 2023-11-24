@@ -375,16 +375,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   } else if (info.menuItemId === "openSettings") {
     console.log("Context menu item clicked - Opening Settings");
 
-    // Hardcode the width and height for the window
-    var screenWidth = 585;
-    var screenHeight = 800;
-
-    // Open the settings page in a new window
-    chrome.windows.create({
-      url: "settings.html",
-      type: "popup",
-      width: screenWidth,
-      height: screenHeight,
+    // Open the settings page in a new tab
+    chrome.tabs.create({
+      url: "settings.html"
     });
   }
 });
