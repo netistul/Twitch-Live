@@ -76,7 +76,7 @@ function updateLiveStreams() {
     const favoriteGroups = result.favoriteGroups || [];
     const showAvatar = result.showAvatar === true;
     const channelAccess = result.channelAccess || {};
-    const hideAccessedCount = result.hideAccessedCount || false;
+    const hideAccessedCount = result.hideAccessedCount === false ? false : true; // Default to true
 
     // Sort channels based on access count
     liveStreams.sort((a, b) => (channelAccess[b.channelName] || 0) - (channelAccess[a.channelName] || 0));

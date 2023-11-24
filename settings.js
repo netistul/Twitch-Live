@@ -674,7 +674,13 @@ document.addEventListener("DOMContentLoaded", applyDarkModeSetting);
 document.addEventListener("DOMContentLoaded", function () {
   // Load and set the "Do not show accessed count" preference
   chrome.storage.local.get("hideAccessedCount", function (data) {
-    var isChecked = data.hideAccessedCount === true;
+    var isChecked;
+    if (data.hideAccessedCount === undefined) {
+      // If the preference is not set (none), display the checkbox as checked
+      isChecked = true;
+    } else {
+      isChecked = data.hideAccessedCount === true;
+    }
     document.getElementById("hideAccessedCountCheckbox").checked = isChecked;
     console.log("Loaded Hide Accessed Count preference:", isChecked);
   });
@@ -686,6 +692,4 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Hide Accessed Count preference updated:", isChecked);
     });
   });
-
-  // Rest of your DOMContentLoaded code...
 });
