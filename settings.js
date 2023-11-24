@@ -697,19 +697,30 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Get elements
+  var checkbox = document.getElementById("enableNotificationsCheckbox");
+  var labelText = document.querySelector(".bell-icon-label .label-text");
+
   // Load and set the notification preference
   chrome.storage.local.get("enableNotifications", function (data) {
     var isChecked = data.enableNotifications !== undefined ? data.enableNotifications : false;
-    document.getElementById("enableNotificationsCheckbox").checked = isChecked;
+    checkbox.checked = isChecked;
+    updateLabelText(isChecked);
     console.log("Loaded Enable Notifications preference:", isChecked);
   });
 
-  // Save the notification preference when changed
-  document.getElementById("enableNotificationsCheckbox").addEventListener("change", function () {
+  // Save the notification preference when changed and update label text
+  checkbox.addEventListener("change", function () {
     var isChecked = this.checked;
     chrome.storage.local.set({ enableNotifications: isChecked }, function () {
       console.log("Enable Notifications preference updated:", isChecked);
     });
+    updateLabelText(isChecked);
   });
+
+  // Function to update the label text
+  function updateLabelText(isChecked) {
+    labelText.textContent = isChecked ? "Live Twitch Notifications Enabled" : "Enable Live Notifications";
+  }
 });
 

@@ -624,6 +624,76 @@ input:checked + .slider:before {
   transform: translateY(-50%) rotate(45deg);
 }
 
+  /* Style for the checkbox container */
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  /* Hides the default checkbox */
+  .styled-checkbox {
+    display: none;
+  }
+  #hideAccessedCountCheckbox + .styled-label {
+    font-family: Verdana, sans-serif;
+  }
+
+ 
+  /* Style for the checkbox container */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Hides the default checkbox */
+.styled-checkbox {
+  display: none;
+}
+
+
+/* Style for bell icon label */
+.bell-icon-label {
+  position: relative;
+  padding-left: 35px; /* Space for the bell icon */
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center; /* Align icon and text vertically */
+}
+
+/* Style for bell icon */
+.bell-icon-label i {
+  position: absolute;
+  left: 19px; /* Adjust this to align with your other checkboxes */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 25px; /* Size of the icon */
+}
+
+/* Style for the label text */
+.label-text {
+  margin-left: 17px;
+  font-family: Verdana, sans-serif;
+}
+
+/* Hide the filled bell icon by default */
+.bell-icon-label .fa-solid {
+  opacity: 0;
+  color: #28a745;
+}
+
+/* When the checkbox is checked, show the filled bell */
+.styled-checkbox:checked + .bell-icon-label .fa-solid {
+  opacity: 1;
+}
+
+.styled-checkbox:checked + .bell-icon-label .fa-regular {
+  opacity: 0;
+}
+
+
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 ::-webkit-scrollbar {

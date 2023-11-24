@@ -6,6 +6,7 @@
     <title>Extension Settings</title>
     <link rel="stylesheet" type="text/css" href="css/settings-dark.css">
     <link rel="stylesheet" type="text/css" href="css/settings-style.css">
+    <link rel="stylesheet" type="text/css" href="css/all.min.css">
     <style>
  
     </style>
@@ -51,8 +52,8 @@
     <span class="slider-text" id="themeSwitchText">Click it for dark theme</span>
   </label>
 </div>
- <!-- Checkbox for hiding accessed count -->
- <div class="checkbox-container">
+<!-- Checkbox for hiding accessed count -->
+<div class="checkbox-container">
   <input type="checkbox" id="hideAccessedCountCheckbox" class="styled-checkbox">
   <label for="hideAccessedCountCheckbox" class="styled-label">Show accessed count</label>
 </div>
@@ -60,7 +61,11 @@
 <!-- Checkbox for enabling notifications -->
 <div class="checkbox-container">
   <input type="checkbox" id="enableNotificationsCheckbox" class="styled-checkbox">
-  <label for="enableNotificationsCheckbox" class="styled-label">Enable Live Notifications</label>
+  <label for="enableNotificationsCheckbox" class="bell-icon-label">
+    <i class="fa-regular fa-bell"></i> <!-- Empty bell icon -->
+    <i class="fa-solid fa-bell"></i> <!-- Filled bell icon -->
+    <span class="label-text">Enable Live Notifications</span>
+  </label>
 </div>
 
       </div>
