@@ -10,7 +10,8 @@
     "storage",
     "identity",
     "contextMenus",
-    "alarms"
+    "alarms",
+    "notifications"
   ],
   "action": {
     "default_popup": "popup.html"

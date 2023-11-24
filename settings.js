@@ -695,3 +695,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Load and set the notification preference
+  chrome.storage.local.get("enableNotifications", function (data) {
+    var isChecked = data.enableNotifications !== undefined ? data.enableNotifications : false;
+    document.getElementById("enableNotificationsCheckbox").checked = isChecked;
+    console.log("Loaded Enable Notifications preference:", isChecked);
+  });
+
+  // Save the notification preference when changed
+  document.getElementById("enableNotificationsCheckbox").addEventListener("change", function () {
+    var isChecked = this.checked;
+    chrome.storage.local.set({ enableNotifications: isChecked }, function () {
+      console.log("Enable Notifications preference updated:", isChecked);
+    });
+  });
+});
+
