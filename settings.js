@@ -169,81 +169,89 @@ function getFollowedList() {
 // Global function to show the streamer dropdown
 function showAddStreamerDropdown(groupIndex) {
   getFollowedList()
-      .then((followedList) => {
-          // Close any existing dropdown, overlay, and message
-          var existingDropdown = document.querySelector(".dropdown-menu");
-          var existingOverlay = document.getElementById("dropdownOverlay");
-          var existingMessage = document.getElementById("addChannelMessage");
-          if (existingDropdown) {
-              existingDropdown.remove();
-          }
-          if (existingOverlay) {
-              existingOverlay.remove();
-          }
-          if (existingMessage) {
-              existingMessage.remove();
-          }
+    .then((followedList) => {
+      // Close any existing dropdown, overlay, and message
+      var existingDropdown = document.querySelector(".dropdown-menu");
+      var existingOverlay = document.getElementById("dropdownOverlay");
+      var existingMessage = document.getElementById("addChannelMessage");
+      if (existingDropdown) {
+        existingDropdown.remove();
+      }
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+      if (existingMessage) {
+        existingMessage.remove();
+      }
 
-          // Create overlay for the dropdown
-          var overlay = document.createElement("div");
-          overlay.id = "dropdownOverlay";
-          overlay.style.position = "fixed";
-          overlay.style.width = "100%";
-          overlay.style.height = "100%";
-          overlay.style.top = "0";
-          overlay.style.left = "0";
-          overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-          overlay.style.zIndex = "2";
+      // Create overlay for the dropdown
+      var overlay = document.createElement("div");
+      overlay.id = "dropdownOverlay";
+      overlay.style.position = "fixed";
+      overlay.style.width = "100%";
+      overlay.style.height = "100%";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+      overlay.style.zIndex = "2";
 
-          // Create dropdown menu container
-          var dropdownMenu = document.createElement("div");
-          dropdownMenu.className = "dropdown-menu";
+      // Create dropdown menu container
+      var dropdownMenu = document.createElement("div");
+      dropdownMenu.className = "dropdown-menu";
 
-          // Retrieve favorite groups and then build the dropdown
-          chrome.storage.local.get("favoriteGroups", function (data) {
-              var groups = data.favoriteGroups || [];
-              var groupName = groups[groupIndex] ? groups[groupIndex].name : "Unknown";
+      // Retrieve favorite groups and then build the dropdown
+      chrome.storage.local.get("favoriteGroups", function (data) {
+        var groups = data.favoriteGroups || [];
+        var groupName = groups[groupIndex]
+          ? groups[groupIndex].name
+          : "Unknown";
 
-              // Append the overlay and dropdown to the body first to calculate their position
-              document.body.appendChild(overlay);
-              document.body.appendChild(dropdownMenu);
-              dropdownMenu.style.display = "block";
+        // Append the overlay and dropdown to the body first to calculate their position
+        document.body.appendChild(overlay);
+        document.body.appendChild(dropdownMenu);
+        dropdownMenu.style.display = "block";
 
-              // Set width, position, and height of dropdown
-              dropdownMenu.style.width = "300px";
-              dropdownMenu.style.position = "absolute";
-              dropdownMenu.style.overflowY = "auto";
-              dropdownMenu.style.maxHeight = "400px";
+        // Set width, position, and height of dropdown
+        dropdownMenu.style.width = "300px";
+        dropdownMenu.style.position = "absolute";
+        dropdownMenu.style.overflowY = "auto";
+        dropdownMenu.style.maxHeight = "400px";
 
-              var screenWidth = window.innerWidth;
-              var dropdownWidth = dropdownMenu.offsetWidth;
-              var leftPosition = (screenWidth - dropdownWidth) / 2;
-              dropdownMenu.style.left = `${leftPosition}px`;
-              dropdownMenu.style.top = "50px";
-              dropdownMenu.style.zIndex = "3";
+        var screenWidth = window.innerWidth;
+        var dropdownWidth = dropdownMenu.offsetWidth;
+        var leftPosition = (screenWidth - dropdownWidth) / 2;
+        dropdownMenu.style.left = `${leftPosition}px`;
+        dropdownMenu.style.top = "50px";
+        dropdownMenu.style.zIndex = "3";
 
-              // Create and append the message element outside the dropdown
-              var message = document.createElement("div");
-              message.id = "addChannelMessage";
-              message.textContent = "Add a channel for list " + groupName;
-              message.style.padding = "10px";
-              message.style.fontSize = "150%";
-              message.style.fontWeight = "bold";
-              message.style.color = "#efeff1";
-              message.style.textAlign = "center"; // Center align the text
-              message.style.position = "fixed";
-              message.style.width = "300px"; // Match dropdown width
-              var leftAdjustment = 20;
-              message.style.left = `${leftPosition + leftAdjustment}px`;
-              message.style.top = "20px"; // Initial top position, adjust based on actual dropdown position
-              message.style.zIndex = "4"; // Ensure it's above the overlay
-              document.body.appendChild(message);
-              
-              // Adjust the message position based on the actual position of the dropdown
-              var dropdownRect = dropdownMenu.getBoundingClientRect();
-              var gapBetweenMessageAndDropdown = 38; // Decrease this value to move message closer to dropdown
-              message.style.top = (dropdownRect.top - message.offsetHeight + gapBetweenMessageAndDropdown) + "px";
-              
+        // Create and append the message element outside the dropdown
+        var message = document.createElement("div");
+        message.id = "addChannelMessage";
+        message.textContent = "Add a channel for list " + groupName;
+        message.style.padding = "10px";
+        message.style.fontSize = "120%";
+        message.style.fontWeight = "bold";
+        message.style.color = "#efeff1"; // Ensure this color contrasts well with the background
+        message.style.backgroundColor = "#62507b"; // Example: dark background
+        message.style.borderRadius = "8px"; // Rounded corners
+        message.style.textAlign = "center"; // Center align the text
+        message.style.position = "fixed";
+        message.style.width = "300px"; // Match dropdown width
+        var leftAdjustment = 20;
+        message.style.left = `${leftPosition + leftAdjustment}px`;
+        message.style.top = "20px"; // Initial top position, adjust based on actual dropdown position
+        message.style.zIndex = "4"; // Ensure it's above the overlay
+        document.body.appendChild(message);
+
+        // Adjust the message position based on the actual position of the dropdown
+        var dropdownRect = dropdownMenu.getBoundingClientRect();
+        var gapBetweenMessageAndDropdown = 13; // Decrease this value to move message closer to dropdown
+        message.style.top =
+          dropdownRect.top -
+          message.offsetHeight +
+          gapBetweenMessageAndDropdown +
+          "px";
+
         // Create search input
         var searchInput = document.createElement("input");
         searchInput.type = "text";
@@ -259,6 +267,9 @@ function showAddStreamerDropdown(groupIndex) {
         followedList.forEach(function (channel) {
           var dropdownItem = document.createElement("a");
           dropdownItem.className = "dropdown-item"; // Add a class for styling
+          dropdownItem.style.display = "flex"; // Set as a flex container
+          dropdownItem.style.alignItems = "center"; // Center items vertically
+          dropdownItem.style.justifyContent = "space-between"; // Space out items
 
           // Create an image element for the Twitch logo
           var twitchLogo = document.createElement("img");
@@ -276,6 +287,21 @@ function showAddStreamerDropdown(groupIndex) {
 
           // Append the channel name span to the dropdown item
           dropdownItem.appendChild(channelNameSpan);
+
+            // Create a Font Awesome plus icon and append it to the dropdown item
+  var plusIcon = document.createElement("i");
+  plusIcon.className = "fas fa-plus"; // Font Awesome plus icon class
+  plusIcon.style.float = "right"; // Position the icon to the right
+  plusIcon.style.marginRight = "10px"; // Add some margin to the right
+  plusIcon.style.opacity = "0"; // Initially hidden
+  dropdownItem.appendChild(plusIcon);
+
+  dropdownItem.onmouseenter = function () {
+    plusIcon.style.opacity = "1"; // Show icon on hover
+  };
+  dropdownItem.onmouseleave = function () {
+    plusIcon.style.opacity = "0"; // Hide icon when not hovered
+  };
 
           dropdownItem.onclick = function () {
             // Add Streamer to the group
@@ -372,26 +398,30 @@ function filterDropdown(dropdownMenu, searchValue) {
   }
 
   // Check if the no results message already exists
-  var noResultsMessage = dropdownMenu.querySelector(".no-results-message");
-  if (noResultsFound) {
-    if (!noResultsMessage) {
-      // Create and display a no results message
-      noResultsMessage = document.createElement("div");
-      noResultsMessage.className = "no-results-message";
-      noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
+  // Check if the no results message already exists
+var noResultsMessage = dropdownMenu.querySelector(".no-results-message");
+if (noResultsFound) {
+  if (!noResultsMessage) {
+    // Create and display a no results message
+    noResultsMessage = document.createElement("div");
+    noResultsMessage.className = "no-results-message";
+    noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
 
-      noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
-      noResultsMessage.style.marginLeft = "40px";
-      dropdownMenu.appendChild(noResultsMessage);
-    } else {
-      // Update the existing no results message
-      noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
-      noResultsMessage.style.display = ""; // Make sure it's visible
-    }
-  } else if (noResultsMessage) {
-    // Hide the no results message if results are found
-    noResultsMessage.style.display = "none";
+    noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
+    noResultsMessage.style.marginLeft = "20px";
+    noResultsMessage.style.fontSize = "1.1em"; // Increase font size by 10%
+    dropdownMenu.appendChild(noResultsMessage);
+  } else {
+    // Update the existing no results message
+    noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
+    noResultsMessage.style.display = ""; // Make sure it's visible
+    noResultsMessage.style.fontSize = "1.1em"; // Ensure font size is updated
   }
+} else if (noResultsMessage) {
+  // Hide the no results message if results are found
+  noResultsMessage.style.display = "none";
+}
+
 }
 
 // DOMContentLoaded event listener
