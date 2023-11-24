@@ -565,6 +565,65 @@ input:checked + .slider:before {
   margin: 20px 0; /* Space above and below the separator */
 }
 
+
+/* Add margin to the bottom of the dark mode switch container */
+.dark-mode-switch {
+  margin-bottom: 14px; /* Adjust the value as needed */
+}
+
+
+
+/* Style for the checkbox container */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px; /* Adjust this to position your checkbox */
+}
+
+/* Hides the default checkbox */
+.styled-checkbox {
+  display: none;
+}
+
+/* Style for new custom checkbox */
+.styled-label {
+  position: relative;
+  padding-left: 35px; /* Space for the checkbox */
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Create a custom checkbox */
+.styled-label:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px; /* Size of the checkbox */
+  height: 25px;
+  background-color: #ddd; /* Background of the checkbox */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Style for when the checkbox is checked */
+.styled-checkbox:checked + .styled-label:before {
+  background-color: #2196F3; /* Change color when checked */
+}
+
+/* Adding a checkmark when the checkbox is checked */
+.styled-checkbox:checked + .styled-label:after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 5px;
+  width: 8px;
+  height: 15px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  transform: translateY(-50%) rotate(45deg);
+}
+
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 ::-webkit-scrollbar {

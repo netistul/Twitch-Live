@@ -346,18 +346,6 @@ document.addEventListener("DOMContentLoaded", function () {
       modal.style.display = "none";
     }
 
-      // Load and set the "Do not show accessed count" preference
-  chrome.storage.local.get("hideAccessedCount", function (data) {
-    document.getElementById("hideAccessedCountCheckbox").checked = data.hideAccessedCount === true;
-  });
-
-  // Save the "Do not show accessed count" preference when changed
-  document.getElementById("hideAccessedCountCheckbox").addEventListener("change", function () {
-    chrome.storage.local.set({ hideAccessedCount: this.checked }, function () {
-      console.log("Hide Accessed Count preference updated:", this.checked);
-    });
-  });
-  
   };
 
   saveButton.addEventListener("click", function () {
@@ -682,3 +670,22 @@ function applyDarkModeSetting() {
 
 // Apply dark mode setting when the page loads
 document.addEventListener("DOMContentLoaded", applyDarkModeSetting);
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Load and set the "Do not show accessed count" preference
+  chrome.storage.local.get("hideAccessedCount", function (data) {
+    var isChecked = data.hideAccessedCount === true;
+    document.getElementById("hideAccessedCountCheckbox").checked = isChecked;
+    console.log("Loaded Hide Accessed Count preference:", isChecked);
+  });
+
+  // Save the "Do not show accessed count" preference when changed
+  document.getElementById("hideAccessedCountCheckbox").addEventListener("change", function () {
+    var isChecked = this.checked;
+    chrome.storage.local.set({ hideAccessedCount: isChecked }, function () {
+      console.log("Hide Accessed Count preference updated:", isChecked);
+    });
+  });
+
+  // Rest of your DOMContentLoaded code...
+});

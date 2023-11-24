@@ -123,7 +123,7 @@ function updateLiveStreams() {
       channelNameSpan.textContent = stream.channelName;
       wrapperDiv.appendChild(channelNameSpan);
 
-      if (!hideAccessedCount) {
+      if (hideAccessedCount) {
         // Display the access count for the channel
         const accessCount = channelAccess[stream.channelName] || 0;
         const accessCountSpan = document.createElement("span");
