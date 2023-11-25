@@ -745,7 +745,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Load dark mode setting
   chrome.storage.local.get("darkMode", function (data) {
-    const isDarkMode = data.darkMode || false;
+    const isDarkMode = (data.darkMode !== undefined) ? data.darkMode : true; // Default to true
     darkModeToggle.checked = isDarkMode;
     toggleDarkMode(isDarkMode); // Also updates the text
   });
@@ -765,7 +765,8 @@ document.addEventListener("DOMContentLoaded", function () {
 // Function to toggle dark mode in settings.html
 function applyDarkModeSetting() {
   chrome.storage.local.get("darkMode", function (data) {
-    if (data.darkMode) {
+    var isDarkMode = (data.darkMode !== undefined) ? data.darkMode : true; // Default to true
+    if (isDarkMode) {
       document.body.classList.add("dark-mode");
     } else {
       document.body.classList.remove("dark-mode");

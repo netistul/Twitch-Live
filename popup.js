@@ -338,7 +338,9 @@ window.addEventListener("unload", function () {
 
 function applyDarkMode() {
   chrome.storage.local.get("darkMode", function (data) {
-    if (data.darkMode) {
+    // If darkMode is undefined or true, enable dark mode. Otherwise, use light mode.
+    var isDarkMode = (data.darkMode !== undefined) ? data.darkMode : true;
+    if (isDarkMode) {
       document.body.classList.add("dark-mode");
     } else {
       document.body.classList.remove("dark-mode");
