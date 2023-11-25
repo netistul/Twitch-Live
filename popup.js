@@ -151,51 +151,61 @@ function updateLiveStreams() {
                 channelLink.classList.add("with-avatar");
                 wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
             }
-        
             const channelNameSpan = document.createElement("span");
-            channelNameSpan.className = "channel-name";
-            channelNameSpan.textContent = stream.channelName;
+    channelNameSpan.className = "channel-name";
+    channelNameSpan.textContent = stream.channelName;
+    channelNameSpan.style.textAlign = "left"; // Align text to the left
+
+    const categoryDiv = document.createElement("div");
+    categoryDiv.style.textAlign = "left"; // Align text to the left within this div
+
+    if (showAvatar && stream.avatar) {
+        categoryDiv.appendChild(channelNameSpan);
+
+        const categorySpan = document.createElement("span");
+        categorySpan.className = "stream-category-with-avatar";
+        categorySpan.textContent = stream.category;
+        categorySpan.style.textAlign = "left"; // Align text to the left
+        categoryDiv.appendChild(categorySpan);
+        subWrapper.appendChild(categoryDiv);
+    } else {
+        wrapperDiv.appendChild(channelNameSpan);
+    }
         
-            const categoryDiv = document.createElement("div");
-        
-            if (showAvatar && stream.avatar) {
-                categoryDiv.appendChild(channelNameSpan);
-        
-                const categorySpan = document.createElement("span");
-                categorySpan.className = "stream-category-with-avatar";
-                categorySpan.textContent = stream.category;
-                categoryDiv.appendChild(categorySpan);
-                subWrapper.appendChild(categoryDiv);
-            } else {
-                wrapperDiv.appendChild(channelNameSpan);
-            }
-        
-            const accessCountDiv = document.createElement("div");
-            accessCountDiv.className = "access-count-div";
-        
-            if (hideAccessedCount) {
-                const accessCount = channelAccess[stream.channelName] || 0;
-                const accessCountSpan = document.createElement("span");
-                accessCountSpan.className = "access-count";
-                accessCountSpan.textContent = `Accessed: ${accessCount} times`;
-                accessCountSpan.style.display = "none";
-                accessCountDiv.appendChild(accessCountSpan);
-                wrapperDiv.appendChild(accessCountDiv);
-        
-                channelItem.onmouseover = function () {
-                    accessCountSpan.style.display = "block";
-                };
-                channelItem.onmouseout = function () {
-                    accessCountSpan.style.display = "none";
-                };
+    const accessCountDiv = document.createElement("div");
+    accessCountDiv.className = "access-count-div";
+    accessCountDiv.style.position = "absolute";
+    accessCountDiv.style.bottom = "0"; // Align at the bottom
+    accessCountDiv.style.left = "0"; // Align to the left side
+    accessCountDiv.style.width = "100%";
+    accessCountDiv.style.boxSizing = "border-box"; // Include padding and border in the element's width
+    accessCountDiv.style.padding = "0 5px"; // Adjust padding as needed
+    accessCountDiv.style.margin = "0"; // Ensure no extra margin is added
+
+    if (hideAccessedCount) {
+        const accessCount = channelAccess[stream.channelName] || 0;
+        const accessCountSpan = document.createElement("span");
+        accessCountSpan.className = "access-count";
+        accessCountSpan.textContent = `Accessed: ${accessCount} times`;
+        accessCountSpan.style.display = "none";
+        accessCountDiv.appendChild(accessCountSpan);
+        wrapperDiv.appendChild(accessCountDiv);
+
+        channelItem.onmouseover = function () {
+            accessCountSpan.style.display = "block";
+        };
+        channelItem.onmouseout = function () {
+            accessCountSpan.style.display = "none";
+        };
             }
         
             if (!showAvatar || !stream.avatar) {
-                const categorySpan = document.createElement("span");
-                categorySpan.className = "stream-category";
-                categorySpan.textContent = stream.category;
-                wrapperDiv.appendChild(categorySpan);
-            }
+              const categorySpan = document.createElement("span");
+              categorySpan.className = "stream-category";
+              categorySpan.textContent = stream.category;
+              categorySpan.style.textAlign = "left"; // Align text to the left
+              wrapperDiv.appendChild(categorySpan);
+          }
         
             const viewersWrapper = document.createElement("div");
             viewersWrapper.className = showAvatar ? "viewers-wrapper-with-avatar" : "viewers-wrapper";

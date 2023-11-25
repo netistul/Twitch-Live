@@ -57,7 +57,7 @@ function openSettingsPage() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "startOAuth") {
     const redirectUri =
-      "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
+      "https://fdghigkcpnnjfidmkfdfngojlapiaich.chromiumapp.org/";
 
     chrome.identity.launchWebAuthFlow(
       {

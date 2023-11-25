@@ -98,9 +98,10 @@ body {
   display: block; /* Make it a block element */
   color: #88888885;
   font-size: 0.9em;
-  margin-left: 5px;
+  margin-left: 0px;
   text-align: left; /* Align text to the left */
 }
+
 
 .channel-category-wrapper-with-avatar {
   flex-direction: column; /* Change to column layout for the wrapper */
@@ -123,13 +124,6 @@ body {
 .viewers-wrapper-with-avatar {
   display: inline-block; /* Display alongside channel name */
   margin-left: 10px; /* Space between channel name and viewers */
-}
-
-.access-count-div {
-  display: flex; /* Use flexbox for layout */
-  align-items: center; /* Center vertically */
-  justify-content: center; /* Center horizontally */
-  flex-grow: 1; /* Allow the div to take up available space */
 }
 
 .stream-info::after {
@@ -235,8 +229,8 @@ body {
 
 .access-count {
   display: none; /* Hide access count by default */
-  font-size: 10px; /* Smaller font size */
-  color: #312f2f3b; /* Lighter color for a subtle appearance */
+  font-size: 7px; /* Smaller font size */
+  color: #312f2f93; /* Lighter color for a subtle appearance */
   margin-left: 10px; /* Space from the channel name */
 }
 
