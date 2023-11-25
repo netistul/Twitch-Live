@@ -127,9 +127,15 @@ function updateLiveStreams() {
             channelLink.className = "stream-info";
             channelLink.target = "_blank";
         
-            channelLink.addEventListener("click", function () {
-                incrementChannelAccess(stream.channelName);
-            });
+            channelLink.addEventListener("click", function (event) {
+              event.preventDefault();  // Prevent the default link behavior immediately
+              incrementChannelAccess(stream.channelName);
+      
+              // Use setTimeout to delay the redirection
+              setTimeout(() => {
+                  window.open(channelLink.href, '_blank');
+              }, 10); // Delay in milliseconds, 100 is just an example
+          });
         
             const wrapperDiv = document.createElement("div");
             wrapperDiv.className = "channel-category-wrapper";
