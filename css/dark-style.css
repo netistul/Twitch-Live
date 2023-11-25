@@ -1,5 +1,5 @@
 .dark-mode {
-  background-color: #121212; /* Dark background */
+  background-color: #18181b; /* Dark background */
   color: #eeeeee; /* Light text color */
 }
 
@@ -9,7 +9,7 @@
 }
 
 .dark-mode .stream-info {
-  background-color: #1e1e22; /* Darker header background */
+  background-color: #1f1f23; /* Darker header background */
 }
 
 .dark-mode .stream-info:hover {
@@ -29,7 +29,7 @@
 }
 
 .dark-mode .viewers {
-  color: #c86464;
+  color: #e76763;
 }
 
 .dark-mode .access-count {

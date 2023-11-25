@@ -68,6 +68,70 @@ body {
   transition: background-color 0.3s;
   position: relative;
 }
+
+/* Style for viewers wrapper when avatar is not shown */
+.viewers-wrapper {
+  display: inline-block; /* Display alongside other elements */
+}
+
+/* Adjusted style for viewers wrapper when avatar is shown */
+.viewers-wrapper-with-avatar {
+  margin-left: auto; /* Pushes the viewers wrapper to the right */
+  margin-right: 10px; /* Space from the right edge */
+}
+
+/* Style for the sub-wrapper when avatar is shown */
+.sub-wrapper-with-avatar {
+  display: flex; /* Use flexbox for layout */
+  align-items: center; /* Align items vertically */
+  justify-content: space-between; /* Distribute space between elements */
+  width: 100%; /* Full width to accommodate children */
+}
+
+
+.stream-info.with-avatar {
+  flex-direction: row; /* Align children (avatar and wrapperDiv) in a row */
+  align-items: center; /* Center items vertically in the row */
+}
+
+.stream-category-with-avatar {
+  display: block; /* Make it a block element */
+  color: #88888885;
+  font-size: 0.9em;
+  margin-left: 5px;
+  text-align: left; /* Align text to the left */
+}
+
+.channel-category-wrapper-with-avatar {
+  flex-direction: column; /* Change to column layout for the wrapper */
+  align-items: flex-start; /* Align items to the start */
+}
+
+.stream-info.with-avatar {
+  flex-direction: row; /* Align children (avatar and wrapperDiv) in a row */
+  align-items: center; /* Center items vertically in the row */
+}
+
+.channel-category-wrapper-with-avatar {
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack child elements vertically */
+  align-items: flex-start; /* Align items to the start */
+  margin-left: 1px; /* Add some margin to separate from the avatar */
+}
+
+/* Adjust viewers wrapper style when avatar is shown */
+.viewers-wrapper-with-avatar {
+  display: inline-block; /* Display alongside channel name */
+  margin-left: 10px; /* Space between channel name and viewers */
+}
+
+.access-count-div {
+  display: flex; /* Use flexbox for layout */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  flex-grow: 1; /* Allow the div to take up available space */
+}
+
 .stream-info::after {
   content: "";
   position: absolute;
@@ -106,6 +170,12 @@ body {
   background-color: #e0d4f7;
 }
 
+.channel-item {
+  display: flex;
+  flex-direction: column; /* Stack child elements vertically */
+  align-items: flex-start; /* Align items to the start */
+}
+
 .channel-name {
   flex-grow: 1;
   text-align: left;
@@ -136,6 +206,11 @@ body {
 
 .stream-avatar {
   margin-right: 5px; /* Space after avatar */
+}
+
+.stream-header {
+  display: flex;
+  align-items: center;
 }
 
 .stream-info:hover {

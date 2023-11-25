@@ -87,102 +87,138 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function updateLiveStreams() {
   chrome.storage.local.get(
-    [
-      "liveStreams",
-      "favoriteGroups",
-      "showAvatar",
-      "channelAccess",
-      "hideAccessedCount",
-    ],
-    function (result) {
-      const liveStreams = result.liveStreams || [];
-      const favoriteGroups = result.favoriteGroups || [];
-      const showAvatar = result.showAvatar === true;
-      const channelAccess = result.channelAccess || {};
-      const hideAccessedCount =
-        result.hideAccessedCount === false ? false : true; // Default to true
+      [
+          "liveStreams",
+          "favoriteGroups",
+          "showAvatar",
+          "channelAccess",
+          "hideAccessedCount",
+      ],
+      function (result) {
+          const liveStreams = result.liveStreams || [];
+          const favoriteGroups = result.favoriteGroups || [];
+          const showAvatar = result.showAvatar === true;
+          const channelAccess = result.channelAccess || {};
+          const hideAccessedCount = result.hideAccessedCount === false ? false : true; // Default to true
 
-      // Sort channels based on access count
-      liveStreams.sort(
-        (a, b) =>
-          (channelAccess[b.channelName] || 0) -
-          (channelAccess[a.channelName] || 0)
-      );
+          // Sort channels based on access count
+          liveStreams.sort(
+              (a, b) =>
+                  (channelAccess[b.channelName] || 0) -
+                  (channelAccess[a.channelName] || 0)
+          );
 
-      const container = document.getElementById("buttonContainer");
-      const currentScrollPosition = container.scrollTop;
-      container.innerHTML = "";
+          const container = document.getElementById("buttonContainer");
+          const currentScrollPosition = container.scrollTop;
+          container.innerHTML = "";
 
-      const scrollContainer = document.createElement("div");
-      scrollContainer.id = "scrollContainer";
+          const scrollContainer = document.createElement("div");
+          scrollContainer.id = "scrollContainer";
 
-      let isAnyFavoriteGroupLive = false; // This will track if any favorite group is live
+          let isAnyFavoriteGroupLive = false; // This will track if any favorite group is live
 
-      function appendStreamLink(stream, container) {
-        const channelItem = document.createElement("div");
-        channelItem.className = "stream-item";
-
-        const channelLink = document.createElement("a");
-        channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
-        channelLink.className = "stream-info";
-        channelLink.target = "_blank";
-
-        channelLink.addEventListener("click", function () {
-          incrementChannelAccess(stream.channelName);
-        });
-
-        if (showAvatar && stream.avatar) {
-          const avatarImg = document.createElement("img");
-          avatarImg.src = stream.avatar;
-          avatarImg.className = "stream-avatar";
-          avatarImg.alt = `${stream.channelName}'s avatar`;
-          avatarImg.style.width = "30px";
-          avatarImg.style.height = "30px";
-          avatarImg.style.borderRadius = "15px";
-          avatarImg.style.marginRight = "5px";
-          channelLink.appendChild(avatarImg);
+          function appendStreamLink(stream, container) {
+            const channelItem = document.createElement("div");
+            channelItem.className = "stream-item";
+        
+            const channelLink = document.createElement("a");
+            channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
+            channelLink.className = "stream-info";
+            channelLink.target = "_blank";
+        
+            channelLink.addEventListener("click", function () {
+                incrementChannelAccess(stream.channelName);
+            });
+        
+            const wrapperDiv = document.createElement("div");
+            wrapperDiv.className = "channel-category-wrapper";
+        
+            // Sub-wrapper for channel name, category, and viewers
+            const subWrapper = document.createElement("div");
+            subWrapper.className = showAvatar ? "sub-wrapper-with-avatar" : "";
+        
+            if (showAvatar && stream.avatar) {
+                const avatarImg = document.createElement("img");
+                avatarImg.src = stream.avatar;
+                avatarImg.className = "stream-avatar";
+                avatarImg.alt = `${stream.channelName}'s avatar`;
+                avatarImg.style.width = "30px";
+                avatarImg.style.height = "30px";
+                avatarImg.style.borderRadius = "15px";
+                avatarImg.style.marginRight = "5px";
+                channelLink.appendChild(avatarImg);
+        
+                channelLink.classList.add("with-avatar");
+                wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
+            }
+        
+            const channelNameSpan = document.createElement("span");
+            channelNameSpan.className = "channel-name";
+            channelNameSpan.textContent = stream.channelName;
+        
+            const categoryDiv = document.createElement("div");
+        
+            if (showAvatar && stream.avatar) {
+                categoryDiv.appendChild(channelNameSpan);
+        
+                const categorySpan = document.createElement("span");
+                categorySpan.className = "stream-category-with-avatar";
+                categorySpan.textContent = stream.category;
+                categoryDiv.appendChild(categorySpan);
+                subWrapper.appendChild(categoryDiv);
+            } else {
+                wrapperDiv.appendChild(channelNameSpan);
+            }
+        
+            const accessCountDiv = document.createElement("div");
+            accessCountDiv.className = "access-count-div";
+        
+            if (hideAccessedCount) {
+                const accessCount = channelAccess[stream.channelName] || 0;
+                const accessCountSpan = document.createElement("span");
+                accessCountSpan.className = "access-count";
+                accessCountSpan.textContent = `Accessed: ${accessCount} times`;
+                accessCountSpan.style.display = "none";
+                accessCountDiv.appendChild(accessCountSpan);
+                wrapperDiv.appendChild(accessCountDiv);
+        
+                channelItem.onmouseover = function () {
+                    accessCountSpan.style.display = "block";
+                };
+                channelItem.onmouseout = function () {
+                    accessCountSpan.style.display = "none";
+                };
+            }
+        
+            if (!showAvatar || !stream.avatar) {
+                const categorySpan = document.createElement("span");
+                categorySpan.className = "stream-category";
+                categorySpan.textContent = stream.category;
+                wrapperDiv.appendChild(categorySpan);
+            }
+        
+            const viewersWrapper = document.createElement("div");
+            viewersWrapper.className = showAvatar ? "viewers-wrapper-with-avatar" : "viewers-wrapper";
+        
+            const viewersSpan = document.createElement("span");
+            viewersSpan.className = "viewers";
+            viewersSpan.textContent = stream.viewers;
+            viewersWrapper.appendChild(viewersSpan);
+        
+            if (showAvatar && stream.avatar) {
+                subWrapper.appendChild(viewersWrapper);
+                wrapperDiv.appendChild(subWrapper);
+            } else {
+                wrapperDiv.appendChild(viewersWrapper);
+            }
+        
+            channelLink.appendChild(wrapperDiv);
+            channelItem.appendChild(channelLink);
+        
+            container.appendChild(channelItem);
         }
-
-        const wrapperDiv = document.createElement("div");
-        wrapperDiv.className = "channel-category-wrapper";
-
-        const channelNameSpan = document.createElement("span");
-        channelNameSpan.className = "channel-name";
-        channelNameSpan.textContent = stream.channelName;
-        wrapperDiv.appendChild(channelNameSpan);
-
-        if (hideAccessedCount) {
-          // Display the access count for the channel
-          const accessCount = channelAccess[stream.channelName] || 0;
-          const accessCountSpan = document.createElement("span");
-          accessCountSpan.className = "access-count";
-          accessCountSpan.textContent = `Accessed: ${accessCount} times`;
-          accessCountSpan.style.display = "none";
-          wrapperDiv.appendChild(accessCountSpan);
-
-          channelItem.onmouseover = function () {
-            accessCountSpan.style.display = "block";
-          };
-          channelItem.onmouseout = function () {
-            accessCountSpan.style.display = "none";
-          };
-        }
-
-        const categorySpan = document.createElement("span");
-        categorySpan.className = "stream-category";
-        categorySpan.textContent = stream.category;
-        wrapperDiv.appendChild(categorySpan);
-
-        const viewersSpan = document.createElement("span");
-        viewersSpan.className = "viewers";
-        viewersSpan.textContent = stream.viewers;
-        wrapperDiv.appendChild(viewersSpan);
-
-        channelLink.appendChild(wrapperDiv);
-        channelItem.appendChild(channelLink);
-
-        container.appendChild(channelItem);
-      }
+        
+        
 
       favoriteGroups.forEach((group) => {
         const liveGroupStreams = liveStreams.filter((stream) =>
