@@ -215,6 +215,18 @@ function updateLiveStreams() {
             viewersSpan.className = "viewers";
             viewersSpan.textContent = stream.viewers;
             viewersWrapper.appendChild(viewersSpan);
+
+                        // Include SVG icon only if showAvatar and stream.avatar are true
+                        if (showAvatar && stream.avatar) {
+                          const iconImg = document.createElement("img");
+                          iconImg.src = "css/signal.svg"; // Set the source to your SVG file
+                          iconImg.className = "signal-icon";
+                          iconImg.alt = "Signal";
+                          iconImg.style.height = "13px";
+                          iconImg.style.width = "13px";
+                          iconImg.style.marginLeft = "-5px";
+                          viewersWrapper.appendChild(iconImg);
+                      }
         
             if (showAvatar && stream.avatar) {
                 subWrapper.appendChild(viewersWrapper);

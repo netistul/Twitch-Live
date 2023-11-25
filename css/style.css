@@ -76,9 +76,20 @@ body {
 
 /* Adjusted style for viewers wrapper when avatar is shown */
 .viewers-wrapper-with-avatar {
-  margin-left: auto; /* Pushes the viewers wrapper to the right */
-  margin-right: 10px; /* Space from the right edge */
+  display: flex; /* Use flex to align items in a row */
+  align-items: center; /* Center items vertically */
+  margin-right: 0px; /* No space from the right edge */
+  justify-content: flex-end; /* Align content to the end (right side) */
+  transform: translateY(-2.7px); /* Adjust Y-offset as needed */
 }
+
+/* Style for the signal icon to adjust vertical positioning */
+.signal-icon {
+  margin-left: 2px; /* Reduce space between viewers count and the icon */
+  margin-right: 2px; /* Add space after the icon if needed */
+  transform: translateY(1px); /* Adjust Y-offset as needed */
+}
+
 
 /* Style for the sub-wrapper when avatar is shown */
 .sub-wrapper-with-avatar {
@@ -118,12 +129,6 @@ body {
   flex-direction: column; /* Stack child elements vertically */
   align-items: flex-start; /* Align items to the start */
   margin-left: 1px; /* Add some margin to separate from the avatar */
-}
-
-/* Adjust viewers wrapper style when avatar is shown */
-.viewers-wrapper-with-avatar {
-  display: inline-block; /* Display alongside channel name */
-  margin-left: 10px; /* Space between channel name and viewers */
 }
 
 .stream-info::after {
@@ -230,7 +235,7 @@ body {
 .access-count {
   display: none; /* Hide access count by default */
   font-size: 7px; /* Smaller font size */
-  color: #312f2f93; /* Lighter color for a subtle appearance */
+  color: #9999993d; /* Lighter color for a subtle appearance */
   margin-left: 10px; /* Space from the channel name */
 }
 
