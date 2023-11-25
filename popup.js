@@ -97,9 +97,10 @@ function updateLiveStreams() {
       function (result) {
           const liveStreams = result.liveStreams || [];
           const favoriteGroups = result.favoriteGroups || [];
-          const showAvatar = result.showAvatar === true;
+          const showAvatar = (result.showAvatar !== undefined) ? result.showAvatar : true;
           const channelAccess = result.channelAccess || {};
-          const hideAccessedCount = result.hideAccessedCount === false ? false : true; // Default to true
+          const hideAccessedCount = (result.hideAccessedCount !== undefined) ? result.hideAccessedCount : false;
+ // Default to true
 
           // Sort channels based on access count
           liveStreams.sort(
