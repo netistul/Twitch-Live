@@ -697,7 +697,7 @@ function showLoginTip() {
   // Remove the tip after a few seconds
   setTimeout(() => {
     tipContainer.remove();
-  }, 20000);
+  }, 30000);
 }
 
 // Listener for OAuth completion
