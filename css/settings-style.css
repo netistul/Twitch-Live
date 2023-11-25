@@ -572,17 +572,65 @@ input:checked + .slider:before {
 }
 
 
-
 /* Style for the checkbox container */
 .checkbox-container {
   display: flex;
   align-items: center;
-  margin-top: 10px; /* Adjust this to position your checkbox */
+  margin-top: 10px;
+  position: relative; /* Added for tooltip positioning */
 }
 
 /* Hides the default checkbox */
 .styled-checkbox {
   display: none;
+}
+
+/* Style for label */
+#hideAccessedCountCheckbox + .styled-label {
+  font-family: Verdana, sans-serif;
+  cursor: pointer; /* Changes cursor to indicate interactive element */
+}
+
+/* Tooltip text styles */
+.tooltip-text {
+  visibility: hidden;
+  width: 280px;
+  background-color: #6441a5; /* Twitch purple */
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Position above the label */
+  left: 50%;
+  margin-left: -140px; /* Center the tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #6441a5 transparent transparent transparent;
+}
+
+/* Show tooltip on hover for any label within checkbox-container */
+.checkbox-container .styled-label:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Show tooltip on hover */
+.bell-icon-label:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* Style for new custom checkbox */
@@ -624,28 +672,12 @@ input:checked + .slider:before {
   transform: translateY(-50%) rotate(45deg);
 }
 
-  /* Style for the checkbox container */
-  .checkbox-container {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-  }
 
   /* Hides the default checkbox */
   .styled-checkbox {
     display: none;
   }
-  #hideAccessedCountCheckbox + .styled-label {
-    font-family: Verdana, sans-serif;
-  }
 
- 
-  /* Style for the checkbox container */
-.checkbox-container {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-}
 
 /* Hides the default checkbox */
 .styled-checkbox {

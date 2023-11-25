@@ -58,35 +58,39 @@
             >
           </label>
         </div>
-        <!-- Checkbox for hiding accessed count -->
-        <div class="checkbox-container">
-          <input
-            type="checkbox"
-            id="hideAccessedCountCheckbox"
-            class="styled-checkbox"
-          />
-          <label for="hideAccessedCountCheckbox" class="styled-label"
-            >Show accessed count</label
-          >
-        </div>
+ <!-- Checkbox for hiding accessed count -->
+<div class="checkbox-container">
+  <input
+    type="checkbox"
+    id="hideAccessedCountCheckbox"
+    class="styled-checkbox"
+  />
+  <label for="hideAccessedCountCheckbox" class="styled-label">
+    Show accessed count
+    <span class="tooltip-text">
+      This will display a count in the popup window showing how many times you accessed a Twitch channel.
+    </span>
+  </label>
+</div>
 
-        <!-- Checkbox for enabling notifications -->
-        <div class="checkbox-container">
-          <input
-            type="checkbox"
-            id="enableNotificationsCheckbox"
-            class="styled-checkbox"
-          />
-          <label for="enableNotificationsCheckbox" class="bell-icon-label">
-            <i class="fa-regular fa-bell"></i>
-            <!-- Empty bell icon -->
-            <i class="fa-solid fa-bell"></i>
-            <!-- Filled bell icon -->
-            <span class="label-text">Enable Live Notifications</span>
-          </label>
-        </div>
-      </div>
-    </div>
+
+<!-- Checkbox for enabling notifications -->
+<div class="checkbox-container">
+  <input
+    type="checkbox"
+    id="enableNotificationsCheckbox"
+    class="styled-checkbox"
+  />
+  <label for="enableNotificationsCheckbox" class="bell-icon-label">
+    <i class="fa-regular fa-bell"></i> <!-- Empty bell icon -->
+    <i class="fa-solid fa-bell"></i> <!-- Filled bell icon -->
+    <span class="label-text">Enable Live Notifications</span>
+    <span class="tooltip-text">
+      Activate to receive notifications when your followed Twitch channels go live.
+    </span>
+  </label>
+</div>
+
     <!-- The Modal -->
     <div id="myModal" class="modal">
       <!-- Modal content -->
