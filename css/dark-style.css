@@ -1,6 +1,6 @@
 .dark-mode {
   background-color: #18181b; /* Dark background */
-  color: #eeeeee; /* Light text color */
+  color: #d9d9de;
 }
 
 .dark-mode #header {
@@ -12,8 +12,30 @@
   background-color: #1f1f23; /* Darker header background */
 }
 
+.dark-mode .channel-name.with-avatar {
+  font-weight: bold; /* Apply bold font weight */
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 14px;
+  color: #dedde1;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+
 .dark-mode .stream-info:hover {
-  background-color: #49484c7f;
+  background-color: #26262c;
 }
 
 .dark-mode .stream-info::after {

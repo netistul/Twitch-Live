@@ -167,6 +167,7 @@ function updateLiveStreams() {
     categoryDiv.style.textAlign = "left"; // Align text to the left within this div
 
     if (showAvatar && stream.avatar) {
+      channelNameSpan.classList.add("with-avatar");
         categoryDiv.appendChild(channelNameSpan);
 
         const categorySpan = document.createElement("span");

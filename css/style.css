@@ -107,10 +107,11 @@ body {
 
 .stream-category-with-avatar {
   display: block; /* Make it a block element */
-  color: #88888885;
+  color: #888888c2;
   font-size: 0.9em;
   margin-left: 0px;
-  text-align: left; /* Align text to the left */
+  text-align: left;
+  margin-top: 1.3px;
 }
 
 
@@ -180,6 +181,28 @@ body {
   text-align: left;
   margin-right: 5px; /* Adjust the space between channel name and category */
 }
+
+.channel-name.with-avatar {
+  font-weight: bold; /* Apply bold font weight */
+  font-family: 'Open Sans', Arial, sans-serif;
+  color: #2e232f;
+  font-size: 14px;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 
 .stream-category {
   display: inline-block;
