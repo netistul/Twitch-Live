@@ -8,7 +8,6 @@ body {
   margin-bottom: 0; /* Removes bottom margin */
   padding-bottom: 0; /* Removes bottom padding */
   overflow: hidden; /* Hide overflow */
-  height: 1px; /* Set the fixed height */
 }
 
 #header {
