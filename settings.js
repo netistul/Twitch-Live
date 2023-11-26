@@ -510,10 +510,8 @@ function updatePreview() {
     var previewContainer = document.getElementById("previewContainer");
 
     if (liveStreams.length > 0) {
-      if (!previewStream) {
-        previewStream =
-          liveStreams[Math.floor(Math.random() * liveStreams.length)];
-      }
+      previewStream = 
+        liveStreams[Math.floor(Math.random() * liveStreams.length)];
 
       previewContainer.innerHTML = "";
 
@@ -522,21 +520,45 @@ function updatePreview() {
       var previewDiv = document.createElement("div");
       previewDiv.className = "stream-preview";
 
+      var channelNameSpan = document.createElement("span");
+      channelNameSpan.textContent = previewStream.channelName;
+      channelNameSpan.className = "channel-name"; // Existing class for channel name
+
       if (showAvatar && previewStream.avatar) {
         var avatarImg = document.createElement("img");
         avatarImg.src = previewStream.avatar;
         avatarImg.className = "stream-avatar";
         previewDiv.appendChild(avatarImg);
+
+        // Apply additional class when avatar is shown
+        channelNameSpan.classList.add("channel-name-with-avatar");
       }
 
-      var channelNameSpan = document.createElement("span");
-      channelNameSpan.textContent = previewStream.channelName;
-      channelNameSpan.className = "channel-name"; // Added class for channel name
       previewDiv.appendChild(channelNameSpan);
 
+      // Create a span for the viewers count and the signal icon
       var viewersSpan = document.createElement("span");
-      viewersSpan.innerHTML = `\u00A0- ${previewStream.viewers} viewers`;
+      viewersSpan.textContent = `\u00A0- `;
       viewersSpan.className = "viewers-count"; // Added class for viewers count
+
+      // Add text node for viewers count
+      var viewersCountText = document.createTextNode(`${previewStream.viewers} `);
+      viewersSpan.appendChild(viewersCountText);
+
+      if (showAvatar) {
+        // If show avatar is on, display the signal icon after viewers count
+        var signalIconSpan = document.createElement("span");
+        signalIconSpan.className = "signal-icon";
+        var signalIconImg = document.createElement("img");
+        signalIconImg.src = "css/signal.svg"; // Path to the signal icon
+        signalIconImg.style.height = "13px";
+        signalIconImg.style.width = "13px";
+        signalIconImg.style.marginLeft = "5px"; // Adjusted margin left
+        signalIconSpan.appendChild(signalIconImg);
+
+        viewersSpan.appendChild(signalIconSpan);
+      }
+
       previewDiv.appendChild(viewersSpan);
 
       previewContainer.appendChild(previewDiv);

@@ -424,6 +424,36 @@ input:checked + .slider:before {
   cursor: pointer;
 }
 
+.channel-name-with-avatar {
+  color: #2e232f; /* Change text color */
+  font-weight: bold; /* Apply bold font weight */
+  font-family: 'Open Sans', Arial, sans-serif; /* Use Open Sans font */
+  font-size: 14px;
+}
+
+.signal-icon {
+  display: inline-block; /* Ensures transform property applies correctly */
+  margin-left: -1px;
+  margin-right: 1px;
+  transform: translateY(1.9px);
+}
+
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../fonts/OpenSans-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+
 #showAvatarCheckbox {
   display: none;
 }
