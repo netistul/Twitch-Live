@@ -666,10 +666,21 @@ input:checked + .slider:before {
 /* Style for new custom checkbox */
 .styled-label {
   position: relative;
-  padding-left: 35px; /* Space for the checkbox */
+  padding-left: 32px; /* Space for the checkbox */
   cursor: pointer;
   user-select: none;
 }
+
+  /* Custom styling for the bell icons */
+  .custom-bell-icon {
+    position: absolute;
+    left: 19px; /* Adjust this to align with your other checkboxes */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25px; /* Adjust the width as needed */
+    height: 25px; /* Adjust the height as needed */
+    fill: #28a745; /* Adjust the fill color as needed */
+  }
 
 /* Create a custom checkbox */
 .styled-label:before {
