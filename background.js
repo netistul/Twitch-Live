@@ -56,7 +56,8 @@ function openSettingsPage() {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Check if running in a Firefox environment
-  const isFirefox = typeof browser !== 'undefined' && browser.runtime && browser.runtime.id;
+  const isFirefox =
+    typeof browser !== "undefined" && browser.runtime && browser.runtime.id;
 
   if (message.action === "startOAuth") {
     let redirectUri;
@@ -69,31 +70,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       redirectUri = "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
     }
 
-    const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:read:follows`;
+    const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&scope=user:read:follows`;
 
     // Launching the Web Auth Flow
-    const launchWebAuthFlow = isFirefox ? browser.identity.launchWebAuthFlow : chrome.identity.launchWebAuthFlow;
-    launchWebAuthFlow({
-      url: authUrl,
-      interactive: true,
-    }, (redirectUrl) => {
-      if (isFirefox && browser.runtime.lastError || !redirectUrl) {
-        console.error("OAuth flow failed:", isFirefox ? browser.runtime.lastError : chrome.runtime.lastError);
-        return;
-      }
+    const launchWebAuthFlow = isFirefox
+      ? browser.identity.launchWebAuthFlow
+      : chrome.identity.launchWebAuthFlow;
+    launchWebAuthFlow(
+      {
+        url: authUrl,
+        interactive: true,
+      },
+      (redirectUrl) => {
+        if ((isFirefox && browser.runtime.lastError) || !redirectUrl) {
+          console.error(
+            "OAuth flow failed:",
+            isFirefox ? browser.runtime.lastError : chrome.runtime.lastError
+          );
+          return;
+        }
 
-      const url = new URL(redirectUrl);
-      const hash = url.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      const accessToken = params.get("access_token");
-      if (accessToken) {
-        const storage = isFirefox ? browser.storage.local : chrome.storage.local;
-        storage.set({ twitchAccessToken: accessToken }, () => {
-          console.log("Twitch Access Token saved");
-          fetchUserProfile(accessToken);
-        });
+        const url = new URL(redirectUrl);
+        const hash = url.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get("access_token");
+        if (accessToken) {
+          const storage = isFirefox
+            ? browser.storage.local
+            : chrome.storage.local;
+          storage.set({ twitchAccessToken: accessToken }, () => {
+            console.log("Twitch Access Token saved");
+            fetchUserProfile(accessToken);
+          });
+        }
       }
-    });
+    );
   }
 
   // Handle the logout message
@@ -111,7 +124,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         "userDisplayName",
       ],
       () => {
-        console.log("Access token, followed list, live streams, and user information removed from storage.");
+        console.log(
+          "Access token, followed list, live streams, and user information removed from storage."
+        );
         const action = isFirefox ? browser.action : chrome.action;
         action.setBadgeText({ text: "" });
         sendResponse({ status: "success" });
@@ -121,7 +136,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Indicates you wish to send a response asynchronously (important for Chrome v80+)
   }
 });
-
 
 function fetchUserProfile(accessToken) {
   fetch("https://api.twitch.tv/helix/users", {
