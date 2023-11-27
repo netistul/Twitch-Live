@@ -57,6 +57,12 @@
   color: #9999993d; /* Lighter color for a subtle appearance */
 }
 
+body.dark-mode .custom-tooltip {
+  background-color: rgba(5, 5, 5, 0.984)/* Darker Twitch Purple */
+  /* Other styling can remain the same */
+}
+
+
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 .dark-mode #scrollContainer::-webkit-scrollbar {

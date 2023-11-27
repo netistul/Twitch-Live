@@ -239,14 +239,32 @@ function updateLiveStreams() {
         channelNameSpan.className = "channel-name";
         channelNameSpan.textContent = stream.channelName;
         channelNameSpan.style.textAlign = "left"; // Align text to the left
-
+        
+        // Create tooltip span and append it to channelNameSpan
+        const tooltipSpan = document.createElement("span");
+        tooltipSpan.className = "custom-tooltip";
+        tooltipSpan.textContent = stream.title; // Set the title as tooltip content
+        channelNameSpan.appendChild(tooltipSpan); // Append tooltip to channel name
+        
+        // Event listeners for showing and positioning the tooltip
+        channelNameSpan.addEventListener("mousemove", function (e) {
+          const x = e.clientX;
+          const y = e.clientY;
+          tooltipSpan.style.left = x + 10 + "px"; // Position the tooltip
+          tooltipSpan.style.top = y + 10 + "px"; // Position the tooltip
+        });
+        
+        channelNameSpan.addEventListener("mouseleave", function () {
+          tooltipSpan.style.left = "-9999px"; // Hide tooltip when not hovering
+        });
+        
         const categoryDiv = document.createElement("div");
         categoryDiv.style.textAlign = "left"; // Align text to the left within this div
-
+        
         if (showAvatar && stream.avatar) {
           channelNameSpan.classList.add("with-avatar");
           categoryDiv.appendChild(channelNameSpan);
-
+        
           const categorySpan = document.createElement("span");
           categorySpan.className = "stream-category-with-avatar";
           categorySpan.textContent = stream.category;
@@ -256,6 +274,7 @@ function updateLiveStreams() {
         } else {
           wrapperDiv.appendChild(channelNameSpan);
         }
+        
 
         const accessCountDiv = document.createElement("div");
         accessCountDiv.className = "access-count-div";

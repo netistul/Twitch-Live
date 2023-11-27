@@ -310,6 +310,7 @@ function fetchStreamData(accessToken, followedList) {
                   : "";
               return {
                 channelName: channel.broadcaster_name,
+                title: stream.title,
                 viewers: stream.viewer_count,
                 category: categoryName, // Add the category name
                 avatar: avatarUrl, // Add the avatar URL

@@ -112,11 +112,6 @@ body {
   font-size: 12.5px;
 }
 
-.channel-category-wrapper-with-avatar {
-  flex-direction: column; /* Change to column layout for the wrapper */
-  align-items: flex-start; /* Align items to the start */
-}
-
 .stream-info.with-avatar {
   flex-direction: row; /* Align children (avatar and wrapperDiv) in a row */
   align-items: center; /* Center items vertically in the row */
@@ -200,6 +195,14 @@ body {
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Noto Sans";
+  src: url("../fonts/NotoSans-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 .stream-category {
   display: inline-block;
   color: #88888885;
@@ -261,6 +264,35 @@ body {
 .channel-category-wrapper:hover .access-count {
   display: block; /* Show access count on hover */
 }
+
+.custom-tooltip {
+  visibility: hidden;
+  max-width: 300px; /* Adjust if needed */
+  min-width: 100px; /* Optional, adjust as needed */
+  font-size: 12px;
+  /* Removed white-space and text-overflow properties */
+  overflow: visible; /* Ensure overflow is visible */
+  background-color: #9147ff; /* Twitch Purple */
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 10px; /* Add some horizontal padding */
+  position: fixed; /* Use fixed positioning */
+  z-index: 1;
+  white-space: normal; /* Allows text to wrap */
+  overflow-wrap: break-word; /* Ensures long words don't overflow */
+
+  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none; /* Prevent the tooltip from capturing mouse events */
+}
+
+.channel-name:hover .custom-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
 
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
