@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Twitch Live 2.0",
+  "name": "Twitch Live",
   "version": "1.0",
   "icons": {
     "48": "css/icon.png",
