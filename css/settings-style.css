@@ -427,7 +427,7 @@ input:checked + .slider:before {
 .channel-name-with-avatar {
   color: #2e232f; /* Change text color */
   font-weight: bold; /* Apply bold font weight */
-  font-family: 'Open Sans', Arial, sans-serif; /* Use Open Sans font */
+  font-family: 'Noto Sans', Arial, sans-serif; /* Use Open Sans font */
   font-size: 14px;
 }
 
@@ -452,6 +452,14 @@ input:checked + .slider:before {
   font-weight: bold;
   font-style: normal;
 }
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("../fonts/NotoSans-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 
 
 #showAvatarCheckbox {
