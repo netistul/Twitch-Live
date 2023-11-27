@@ -18,10 +18,5 @@
   },
   "background": {
     "scripts": ["background.js"]
-  },
-  "applications": {
-    "gecko": {
-      "id": "your-extension-id@example.com"
-    }
   }
 }
