@@ -64,9 +64,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       buttonContainer.appendChild(spinner);
       console.log("Spinner appended:", spinner);
-
     } else {
-      console.log("Twitch access token is present, not showing the login button.");
+      console.log(
+        "Twitch access token is present, not showing the login button."
+      );
     }
   });
 
@@ -120,7 +121,7 @@ function displayLoginButton() {
   const buttonContainer = document.getElementById("buttonContainer");
 
   // Clear any previous content
-  buttonContainer.innerHTML = '';
+  buttonContainer.innerHTML = "";
 
   // Create the login button
   const loginButton = document.createElement("button");
@@ -133,7 +134,8 @@ function displayLoginButton() {
 
   // Create and append the description text
   const description = document.createElement("div");
-  description.textContent = "Log in with Twitch to see live channels you follow!";
+  description.textContent =
+    "Log in with Twitch to see live channels you follow!";
   description.id = "description";
   buttonContainer.appendChild(description);
 
@@ -156,171 +158,174 @@ function displayLoginButton() {
   buttonContainer.appendChild(spinner);
 }
 
-
 function updateLiveStreams() {
   chrome.storage.local.get(
-      [
-          "liveStreams",
-          "favoriteGroups",
-          "showAvatar",
-          "channelAccess",
-          "hideAccessedCount",
-      ],
-      function (result) {
-          const liveStreams = result.liveStreams || [];
-          const favoriteGroups = result.favoriteGroups || [];
-          const showAvatar = (result.showAvatar !== undefined) ? result.showAvatar : true;
-          const channelAccess = result.channelAccess || {};
-          const hideAccessedCount = (result.hideAccessedCount !== undefined) ? result.hideAccessedCount : false;
- // Default to true
+    [
+      "liveStreams",
+      "favoriteGroups",
+      "showAvatar",
+      "channelAccess",
+      "hideAccessedCount",
+    ],
+    function (result) {
+      const liveStreams = result.liveStreams || [];
+      const favoriteGroups = result.favoriteGroups || [];
+      const showAvatar =
+        result.showAvatar !== undefined ? result.showAvatar : true;
+      const channelAccess = result.channelAccess || {};
+      const hideAccessedCount =
+        result.hideAccessedCount !== undefined
+          ? result.hideAccessedCount
+          : false;
+      // Default to true
 
-          // Sort channels based on access count
-          liveStreams.sort(
-              (a, b) =>
-                  (channelAccess[b.channelName] || 0) -
-                  (channelAccess[a.channelName] || 0)
-          );
+      // Sort channels based on access count
+      liveStreams.sort(
+        (a, b) =>
+          (channelAccess[b.channelName] || 0) -
+          (channelAccess[a.channelName] || 0)
+      );
 
-          const container = document.getElementById("buttonContainer");
-          const currentScrollPosition = container.scrollTop;
-          container.innerHTML = "";
+      const container = document.getElementById("buttonContainer");
+      const currentScrollPosition = container.scrollTop;
+      container.innerHTML = "";
 
-          const scrollContainer = document.createElement("div");
-          scrollContainer.id = "scrollContainer";
+      const scrollContainer = document.createElement("div");
+      scrollContainer.id = "scrollContainer";
 
-          let isAnyFavoriteGroupLive = false; // This will track if any favorite group is live
+      let isAnyFavoriteGroupLive = false; // This will track if any favorite group is live
 
-          function appendStreamLink(stream, container) {
-            const channelItem = document.createElement("div");
-            channelItem.className = "stream-item";
-        
-            const channelLink = document.createElement("a");
-            channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
-            channelLink.className = "stream-info";
-            channelLink.target = "_blank";
-        
-            channelLink.addEventListener("click", function (event) {
-              event.preventDefault();  // Prevent the default link behavior immediately
-              incrementChannelAccess(stream.channelName);
-      
-              // Use setTimeout to delay the redirection
-              setTimeout(() => {
-                  window.open(channelLink.href, '_blank');
-              }, 10); // Delay in milliseconds, 100 is just an example
-          });
-        
-            const wrapperDiv = document.createElement("div");
-            wrapperDiv.className = "channel-category-wrapper";
-        
-            // Sub-wrapper for channel name, category, and viewers
-            const subWrapper = document.createElement("div");
-            subWrapper.className = showAvatar ? "sub-wrapper-with-avatar" : "";
-        
-            if (showAvatar && stream.avatar) {
-                const avatarImg = document.createElement("img");
-                avatarImg.src = stream.avatar;
-                avatarImg.className = "stream-avatar";
-                avatarImg.alt = `${stream.channelName}'s avatar`;
-                avatarImg.style.width = "30px";
-                avatarImg.style.height = "30px";
-                avatarImg.style.borderRadius = "15px";
-                avatarImg.style.marginRight = "5px";
-                channelLink.appendChild(avatarImg);
-        
-                channelLink.classList.add("with-avatar");
-                wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
-            }
-            const channelNameSpan = document.createElement("span");
-    channelNameSpan.className = "channel-name";
-    channelNameSpan.textContent = stream.channelName;
-    channelNameSpan.style.textAlign = "left"; // Align text to the left
+      function appendStreamLink(stream, container) {
+        const channelItem = document.createElement("div");
+        channelItem.className = "stream-item";
 
-    const categoryDiv = document.createElement("div");
-    categoryDiv.style.textAlign = "left"; // Align text to the left within this div
+        const channelLink = document.createElement("a");
+        channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
+        channelLink.className = "stream-info";
+        channelLink.target = "_blank";
 
-    if (showAvatar && stream.avatar) {
-      channelNameSpan.classList.add("with-avatar");
-        categoryDiv.appendChild(channelNameSpan);
+        channelLink.addEventListener("click", function (event) {
+          event.preventDefault(); // Prevent the default link behavior immediately
+          incrementChannelAccess(stream.channelName);
 
-        const categorySpan = document.createElement("span");
-        categorySpan.className = "stream-category-with-avatar";
-        categorySpan.textContent = stream.category;
-        categorySpan.style.textAlign = "left"; // Align text to the left
-        categoryDiv.appendChild(categorySpan);
-        subWrapper.appendChild(categoryDiv);
-    } else {
-        wrapperDiv.appendChild(channelNameSpan);
-    }
-        
-    const accessCountDiv = document.createElement("div");
-    accessCountDiv.className = "access-count-div";
-    accessCountDiv.style.position = "absolute";
-    accessCountDiv.style.bottom = "0"; // Align at the bottom
-    accessCountDiv.style.left = "0"; // Align to the left side
-    accessCountDiv.style.width = "100%";
-    accessCountDiv.style.boxSizing = "border-box"; // Include padding and border in the element's width
-    accessCountDiv.style.padding = "0 5px"; // Adjust padding as needed
-    accessCountDiv.style.margin = "0"; // Ensure no extra margin is added
+          // Use setTimeout to delay the redirection
+          setTimeout(() => {
+            window.open(channelLink.href, "_blank");
+          }, 10); // Delay in milliseconds, 100 is just an example
+        });
 
-    if (hideAccessedCount) {
-        const accessCount = channelAccess[stream.channelName] || 0;
-        const accessCountSpan = document.createElement("span");
-        accessCountSpan.className = "access-count";
-        accessCountSpan.textContent = `Accessed: ${accessCount} times`;
-        accessCountSpan.style.display = "none";
-        accessCountDiv.appendChild(accessCountSpan);
-        wrapperDiv.appendChild(accessCountDiv);
+        const wrapperDiv = document.createElement("div");
+        wrapperDiv.className = "channel-category-wrapper";
 
-        channelItem.onmouseover = function () {
-            accessCountSpan.style.display = "block";
-        };
-        channelItem.onmouseout = function () {
-            accessCountSpan.style.display = "none";
-        };
-            }
-        
-            if (!showAvatar || !stream.avatar) {
-              const categorySpan = document.createElement("span");
-              categorySpan.className = "stream-category";
-              categorySpan.textContent = stream.category;
-              categorySpan.style.textAlign = "left"; // Align text to the left
-              wrapperDiv.appendChild(categorySpan);
-          }
-        
-            const viewersWrapper = document.createElement("div");
-            viewersWrapper.className = showAvatar ? "viewers-wrapper-with-avatar" : "viewers-wrapper";
-        
-            const viewersSpan = document.createElement("span");
-            viewersSpan.className = "viewers";
-            viewersSpan.textContent = stream.viewers;
-            viewersWrapper.appendChild(viewersSpan);
+        // Sub-wrapper for channel name, category, and viewers
+        const subWrapper = document.createElement("div");
+        subWrapper.className = showAvatar ? "sub-wrapper-with-avatar" : "";
 
-                        // Include SVG icon only if showAvatar and stream.avatar are true
-                        if (showAvatar && stream.avatar) {
-                          const iconImg = document.createElement("img");
-                          iconImg.src = "css/signal.svg"; // Set the source to your SVG file
-                          iconImg.className = "signal-icon";
-                          iconImg.alt = "Signal";
-                          iconImg.style.height = "13px";
-                          iconImg.style.width = "13px";
-                          iconImg.style.marginLeft = "-5px";
-                          viewersWrapper.appendChild(iconImg);
-                      }
-        
-            if (showAvatar && stream.avatar) {
-                subWrapper.appendChild(viewersWrapper);
-                wrapperDiv.appendChild(subWrapper);
-            } else {
-                wrapperDiv.appendChild(viewersWrapper);
-            }
-        
-            channelLink.appendChild(wrapperDiv);
-            channelItem.appendChild(channelLink);
-        
-            container.appendChild(channelItem);
+        if (showAvatar && stream.avatar) {
+          const avatarImg = document.createElement("img");
+          avatarImg.src = stream.avatar;
+          avatarImg.className = "stream-avatar";
+          avatarImg.alt = `${stream.channelName}'s avatar`;
+          avatarImg.style.width = "30px";
+          avatarImg.style.height = "30px";
+          avatarImg.style.borderRadius = "15px";
+          avatarImg.style.marginRight = "5px";
+          channelLink.appendChild(avatarImg);
+
+          channelLink.classList.add("with-avatar");
+          wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
         }
-        
-        
+        const channelNameSpan = document.createElement("span");
+        channelNameSpan.className = "channel-name";
+        channelNameSpan.textContent = stream.channelName;
+        channelNameSpan.style.textAlign = "left"; // Align text to the left
+
+        const categoryDiv = document.createElement("div");
+        categoryDiv.style.textAlign = "left"; // Align text to the left within this div
+
+        if (showAvatar && stream.avatar) {
+          channelNameSpan.classList.add("with-avatar");
+          categoryDiv.appendChild(channelNameSpan);
+
+          const categorySpan = document.createElement("span");
+          categorySpan.className = "stream-category-with-avatar";
+          categorySpan.textContent = stream.category;
+          categorySpan.style.textAlign = "left"; // Align text to the left
+          categoryDiv.appendChild(categorySpan);
+          subWrapper.appendChild(categoryDiv);
+        } else {
+          wrapperDiv.appendChild(channelNameSpan);
+        }
+
+        const accessCountDiv = document.createElement("div");
+        accessCountDiv.className = "access-count-div";
+        accessCountDiv.style.position = "absolute";
+        accessCountDiv.style.bottom = "0"; // Align at the bottom
+        accessCountDiv.style.left = "0"; // Align to the left side
+        accessCountDiv.style.width = "100%";
+        accessCountDiv.style.boxSizing = "border-box"; // Include padding and border in the element's width
+        accessCountDiv.style.padding = "0 5px"; // Adjust padding as needed
+        accessCountDiv.style.margin = "0"; // Ensure no extra margin is added
+
+        if (hideAccessedCount) {
+          const accessCount = channelAccess[stream.channelName] || 0;
+          const accessCountSpan = document.createElement("span");
+          accessCountSpan.className = "access-count";
+          accessCountSpan.textContent = `Accessed: ${accessCount} times`;
+          accessCountSpan.style.display = "none";
+          accessCountDiv.appendChild(accessCountSpan);
+          wrapperDiv.appendChild(accessCountDiv);
+
+          channelItem.onmouseover = function () {
+            accessCountSpan.style.display = "block";
+          };
+          channelItem.onmouseout = function () {
+            accessCountSpan.style.display = "none";
+          };
+        }
+
+        if (!showAvatar || !stream.avatar) {
+          const categorySpan = document.createElement("span");
+          categorySpan.className = "stream-category";
+          categorySpan.textContent = stream.category;
+          categorySpan.style.textAlign = "left"; // Align text to the left
+          wrapperDiv.appendChild(categorySpan);
+        }
+
+        const viewersWrapper = document.createElement("div");
+        viewersWrapper.className = showAvatar
+          ? "viewers-wrapper-with-avatar"
+          : "viewers-wrapper";
+
+        const viewersSpan = document.createElement("span");
+        viewersSpan.className = "viewers";
+        viewersSpan.textContent = stream.viewers;
+        viewersWrapper.appendChild(viewersSpan);
+
+        // Include SVG icon only if showAvatar and stream.avatar are true
+        if (showAvatar && stream.avatar) {
+          const iconImg = document.createElement("img");
+          iconImg.src = "css/signal.svg"; // Set the source to your SVG file
+          iconImg.className = "signal-icon";
+          iconImg.alt = "Signal";
+          iconImg.style.height = "13px";
+          iconImg.style.width = "13px";
+          iconImg.style.marginLeft = "-5px";
+          viewersWrapper.appendChild(iconImg);
+        }
+
+        if (showAvatar && stream.avatar) {
+          subWrapper.appendChild(viewersWrapper);
+          wrapperDiv.appendChild(subWrapper);
+        } else {
+          wrapperDiv.appendChild(viewersWrapper);
+        }
+
+        channelLink.appendChild(wrapperDiv);
+        channelItem.appendChild(channelLink);
+
+        container.appendChild(channelItem);
+      }
 
       favoriteGroups.forEach((group) => {
         const liveGroupStreams = liveStreams.filter((stream) =>
@@ -430,7 +435,7 @@ window.addEventListener("unload", function () {
 function applyDarkMode() {
   chrome.storage.local.get("darkMode", function (data) {
     // If darkMode is undefined or true, enable dark mode. Otherwise, use light mode.
-    var isDarkMode = (data.darkMode !== undefined) ? data.darkMode : true;
+    var isDarkMode = data.darkMode !== undefined ? data.darkMode : true;
     if (isDarkMode) {
       document.body.classList.add("dark-mode");
     } else {

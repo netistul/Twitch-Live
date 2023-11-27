@@ -1,5 +1,5 @@
 body {
-  font-family: 'Open Sans', Arial, sans-serif;
+  font-family: "Open Sans", Arial, sans-serif;
   text-align: center;
   margin: 10px;
   min-width: 400px;
@@ -89,7 +89,6 @@ body {
   transform: translateY(1px); /* Adjust Y-offset as needed */
 }
 
-
 /* Style for the sub-wrapper when avatar is shown */
 .sub-wrapper-with-avatar {
   display: flex; /* Use flexbox for layout */
@@ -97,7 +96,6 @@ body {
   justify-content: space-between; /* Distribute space between elements */
   width: 100%; /* Full width to accommodate children */
 }
-
 
 .stream-info.with-avatar {
   flex-direction: row; /* Align children (avatar and wrapperDiv) in a row */
@@ -111,8 +109,8 @@ body {
   margin-left: 0px;
   text-align: left;
   margin-top: 1.3px;
+  font-size: 12.5px;
 }
-
 
 .channel-category-wrapper-with-avatar {
   flex-direction: column; /* Change to column layout for the wrapper */
@@ -183,25 +181,24 @@ body {
 
 .channel-name.with-avatar {
   font-weight: bold; /* Apply bold font weight */
-  font-family: 'Open Sans', Arial, sans-serif;
+  font-family: "Open Sans", Arial, sans-serif;
   color: #2e232f;
   font-size: 14px;
 }
 
 @font-face {
-  font-family: 'Open Sans';
-  src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+  font-family: "Open Sans";
+  src: url("../fonts/OpenSans-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Open Sans';
-  src: url('../fonts/OpenSans-Bold.ttf') format('truetype');
+  font-family: "Open Sans";
+  src: url("../fonts/OpenSans-Bold.ttf") format("truetype");
   font-weight: bold;
   font-style: normal;
 }
-
 
 .stream-category {
   display: inline-block;
