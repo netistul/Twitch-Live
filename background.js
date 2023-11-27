@@ -55,58 +55,73 @@ function openSettingsPage() {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "startOAuth") {
-    const redirectUri =
-      "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
+  // Check if running in a Firefox environment
+  const isFirefox = typeof browser !== 'undefined' && browser.runtime && browser.runtime.id;
 
-    chrome.identity.launchWebAuthFlow(
-      {
-        url: `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(
-          redirectUri
-        )}&scope=user:read:follows`,
-        interactive: true,
-      },
-      (redirectUrl) => {
-        if (redirectUrl) {
-          const url = new URL(redirectUrl);
-          const hash = url.hash.substring(1);
-          const params = new URLSearchParams(hash);
-          const accessToken = params.get("access_token");
-          if (accessToken) {
-            chrome.storage.local.set({ twitchAccessToken: accessToken }, () => {
-              console.log("Twitch Access Token saved");
-              fetchUserProfile(accessToken);
-            });
-          }
-        }
+  if (message.action === "startOAuth") {
+    let redirectUri;
+
+    if (isFirefox) {
+      // Firefox specific code
+      redirectUri = browser.identity.getRedirectURL();
+    } else {
+      // Chrome specific code
+      redirectUri = "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
+    }
+
+    const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:read:follows`;
+
+    // Launching the Web Auth Flow
+    const launchWebAuthFlow = isFirefox ? browser.identity.launchWebAuthFlow : chrome.identity.launchWebAuthFlow;
+    launchWebAuthFlow({
+      url: authUrl,
+      interactive: true,
+    }, (redirectUrl) => {
+      if (isFirefox && browser.runtime.lastError || !redirectUrl) {
+        console.error("OAuth flow failed:", isFirefox ? browser.runtime.lastError : chrome.runtime.lastError);
+        return;
       }
-    );
+
+      const url = new URL(redirectUrl);
+      const hash = url.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get("access_token");
+      if (accessToken) {
+        const storage = isFirefox ? browser.storage.local : chrome.storage.local;
+        storage.set({ twitchAccessToken: accessToken }, () => {
+          console.log("Twitch Access Token saved");
+          fetchUserProfile(accessToken);
+        });
+      }
+    });
   }
+
   // Handle the logout message
   if (message.action === "disconnectTwitch") {
     console.log("Disconnecting Twitch account via settings page");
-    // Remove specific items from the local storage
-    chrome.storage.local.remove(
+
+    const storage = isFirefox ? browser.storage.local : chrome.storage.local;
+    storage.remove(
       [
         "twitchAccessToken",
         "followedList",
         "liveStreams",
-        "userId", // Removing user ID
-        "userAvatar", // Removing user avatar
-        "userDisplayName", // Removing user display name
+        "userId",
+        "userAvatar",
+        "userDisplayName",
       ],
       () => {
-        console.log(
-          "Access token, followed list, live streams, and user information removed from storage."
-        );
-        chrome.action.setBadgeText({ text: "" });
-        // Optionally, send a response back
+        console.log("Access token, followed list, live streams, and user information removed from storage.");
+        const action = isFirefox ? browser.action : chrome.action;
+        action.setBadgeText({ text: "" });
         sendResponse({ status: "success" });
       }
     );
-    return true; // indicates you wish to send a response asynchronously (important for Chrome v80+)
+
+    return true; // Indicates you wish to send a response asynchronously (important for Chrome v80+)
   }
 });
+
 
 function fetchUserProfile(accessToken) {
   fetch("https://api.twitch.tv/helix/users", {

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Twitch Live 2.0",
+  "version": "1.0",
+  "icons": {
+    "48": "css/icon.png",
+    "128": "css/icon.png"
+  },
+  "permissions": [
+    "storage",
+    "identity",
+    "contextMenus",
+    "alarms",
+    "notifications"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "applications": {
+    "gecko": {
+      "id": "your-extension-id@example.com"
+    }
+  }
+}
