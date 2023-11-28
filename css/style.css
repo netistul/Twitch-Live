@@ -272,7 +272,7 @@ body {
   font-size: 12px;
   /* Removed white-space and text-overflow properties */
   overflow: visible; /* Ensure overflow is visible */
-  background-color: #9147ff; /* Twitch Purple */
+  background-color: #c5bdd1; /* Twitch Purple */
   color: white;
   text-align: center;
   border-radius: 6px;
