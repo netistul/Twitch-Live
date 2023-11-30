@@ -67,7 +67,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       redirectUri = browser.identity.getRedirectURL();
     } else {
       // Chrome specific code
-      redirectUri = "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/";
+      redirectUri = "https://paliecoepgcndapnogfehdoonjijapeel.chromiumapp.org/";
     }
 
     const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(

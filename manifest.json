@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Live",
-  "version": "1.0",
+  "version": "1.1",
   "icons": {
     "48": "css/icon.png",
     "128": "css/icon.png"
@@ -22,6 +22,6 @@
   "oauth2": {
     "client_id": "z05n4woixewpyagrqrui76x28avd2g",
     "scopes": ["user:read:follows"],
-    "redirect_uri": "https://hbahknjghhdefhjoeebaiaiogcbhmbll.chromiumapp.org/"
+    "redirect_uri": "https://paliecoepgcndapnogfehdoonjijapeel.chromiumapp.org/"
   }
 }
