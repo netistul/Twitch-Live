@@ -474,3 +474,9 @@ function applyDarkMode() {
     }
   });
 }
+
+/* Custom scrollbar for Firefox */
+if (navigator.userAgent.includes("Firefox")) {
+  document.body.style.scrollbarWidth = 'thin';
+  document.body.style.scrollbarColor = '#6441a5 #efeff1';
+}
