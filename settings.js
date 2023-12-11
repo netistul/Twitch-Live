@@ -209,6 +209,12 @@ function showAddStreamerDropdown(groupIndex) {
         // Append the overlay and dropdown to the body first to calculate their position
         document.body.appendChild(overlay);
         document.body.appendChild(dropdownMenu);
+        // Add event listener to the overlay to close the dropdown when clicking outside
+        overlay.addEventListener("click", function (event) {
+          if (!dropdownMenu.contains(event.target)) {
+            closeDropdown();
+          }
+        });
         dropdownMenu.style.display = "block";
 
         // Set width, position, and height of dropdown
@@ -338,7 +344,7 @@ function showAddStreamerDropdown(groupIndex) {
 
         // Set width, position, and height of dropdown
         dropdownMenu.style.width = "300px";
-        dropdownMenu.style.position = "absolute";
+        dropdownMenu.style.position = "fixed";
         dropdownMenu.style.overflowY = "auto";
         dropdownMenu.style.maxHeight = "400px";
 
@@ -346,7 +352,7 @@ function showAddStreamerDropdown(groupIndex) {
         var dropdownWidth = dropdownMenu.offsetWidth;
         var leftPosition = (screenWidth - dropdownWidth) / 2;
         dropdownMenu.style.left = `${leftPosition}px`;
-        dropdownMenu.style.top = "50px";
+        dropdownMenu.style.top = `${scrollOffset + 50}px`;
         dropdownMenu.style.zIndex = "3";
 
         // Adjust the position of the dropdown relative to the message
@@ -510,7 +516,7 @@ function updatePreview() {
     var previewContainer = document.getElementById("previewContainer");
 
     if (liveStreams.length > 0) {
-      previewStream = 
+      previewStream =
         liveStreams[Math.floor(Math.random() * liveStreams.length)];
 
       previewContainer.innerHTML = "";
@@ -542,7 +548,9 @@ function updatePreview() {
       viewersSpan.className = "viewers-count"; // Added class for viewers count
 
       // Add text node for viewers count
-      var viewersCountText = document.createTextNode(`${previewStream.viewers} `);
+      var viewersCountText = document.createTextNode(
+        `${previewStream.viewers} `
+      );
       viewersSpan.appendChild(viewersCountText);
 
       if (showAvatar) {
@@ -758,16 +766,16 @@ function toggleDarkMode(isDarkMode) {
 
 // Event listener for the dark mode toggle
 document.addEventListener("DOMContentLoaded", function () {
-    // Load and set the "Show Avatar" preference
-    chrome.storage.local.get("showAvatar", function (data) {
-      var isShowAvatar = (data.showAvatar !== undefined) ? data.showAvatar : true; // Set default to true
-      document.getElementById("showAvatarCheckbox").checked = isShowAvatar;
-    });
+  // Load and set the "Show Avatar" preference
+  chrome.storage.local.get("showAvatar", function (data) {
+    var isShowAvatar = data.showAvatar !== undefined ? data.showAvatar : true; // Set default to true
+    document.getElementById("showAvatarCheckbox").checked = isShowAvatar;
+  });
   const darkModeToggle = document.getElementById("darkModeToggle");
 
   // Load dark mode setting
   chrome.storage.local.get("darkMode", function (data) {
-    const isDarkMode = (data.darkMode !== undefined) ? data.darkMode : true; // Default to true
+    const isDarkMode = data.darkMode !== undefined ? data.darkMode : true; // Default to true
     darkModeToggle.checked = isDarkMode;
     toggleDarkMode(isDarkMode); // Also updates the text
   });
@@ -787,7 +795,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Function to toggle dark mode in settings.html
 function applyDarkModeSetting() {
   chrome.storage.local.get("darkMode", function (data) {
-    var isDarkMode = (data.darkMode !== undefined) ? data.darkMode : true; // Default to true
+    var isDarkMode = data.darkMode !== undefined ? data.darkMode : true; // Default to true
     if (isDarkMode) {
       document.body.classList.add("dark-mode");
     } else {
@@ -802,11 +810,12 @@ document.addEventListener("DOMContentLoaded", applyDarkModeSetting);
 document.addEventListener("DOMContentLoaded", function () {
   // Load and set the "Do not show accessed count" preference
   chrome.storage.local.get("hideAccessedCount", function (data) {
-    var isChecked = (data.hideAccessedCount !== undefined) ? data.hideAccessedCount : false;
+    var isChecked =
+      data.hideAccessedCount !== undefined ? data.hideAccessedCount : false;
     document.getElementById("hideAccessedCountCheckbox").checked = isChecked;
     console.log("Loaded Hide Accessed Count preference:", isChecked);
   });
-  
+
   // Save the "Do not show accessed count" preference when changed
   document
     .getElementById("hideAccessedCountCheckbox")
