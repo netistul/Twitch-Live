@@ -3,8 +3,6 @@ body {
   text-align: center;
   margin: 10px;
   min-width: 400px;
-  scrollbar-width: thin; /* Width of the scrollbar */
-  scrollbar-color: #6441a5 #efeff1; /* Thumb and track colors */
   margin-bottom: 0; /* Removes bottom margin */
   padding-bottom: 0; /* Removes bottom padding */
   overflow: hidden; /* Hide overflow */
