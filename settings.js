@@ -219,7 +219,7 @@ function showAddStreamerDropdown(groupIndex) {
 
         // Set width, position, and height of dropdown
         dropdownMenu.style.width = "300px";
-        dropdownMenu.style.position = "absolute";
+        dropdownMenu.style.position = "fixed"; // Changed from 'absolute' to 'fixed'
         dropdownMenu.style.overflowY = "auto";
         dropdownMenu.style.maxHeight = "400px";
 
@@ -252,11 +252,7 @@ function showAddStreamerDropdown(groupIndex) {
         // Adjust the message position based on the actual position of the dropdown
         var dropdownRect = dropdownMenu.getBoundingClientRect();
         var gapBetweenMessageAndDropdown = 13; // Decrease this value to move message closer to dropdown
-        message.style.top =
-          dropdownRect.top -
-          message.offsetHeight +
-          gapBetweenMessageAndDropdown +
-          "px";
+        message.style.top = dropdownRect.top - message.offsetHeight + gapBetweenMessageAndDropdown + "px";
 
         // Create search input
         var searchInput = document.createElement("input");
@@ -316,19 +312,11 @@ function showAddStreamerDropdown(groupIndex) {
               if (groups[groupIndex]) {
                 groups[groupIndex].streamers.push(channel.broadcaster_name);
 
-                chrome.storage.local.set(
-                  { favoriteGroups: groups },
-                  function () {
-                    console.log(
-                      "Streamer added:",
-                      channel.broadcaster_name,
-                      "to group",
-                      groups[groupIndex].name
-                    );
-                    displayGroups(); // Refresh the displayed groups
-                    showTemporaryInfo("Channel added successfully!");
-                  }
-                );
+                chrome.storage.local.set({ favoriteGroups: groups }, function () {
+                  console.log("Streamer added:", channel.broadcaster_name, "to group", groups[groupIndex].name);
+                  displayGroups(); // Refresh the displayed groups
+                  showTemporaryInfo("Channel added successfully!");
+                });
               }
             });
             // Close the dropdown after selecting a channel
@@ -336,28 +324,6 @@ function showAddStreamerDropdown(groupIndex) {
           };
           dropdownMenu.appendChild(dropdownItem);
         });
-
-        // Append the overlay and dropdown to the body
-        document.body.appendChild(overlay);
-        document.body.appendChild(dropdownMenu);
-        dropdownMenu.style.display = "block";
-
-        // Set width, position, and height of dropdown
-        dropdownMenu.style.width = "300px";
-        dropdownMenu.style.position = "fixed";
-        dropdownMenu.style.overflowY = "auto";
-        dropdownMenu.style.maxHeight = "400px";
-
-        var screenWidth = window.innerWidth;
-        var dropdownWidth = dropdownMenu.offsetWidth;
-        var leftPosition = (screenWidth - dropdownWidth) / 2;
-        dropdownMenu.style.left = `${leftPosition}px`;
-        dropdownMenu.style.top = `${scrollOffset + 50}px`;
-        dropdownMenu.style.zIndex = "3";
-
-        // Adjust the position of the dropdown relative to the message
-        var messageHeight = message.offsetHeight;
-        dropdownMenu.style.top = 10 + messageHeight + "px";
 
         // Function to close dropdown and overlay, also remove the message
         function closeDropdown() {
@@ -369,6 +335,7 @@ function showAddStreamerDropdown(groupIndex) {
           }
           document.removeEventListener("click", closeDropdownEvent);
         }
+
         // Event to close dropdown when clicking outside
         function closeDropdownEvent(event) {
           if (!dropdownMenu.contains(event.target)) {
@@ -386,6 +353,7 @@ function showAddStreamerDropdown(groupIndex) {
       console.error(error);
     });
 }
+
 
 // Global function to filter dropdown
 function filterDropdown(dropdownMenu, searchValue) {
