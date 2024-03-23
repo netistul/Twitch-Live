@@ -251,6 +251,10 @@ function fetchStreamData(accessToken, followedList) {
   const someThreshold = 60000;
 
   const streamFetchPromises = followedList.map((channel) => {
+    if (!channel || !channel.broadcaster_login) {
+      console.error("Invalid channel data:", channel);
+      return Promise.resolve(null); // Skip this iteration gracefully
+    }
     const streamUrl = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`;
 
     return fetch(streamUrl, {
