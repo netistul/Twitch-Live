@@ -182,8 +182,8 @@ function updateLiveStreams() {
       // Sort channels based on access count
       liveStreams.sort(
         (a, b) =>
-          (channelAccess[b.channelName] || 0) -
-          (channelAccess[a.channelName] || 0)
+          (channelAccess[b.broadcasterLogin] || 0) -
+          (channelAccess[a.broadcasterLogin] || 0)
       );
 
       const container = document.getElementById("buttonContainer");
@@ -200,13 +200,13 @@ function updateLiveStreams() {
         channelItem.className = "stream-item";
 
         const channelLink = document.createElement("a");
-        channelLink.href = `https://www.twitch.tv/${stream.channelName}`;
+        channelLink.href = `https://www.twitch.tv/${stream.broadcasterLogin}`;
         channelLink.className = "stream-info";
         channelLink.target = "_blank";
 
         channelLink.addEventListener("click", function (event) {
           event.preventDefault(); // Prevent the default link behavior immediately
-          incrementChannelAccess(stream.channelName);
+          incrementChannelAccess(stream.broadcasterLogin);
 
           // Use setTimeout to delay the redirection
           setTimeout(() => {
@@ -292,7 +292,7 @@ function updateLiveStreams() {
         accessCountDiv.style.margin = "0"; // Ensure no extra margin is added
 
         if (hideAccessedCount) {
-          const accessCount = channelAccess[stream.channelName] || 0;
+          const accessCount = channelAccess[stream.broadcasterLogin] || 0;
           const accessCountSpan = document.createElement("span");
           accessCountSpan.className = "access-count";
           accessCountSpan.textContent = `Accessed: ${accessCount} times`;
@@ -406,10 +406,11 @@ function updateLiveStreams() {
   );
 }
 
-function incrementChannelAccess(channelName) {
+function incrementChannelAccess(broadcasterLogin) {
   chrome.storage.local.get(["channelAccess"], function (result) {
     let channelAccess = result.channelAccess || {};
-    channelAccess[channelName] = (channelAccess[channelName] || 0) + 1;
+    channelAccess[broadcasterLogin] =
+      (channelAccess[broadcasterLogin] || 0) + 1;
 
     chrome.storage.local.set({ channelAccess: channelAccess });
   });
@@ -477,6 +478,6 @@ function applyDarkMode() {
 
 /* Custom scrollbar for Firefox */
 if (navigator.userAgent.includes("Firefox")) {
-  document.body.style.scrollbarWidth = 'thin';
-  document.body.style.scrollbarColor = '#6441a5 #efeff1';
+  document.body.style.scrollbarWidth = "thin";
+  document.body.style.scrollbarColor = "#6441a5 #efeff1";
 }

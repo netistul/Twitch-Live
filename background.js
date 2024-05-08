@@ -313,6 +313,7 @@ function fetchStreamData(accessToken, followedList) {
                   ? userData.data[0].profile_image_url
                   : "";
               return {
+                broadcasterLogin: channel.broadcaster_login,
                 channelName: channel.broadcaster_name,
                 title: stream.title,
                 viewers: stream.viewer_count,
