@@ -88,7 +88,8 @@ body.dark-mode .custom-tooltip {
 
 .dark-mode .context-menu-item {
   background-color: #2a2a2e;
-  color: #dedee3;
+  color: #ccc;
+  font-weight: bold;
 }
 
 .dark-mode .custom-context-menu,
@@ -98,7 +99,7 @@ body.dark-mode .custom-tooltip {
 
 .dark-mode .custom-context-menu {
   background-color: #333;
-  color: #dedee3;
+  color: #da285a;
 }
 
 .dark-mode .context-menu-header {
@@ -120,7 +121,7 @@ body.dark-mode .custom-tooltip {
 .dark-mode .group-name-input {
   background-color: #222; /* Darker input background */
   border: 1px solid #555; /* Darker border */
-  color: #ddd; /* Lighter text for visibility */
+  color: #ffffff; /* Lighter text for visibility */
 }
 
 .dark-mode .submit-new-group {
@@ -137,4 +138,14 @@ body.dark-mode .custom-tooltip {
 
 .dark-mode .delete-group-button:hover {
   background-color: #ce3838; /* Darker hover background for dark mode */
+}
+
+/* Dark theme styles */
+.dark-mode .context-menu-item.add-new-group-button {
+  color: white; /* Text color for dark theme */
+  background-color: #2e2e2ec2; /* Dark background for dark theme */
+}
+
+.dark-mode .context-menu-item.add-new-group-button:hover {
+  background-color: #3b3b3b; /* Hover color for dark theme */
 }

@@ -350,7 +350,7 @@ body::-webkit-scrollbar-thumb:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: none;
   background-color: #f4f4f8;
-  color: #333;
+  color: #da285a;
   padding: 1px 0;
   position: fixed;
   z-index: 1000;
@@ -370,6 +370,8 @@ body::-webkit-scrollbar-thumb:hover {
   transition: background-color 0.2s;
   text-align: left; /* Ensure text is aligned to the left */
   width: 100%; /* Ensures the items stretch to the full width of the menu */
+  font-weight: bold;
+  color: #383838;
 }
 
 .context-menu-item input[type="checkbox"] {
@@ -470,4 +472,18 @@ body::-webkit-scrollbar-thumb:hover {
 
 .delete-group-button:hover {
   background-color: #ce3838;
+}
+
+/* Default light theme styles */
+.context-menu-item.add-new-group-button {
+  color: black; /* Text color for light theme */
+  background-color: #ffffff; /* Light background for light theme */
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.context-menu-item.add-new-group-button:hover {
+  background-color: #e0e0e0; /* Hover color for light theme */
 }

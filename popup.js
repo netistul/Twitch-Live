@@ -604,8 +604,8 @@ function showContextMenu(stream, x, y) {
     addNewGroupItem.onclick = function () {
       openAddGroupForm(contextMenu, stream);
     };
-    contextMenu.appendChild(addNewGroupItem);
 
+    contextMenu.appendChild(addNewGroupItem);
     document.body.appendChild(contextMenu);
 
     // Position adjustment to prevent out-of-bounds
