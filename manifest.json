@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Live",
-  "version": "1.9",
+  "version": "1.9.1",
   "description": "Twitch Live is an extension that brings your followed Twitch streamers into a clean, modern, Twitch-styled interface.",
   "icons": {
     "48": "css/icon.png",

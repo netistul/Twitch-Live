@@ -521,7 +521,7 @@ function showContextMenu(stream, x, y) {
 
   // Channel name
   const channelNameSpan = document.createElement("span");
-  channelNameSpan.textContent = `${stream.broadcasterLogin}`;
+  channelNameSpan.textContent = `${stream.channelName}`;
   channelNameSpan.style.marginRight = "5px"; // Ensures some spacing to the next text
   channelNameSpan.style.verticalAlign = "middle";
   channelNameSpan.style.color = "#c6c4c4";
@@ -547,7 +547,7 @@ function showContextMenu(stream, x, y) {
 
         const checkBox = document.createElement("input");
         checkBox.type = "checkbox";
-        checkBox.checked = group.streamers.includes(stream.broadcasterLogin);
+        checkBox.checked = group.streamers.includes(stream.channelName);
 
         const groupNameSpan = document.createElement("span");
         groupNameSpan.textContent = group.name;
@@ -635,11 +635,11 @@ function addToGroup(stream, groupName) {
   chrome.storage.local.get("favoriteGroups", function (data) {
     const groups = data.favoriteGroups || [];
     const group = groups.find((g) => g.name === groupName);
-    if (group && !group.streamers.includes(stream.broadcasterLogin)) {
-      group.streamers.push(stream.broadcasterLogin);
+    if (group && !group.streamers.includes(stream.channelName)) {
+      // Check using channelName
+      group.streamers.push(stream.channelName);
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
-        console.log(`Added ${stream.broadcasterLogin} to ${groupName}`);
-        // update list
+        console.log(`Added ${stream.channelName} to ${groupName}`);
         updateLiveStreams();
       });
     }
@@ -651,12 +651,9 @@ function removeFromGroup(stream, groupName) {
     const groups = data.favoriteGroups || [];
     const group = groups.find((g) => g.name === groupName);
     if (group) {
-      group.streamers = group.streamers.filter(
-        (s) => s !== stream.broadcasterLogin
-      );
+      group.streamers = group.streamers.filter((s) => s !== stream.channelName); // Use channelName
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
-        console.log(`Removed ${stream.broadcasterLogin} from ${groupName}`);
-        // update list
+        console.log(`Removed ${stream.channelName} from ${groupName}`);
         updateLiveStreams();
       });
     }
@@ -670,12 +667,12 @@ function createNewGroup(groupName, stream, contextMenu) {
     if (!groups.some((g) => g.name === groupName)) {
       const newGroup = {
         name: groupName,
-        streamers: [stream.broadcasterLogin],
+        streamers: [stream.channelName],
       };
       groups.push(newGroup);
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
         console.log(
-          `New group '${groupName}' created and added ${stream.broadcasterLogin}`
+          `New group '${groupName}' created and added ${stream.channelName}`
         );
         // update list
         updateLiveStreams();
