@@ -838,9 +838,3 @@ document.addEventListener("DOMContentLoaded", function () {
       : "Enable Live Notifications";
   }
 });
-
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  if (message.action === "updateGroupsDisplay") {
-    displayGroups(); // Function that refreshes the group list display
-  }
-});

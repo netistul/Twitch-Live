@@ -349,7 +349,7 @@ body::-webkit-scrollbar-thumb:hover {
 .custom-context-menu {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: none;
-  background-color: #fff;
+  background-color: #f4f4f8;
   color: #333;
   padding: 1px 0;
   position: fixed;
@@ -358,7 +358,7 @@ body::-webkit-scrollbar-thumb:hover {
   border-radius: 8px;
   font-family: "Open Sans", Arial, sans-serif;
   font-size: 13px;
-  width: 250px;
+  width: 300px;
   box-sizing: border-box;
   transition: box-shadow 0.3s ease;
 }
@@ -394,13 +394,17 @@ body::-webkit-scrollbar-thumb:hover {
   top: 1px;
   width: 8px;
   height: 14px;
-  border: solid white;
+  border: solid rgb(92, 142, 85);
   border-width: 0 3px 3px 0;
   transform: rotate(45deg);
 }
 
 .context-menu-item input[type="checkbox"]:hover {
   background-color: #eee; /* Light grey background on hover */
+}
+
+.context-menu-item:hover {
+  background-color: #d3d5f6; /* Slightly darker on hover for visibility */
 }
 
 .context-menu-header {
@@ -413,4 +417,57 @@ body::-webkit-scrollbar-thumb:hover {
 .custom-context-menu,
 .context-menu-item {
   box-sizing: border-box; /* This ensures padding and borders are included within the width/height */
+}
+
+.new-group-form {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: #f4f4f8; /* Light mode background */
+  border-radius: 4px;
+}
+
+.context-menu-item:last-child {
+  border-top: 1px solid #ccc; /* Add a subtle line as a separator */
+  padding-top: 5px; /* Add more padding to the top to create space */
+  margin-top: 5px; /* Extra space from the previous items */
+}
+
+.group-name-input {
+  flex-grow: 1;
+  margin-right: 5px;
+  padding: 8px;
+  border: 1px solid #ccc; /* Light border for more definition */
+  border-radius: 4px;
+}
+
+.submit-new-group {
+  padding: 6px 10px;
+  background-color: #6441a5; /* Twitch's brand color */
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.submit-new-group:hover {
+  background-color: #472c81; /* Darker purple on hover */
+}
+
+.delete-group-button {
+  float: right;
+  margin-left: 10px;
+  background-color: #ed2c2263;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 5px;
+  cursor: pointer;
+  transition: opacity 0.3s ease; /* Smooth transition for opacity */
+  cursor: pointer;
+}
+
+.delete-group-button:hover {
+  background-color: #ce3838;
 }

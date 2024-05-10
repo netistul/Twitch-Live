@@ -489,51 +489,7 @@ if (navigator.userAgent.includes("Firefox")) {
   document.body.style.scrollbarColor = "#6441a5 #efeff1";
 }
 
-function showContextMenu(stream, x, y) {
-  closeExistingContextMenu(); // Close any existing menu
-
-  const contextMenu = document.createElement("div");
-  contextMenu.className = "custom-context-menu";
-  contextMenu.style.left = `${x}px`;
-  contextMenu.style.top = `${y}px`;
-
-  // Header for the context menu updated to include the stream channel name
-  const menuHeader = document.createElement("div");
-  menuHeader.textContent = `Add ${stream.broadcasterLogin} to favorite group:`;
-  menuHeader.className = "context-menu-header";
-  contextMenu.appendChild(menuHeader);
-
-  chrome.storage.local.get("favoriteGroups", function (data) {
-    const groups = data.favoriteGroups || [];
-    console.log("Fetched groups:", groups); // Log the groups fetched
-
-    if (groups.length > 0) {
-      groups.forEach((group) => {
-        const menuItem = createGroupMenuItem(stream, group);
-        contextMenu.appendChild(menuItem);
-      });
-    } else {
-      const noGroupItem = document.createElement("div");
-      noGroupItem.textContent = "No favorite groups found.";
-      noGroupItem.className = "context-menu-item";
-      contextMenu.appendChild(noGroupItem);
-    }
-
-    document.body.appendChild(contextMenu);
-
-    // Add an event listener to the document to close this context menu when clicking outside
-    setTimeout(() => {
-      // Delay to prevent the immediate closure from the same click that opened the menu
-      document.addEventListener("click", function eventHandler(e) {
-        if (!contextMenu.contains(e.target)) {
-          contextMenu.remove();
-          document.removeEventListener("click", eventHandler); // Remove listener once the menu is closed
-        }
-      });
-    }, 10);
-  });
-}
-
+/* add to favorite list */
 function showContextMenu(stream, x, y) {
   const existingMenu = document.querySelector(".custom-context-menu");
   if (existingMenu) {
@@ -570,7 +526,7 @@ function showContextMenu(stream, x, y) {
   channelNameSpan.style.verticalAlign = "middle";
   channelNameSpan.style.color = "#c6c4c4";
 
-  // Text "to favorite group:"
+  // Text "to favorite list:"
   const toFavoriteGroupText = document.createElement("span");
   toFavoriteGroupText.textContent = "to favorite list:";
   toFavoriteGroupText.style.verticalAlign = "middle";
@@ -585,7 +541,7 @@ function showContextMenu(stream, x, y) {
   chrome.storage.local.get("favoriteGroups", function (data) {
     const groups = data.favoriteGroups || [];
     if (groups.length > 0) {
-      groups.forEach((group) => {
+      groups.forEach((group, index) => {
         const menuItem = document.createElement("div");
         menuItem.className = "context-menu-item";
 
@@ -596,9 +552,28 @@ function showContextMenu(stream, x, y) {
         const groupNameSpan = document.createElement("span");
         groupNameSpan.textContent = group.name;
 
+        // Create delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete this entire list";
+        deleteButton.className = "delete-group-button";
+        deleteButton.style.display = "none"; // Initially hidden
+        deleteButton.onclick = function (event) {
+          event.stopPropagation(); // Prevent triggering the menuItem click
+          deleteGroup(index, contextMenu); // Pass the index and contextMenu here
+        };
+
         menuItem.appendChild(checkBox);
         menuItem.appendChild(groupNameSpan);
+        menuItem.appendChild(deleteButton);
         contextMenu.appendChild(menuItem);
+
+        // Show delete button on hover
+        menuItem.onmouseenter = function () {
+          deleteButton.style.display = "block";
+        };
+        menuItem.onmouseleave = function () {
+          deleteButton.style.display = "none";
+        };
 
         menuItem.addEventListener("click", function (event) {
           if (event.target !== checkBox) {
@@ -621,6 +596,15 @@ function showContextMenu(stream, x, y) {
       noGroupItem.className = "context-menu-item";
       contextMenu.appendChild(noGroupItem);
     }
+
+    // Add new group option
+    const addNewGroupItem = document.createElement("div");
+    addNewGroupItem.textContent = "➕ Add new favorite list";
+    addNewGroupItem.className = "context-menu-item add-new-group-button";
+    addNewGroupItem.onclick = function () {
+      openAddGroupForm(contextMenu, stream);
+    };
+    contextMenu.appendChild(addNewGroupItem);
 
     document.body.appendChild(contextMenu);
 
@@ -655,7 +639,7 @@ function addToGroup(stream, groupName) {
       group.streamers.push(stream.broadcasterLogin);
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
         console.log(`Added ${stream.broadcasterLogin} to ${groupName}`);
-        // update UI
+        // update list
         updateLiveStreams();
       });
     }
@@ -672,9 +656,140 @@ function removeFromGroup(stream, groupName) {
       );
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
         console.log(`Removed ${stream.broadcasterLogin} from ${groupName}`);
-        // update UI
+        // update list
         updateLiveStreams();
       });
+    }
+  });
+}
+
+function createNewGroup(groupName, stream, contextMenu) {
+  chrome.storage.local.get("favoriteGroups", function (data) {
+    const groups = data.favoriteGroups || [];
+    // Check if the group already exists to avoid duplicates
+    if (!groups.some((g) => g.name === groupName)) {
+      const newGroup = {
+        name: groupName,
+        streamers: [stream.broadcasterLogin],
+      };
+      groups.push(newGroup);
+      chrome.storage.local.set({ favoriteGroups: groups }, function () {
+        console.log(
+          `New group '${groupName}' created and added ${stream.broadcasterLogin}`
+        );
+        // update list
+        updateLiveStreams();
+        // Add the new group to the context menu in real time
+        const menuItem = document.createElement("div");
+        menuItem.className = "context-menu-item";
+
+        const checkBox = document.createElement("input");
+        checkBox.type = "checkbox";
+        checkBox.checked = true; // Since it's a new group with this stream, checkbox should be checked
+
+        const groupNameSpan = document.createElement("span");
+        groupNameSpan.textContent = groupName;
+
+        menuItem.appendChild(checkBox);
+        menuItem.appendChild(groupNameSpan);
+        contextMenu.insertBefore(menuItem, contextMenu.lastChild); // Add before the "Add new favorite list" button
+
+        menuItem.addEventListener("click", function (event) {
+          if (event.target !== checkBox) {
+            checkBox.checked = !checkBox.checked;
+            checkBox.dispatchEvent(new Event("change"));
+          }
+        });
+
+        checkBox.addEventListener("change", function () {
+          if (checkBox.checked) {
+            addToGroup(stream, groupName);
+          } else {
+            removeFromGroup(stream, groupName);
+          }
+        });
+      });
+    } else {
+      alert("A group with this name already exists.");
+    }
+  });
+}
+
+function openAddGroupForm(contextMenu, stream) {
+  // Create form container if it doesn't exist
+  let formContainer = contextMenu.querySelector(".new-group-form");
+  if (!formContainer) {
+    formContainer = document.createElement("div");
+    formContainer.className = "new-group-form";
+
+    // Create input for group name
+    const groupNameInput = document.createElement("input");
+    groupNameInput.type = "text";
+    groupNameInput.placeholder = "Enter new group name";
+    groupNameInput.className = "group-name-input";
+
+    // Create submit button
+    const submitButton = document.createElement("button");
+    submitButton.textContent = "Submit";
+    submitButton.className = "submit-new-group";
+
+    // Append elements to the form container
+    formContainer.appendChild(groupNameInput);
+    formContainer.appendChild(submitButton);
+
+    // Append the form to the context menu before the add new group item
+    const addNewGroupButton = contextMenu.querySelector(
+      ".add-new-group-button"
+    ); // Ensure this class is set correctly where the button is created
+    contextMenu.insertBefore(formContainer, addNewGroupButton);
+
+    // Focus on the input field automatically
+    groupNameInput.focus();
+
+    // Handle form submission
+    submitButton.onclick = function () {
+      const groupName = groupNameInput.value.trim();
+      if (groupName) {
+        createNewGroup(groupName, stream, contextMenu);
+        formContainer.remove(); // Remove form after submission
+      } else {
+        alert("Please enter a valid group name.");
+      }
+    };
+
+    // Handle Enter key press
+    groupNameInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        const groupName = groupNameInput.value.trim();
+        if (groupName) {
+          createNewGroup(groupName, stream, contextMenu);
+          formContainer.remove(); // Remove form after submission
+        } else {
+          alert("Please enter a valid group name.");
+        }
+      }
+    });
+  }
+}
+
+function deleteGroup(index, contextMenu) {
+  chrome.storage.local.get("favoriteGroups", function (data) {
+    var groups = data.favoriteGroups || [];
+    if (index >= 0 && index < groups.length) {
+      groups.splice(index, 1); // Remove the group from the array
+      chrome.storage.local.set({ favoriteGroups: groups }, function () {
+        console.log("Group deleted");
+
+        // Remove the group from the context menu
+        const menuItem = contextMenu.childNodes[index + 1]; // Adjusting index to account for header
+        if (menuItem) {
+          contextMenu.removeChild(menuItem);
+        }
+
+        updateLiveStreams(); // Refresh streams if needed
+      });
+    } else {
+      console.log("Invalid index for deletion.");
     }
   });
 }

@@ -105,6 +105,36 @@ body.dark-mode .custom-tooltip {
   border-bottom-color: #444;
 }
 
+.dark-mode .context-menu-item:last-child {
+  border-top-color: #444;
+}
+
 .dark-mode .context-menu-item:hover {
   background-color: #404040; /* Slightly darker on hover for visibility */
+}
+
+.dark-mode .new-group-form {
+  background-color: #333; /* Dark background for dark mode */
+}
+
+.dark-mode .group-name-input {
+  background-color: #222; /* Darker input background */
+  border: 1px solid #555; /* Darker border */
+  color: #ddd; /* Lighter text for visibility */
+}
+
+.dark-mode .submit-new-group {
+  background-color: #9147ff; /* Twitch's secondary purple color for dark mode */
+}
+
+.dark-mode .submit-new-group:hover {
+  background-color: #772ce8; /* Even darker purple on hover for contrast */
+}
+
+.dark-mode .delete-group-button {
+  background-color: #fd140838; /* Dark mode specific background */
+}
+
+.dark-mode .delete-group-button:hover {
+  background-color: #ce3838; /* Darker hover background for dark mode */
 }
