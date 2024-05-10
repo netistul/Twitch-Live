@@ -348,6 +348,13 @@ function updateLiveStreams() {
         channelLink.appendChild(wrapperDiv);
         channelItem.appendChild(channelLink);
 
+        // Add contextmenu event listener
+        channelItem.addEventListener("contextmenu", function (event) {
+          event.preventDefault(); // Prevent default browser context menu
+          showContextMenu(stream, event.pageX, event.pageY);
+          return false; // Prevent further handling
+        });
+
         container.appendChild(channelItem);
       }
 
@@ -480,4 +487,194 @@ function applyDarkMode() {
 if (navigator.userAgent.includes("Firefox")) {
   document.body.style.scrollbarWidth = "thin";
   document.body.style.scrollbarColor = "#6441a5 #efeff1";
+}
+
+function showContextMenu(stream, x, y) {
+  closeExistingContextMenu(); // Close any existing menu
+
+  const contextMenu = document.createElement("div");
+  contextMenu.className = "custom-context-menu";
+  contextMenu.style.left = `${x}px`;
+  contextMenu.style.top = `${y}px`;
+
+  // Header for the context menu updated to include the stream channel name
+  const menuHeader = document.createElement("div");
+  menuHeader.textContent = `Add ${stream.broadcasterLogin} to favorite group:`;
+  menuHeader.className = "context-menu-header";
+  contextMenu.appendChild(menuHeader);
+
+  chrome.storage.local.get("favoriteGroups", function (data) {
+    const groups = data.favoriteGroups || [];
+    console.log("Fetched groups:", groups); // Log the groups fetched
+
+    if (groups.length > 0) {
+      groups.forEach((group) => {
+        const menuItem = createGroupMenuItem(stream, group);
+        contextMenu.appendChild(menuItem);
+      });
+    } else {
+      const noGroupItem = document.createElement("div");
+      noGroupItem.textContent = "No favorite groups found.";
+      noGroupItem.className = "context-menu-item";
+      contextMenu.appendChild(noGroupItem);
+    }
+
+    document.body.appendChild(contextMenu);
+
+    // Add an event listener to the document to close this context menu when clicking outside
+    setTimeout(() => {
+      // Delay to prevent the immediate closure from the same click that opened the menu
+      document.addEventListener("click", function eventHandler(e) {
+        if (!contextMenu.contains(e.target)) {
+          contextMenu.remove();
+          document.removeEventListener("click", eventHandler); // Remove listener once the menu is closed
+        }
+      });
+    }, 10);
+  });
+}
+
+function showContextMenu(stream, x, y) {
+  const existingMenu = document.querySelector(".custom-context-menu");
+  if (existingMenu) {
+    existingMenu.remove();
+  }
+
+  const contextMenu = document.createElement("div");
+  contextMenu.className = "custom-context-menu";
+  contextMenu.style.left = `${x}px`;
+  contextMenu.style.top = `${y}px`;
+
+  // Header for the context menu updated to include the Twitch logo and the text properly
+  const menuHeader = document.createElement("div");
+  menuHeader.className = "context-menu-header";
+
+  // Text "Add"
+  const addActionText = document.createElement("span");
+  addActionText.textContent = "Add ";
+  addActionText.style.marginRight = "2px"; // Adds a small right margin
+  addActionText.style.verticalAlign = "middle";
+
+  // Twitch icon
+  const twitchIcon = document.createElement("img");
+  twitchIcon.src = "css/twitch.png"; // Ensure the path to your Twitch logo is correct
+  twitchIcon.alt = "Twitch";
+  twitchIcon.style.width = "15px";
+  twitchIcon.style.marginRight = "2px"; // Adjust spacing between the icon and the text
+  twitchIcon.style.verticalAlign = "middle";
+
+  // Channel name
+  const channelNameSpan = document.createElement("span");
+  channelNameSpan.textContent = `${stream.broadcasterLogin}`;
+  channelNameSpan.style.marginRight = "5px"; // Ensures some spacing to the next text
+  channelNameSpan.style.verticalAlign = "middle";
+  channelNameSpan.style.color = "#c6c4c4";
+
+  // Text "to favorite group:"
+  const toFavoriteGroupText = document.createElement("span");
+  toFavoriteGroupText.textContent = "to favorite list:";
+  toFavoriteGroupText.style.verticalAlign = "middle";
+
+  // Construct the header
+  menuHeader.appendChild(addActionText); // Adds "Add"
+  menuHeader.appendChild(twitchIcon); // Adds Twitch icon
+  menuHeader.appendChild(channelNameSpan); // Adds the channel name
+  menuHeader.appendChild(toFavoriteGroupText); // Adds "to favorite group:"
+  contextMenu.appendChild(menuHeader);
+
+  chrome.storage.local.get("favoriteGroups", function (data) {
+    const groups = data.favoriteGroups || [];
+    if (groups.length > 0) {
+      groups.forEach((group) => {
+        const menuItem = document.createElement("div");
+        menuItem.className = "context-menu-item";
+
+        const checkBox = document.createElement("input");
+        checkBox.type = "checkbox";
+        checkBox.checked = group.streamers.includes(stream.broadcasterLogin);
+
+        const groupNameSpan = document.createElement("span");
+        groupNameSpan.textContent = group.name;
+
+        menuItem.appendChild(checkBox);
+        menuItem.appendChild(groupNameSpan);
+        contextMenu.appendChild(menuItem);
+
+        menuItem.addEventListener("click", function (event) {
+          if (event.target !== checkBox) {
+            checkBox.checked = !checkBox.checked; // Toggle checkbox manually
+            checkBox.dispatchEvent(new Event("change")); // Fire the change event manually
+          }
+        });
+
+        checkBox.addEventListener("change", function () {
+          if (checkBox.checked) {
+            addToGroup(stream, group.name);
+          } else {
+            removeFromGroup(stream, group.name);
+          }
+        });
+      });
+    } else {
+      const noGroupItem = document.createElement("div");
+      noGroupItem.textContent = "No favorite groups found.";
+      noGroupItem.className = "context-menu-item";
+      contextMenu.appendChild(noGroupItem);
+    }
+
+    document.body.appendChild(contextMenu);
+
+    // Position adjustment to prevent out-of-bounds
+    const menuRect = contextMenu.getBoundingClientRect();
+    if (menuRect.right > window.innerWidth) {
+      contextMenu.style.left = `${window.innerWidth - menuRect.width}px`;
+    }
+    if (menuRect.bottom > window.innerHeight) {
+      contextMenu.style.top = `${window.innerHeight - menuRect.height}px`;
+    }
+  });
+
+  // Close the context menu when clicking outside
+  document.addEventListener(
+    "click",
+    function closeMenu(event) {
+      if (!contextMenu.contains(event.target)) {
+        contextMenu.remove();
+        document.removeEventListener("click", closeMenu);
+      }
+    },
+    { capture: true }
+  );
+}
+
+function addToGroup(stream, groupName) {
+  chrome.storage.local.get("favoriteGroups", function (data) {
+    const groups = data.favoriteGroups || [];
+    const group = groups.find((g) => g.name === groupName);
+    if (group && !group.streamers.includes(stream.broadcasterLogin)) {
+      group.streamers.push(stream.broadcasterLogin);
+      chrome.storage.local.set({ favoriteGroups: groups }, function () {
+        console.log(`Added ${stream.broadcasterLogin} to ${groupName}`);
+        // update UI
+        updateLiveStreams();
+      });
+    }
+  });
+}
+
+function removeFromGroup(stream, groupName) {
+  chrome.storage.local.get("favoriteGroups", function (data) {
+    const groups = data.favoriteGroups || [];
+    const group = groups.find((g) => g.name === groupName);
+    if (group) {
+      group.streamers = group.streamers.filter(
+        (s) => s !== stream.broadcasterLogin
+      );
+      chrome.storage.local.set({ favoriteGroups: groups }, function () {
+        console.log(`Removed ${stream.broadcasterLogin} from ${groupName}`);
+        // update UI
+        updateLiveStreams();
+      });
+    }
+  });
 }

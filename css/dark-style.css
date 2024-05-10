@@ -58,10 +58,9 @@
 }
 
 body.dark-mode .custom-tooltip {
-  background-color: rgba(5, 5, 5, 0.984)/* Darker Twitch Purple */
+  background-color: rgba(5, 5, 5, 0.984); /* Darker Twitch Purple */
   /* Other styling can remain the same */
 }
-
 
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
@@ -85,4 +84,27 @@ body.dark-mode .custom-tooltip {
 .dark-mode #scrollContainer {
   max-height: calc(556px - 1px);
   overflow-y: auto;
+}
+
+.dark-mode .context-menu-item {
+  background-color: #2a2a2e;
+  color: #dedee3;
+}
+
+.dark-mode .custom-context-menu,
+.dark-mode .context-menu-item {
+  background-color: #333; /* Ensure all elements use the dark background */
+}
+
+.dark-mode .custom-context-menu {
+  background-color: #333;
+  color: #dedee3;
+}
+
+.dark-mode .context-menu-header {
+  border-bottom-color: #444;
+}
+
+.dark-mode .context-menu-item:hover {
+  background-color: #404040; /* Slightly darker on hover for visibility */
 }

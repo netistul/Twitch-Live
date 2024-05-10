@@ -252,7 +252,11 @@ function showAddStreamerDropdown(groupIndex) {
         // Adjust the message position based on the actual position of the dropdown
         var dropdownRect = dropdownMenu.getBoundingClientRect();
         var gapBetweenMessageAndDropdown = 13; // Decrease this value to move message closer to dropdown
-        message.style.top = dropdownRect.top - message.offsetHeight + gapBetweenMessageAndDropdown + "px";
+        message.style.top =
+          dropdownRect.top -
+          message.offsetHeight +
+          gapBetweenMessageAndDropdown +
+          "px";
 
         // Create search input
         var searchInput = document.createElement("input");
@@ -312,11 +316,19 @@ function showAddStreamerDropdown(groupIndex) {
               if (groups[groupIndex]) {
                 groups[groupIndex].streamers.push(channel.broadcaster_name);
 
-                chrome.storage.local.set({ favoriteGroups: groups }, function () {
-                  console.log("Streamer added:", channel.broadcaster_name, "to group", groups[groupIndex].name);
-                  displayGroups(); // Refresh the displayed groups
-                  showTemporaryInfo("Channel added successfully!");
-                });
+                chrome.storage.local.set(
+                  { favoriteGroups: groups },
+                  function () {
+                    console.log(
+                      "Streamer added:",
+                      channel.broadcaster_name,
+                      "to group",
+                      groups[groupIndex].name
+                    );
+                    displayGroups(); // Refresh the displayed groups
+                    showTemporaryInfo("Channel added successfully!");
+                  }
+                );
               }
             });
             // Close the dropdown after selecting a channel
@@ -353,7 +365,6 @@ function showAddStreamerDropdown(groupIndex) {
       console.error(error);
     });
 }
-
 
 // Global function to filter dropdown
 function filterDropdown(dropdownMenu, searchValue) {
@@ -825,5 +836,11 @@ document.addEventListener("DOMContentLoaded", function () {
     labelText.textContent = isChecked
       ? "Live Twitch Notifications Enabled"
       : "Enable Live Notifications";
+  }
+});
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.action === "updateGroupsDisplay") {
+    displayGroups(); // Function that refreshes the group list display
   }
 });
