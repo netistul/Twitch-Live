@@ -98,10 +98,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // Start an interval to refresh every 500ms
       let refreshInterval = setInterval(updateLiveStreams, 500);
 
-      // Stop refreshing after 5 seconds
+      // Stop refreshing after 2 seconds
       setTimeout(() => {
         clearInterval(refreshInterval);
-      }, 5000);
+      }, 2000);
     }
   });
 });
@@ -238,34 +238,34 @@ function updateLiveStreams() {
         const channelNameSpan = document.createElement("span");
         channelNameSpan.className = "channel-name";
         channelNameSpan.textContent = stream.channelName;
-        channelNameSpan.style.textAlign = "left"; // Align text to the left
+        channelNameSpan.style.textAlign = "left";
 
         // Create tooltip span and append it to channelNameSpan
         const tooltipSpan = document.createElement("span");
         tooltipSpan.className = "custom-tooltip";
-        tooltipSpan.textContent = stream.title; // Set the title as tooltip content
-        channelNameSpan.appendChild(tooltipSpan); // Append tooltip to channel name
+        tooltipSpan.textContent = stream.title;
+        channelNameSpan.appendChild(tooltipSpan);
 
         // Event listeners for showing and positioning the tooltip
         channelNameSpan.addEventListener("mousemove", function (e) {
           const tooltipHeight = tooltipSpan.offsetHeight;
           const x = e.clientX;
           const y = e.clientY;
-          const padding = 10; // Padding from cursor
-          const fromBottom = window.innerHeight - e.clientY; // Space from bottom of the window
+          const padding = 10;
+          const fromBottom = window.innerHeight - e.clientY;
 
           // Check if there is enough space at the bottom, if not show tooltip above the cursor
           if (fromBottom < tooltipHeight + padding) {
-            tooltipSpan.style.top = y - tooltipHeight - padding + "px"; // Position above the cursor
+            tooltipSpan.style.top = y - tooltipHeight - padding + "px";
           } else {
-            tooltipSpan.style.top = y + padding + "px"; // Position below the cursor
+            tooltipSpan.style.top = y + padding + "px";
           }
 
-          tooltipSpan.style.left = x + padding + "px"; // Position horizontally
+          tooltipSpan.style.left = x + padding + "px";
         });
 
         const categoryDiv = document.createElement("div");
-        categoryDiv.style.textAlign = "left"; // Align text to the left within this div
+        categoryDiv.style.textAlign = "left";
 
         if (showAvatar && stream.avatar) {
           channelNameSpan.classList.add("with-avatar");
@@ -274,7 +274,7 @@ function updateLiveStreams() {
           const categorySpan = document.createElement("span");
           categorySpan.className = "stream-category-with-avatar";
           categorySpan.textContent = stream.category;
-          categorySpan.style.textAlign = "left"; // Align text to the left
+          categorySpan.style.textAlign = "left";
           categoryDiv.appendChild(categorySpan);
           subWrapper.appendChild(categoryDiv);
         } else {
@@ -284,12 +284,12 @@ function updateLiveStreams() {
         const accessCountDiv = document.createElement("div");
         accessCountDiv.className = "access-count-div";
         accessCountDiv.style.position = "absolute";
-        accessCountDiv.style.bottom = "0"; // Align at the bottom
-        accessCountDiv.style.left = "0"; // Align to the left side
+        accessCountDiv.style.bottom = "0";
+        accessCountDiv.style.left = "0";
         accessCountDiv.style.width = "100%";
-        accessCountDiv.style.boxSizing = "border-box"; // Include padding and border in the element's width
-        accessCountDiv.style.padding = "0 5px"; // Adjust padding as needed
-        accessCountDiv.style.margin = "0"; // Ensure no extra margin is added
+        accessCountDiv.style.boxSizing = "border-box";
+        accessCountDiv.style.padding = "0 5px";
+        accessCountDiv.style.margin = "0";
 
         if (hideAccessedCount) {
           const accessCount = channelAccess[stream.broadcasterLogin] || 0;
@@ -312,7 +312,7 @@ function updateLiveStreams() {
           const categorySpan = document.createElement("span");
           categorySpan.className = "stream-category";
           categorySpan.textContent = stream.category;
-          categorySpan.style.textAlign = "left"; // Align text to the left
+          categorySpan.style.textAlign = "left";
           wrapperDiv.appendChild(categorySpan);
         }
 
@@ -329,7 +329,7 @@ function updateLiveStreams() {
         // Include SVG icon only if showAvatar and stream.avatar are true
         if (showAvatar && stream.avatar) {
           const iconImg = document.createElement("img");
-          iconImg.src = "css/signal.svg"; // Set the source to your SVG file
+          iconImg.src = "css/signal.svg";
           iconImg.className = "signal-icon";
           iconImg.alt = "Signal";
           iconImg.style.height = "13px";
@@ -513,16 +513,16 @@ function showContextMenu(stream, x, y) {
 
   // Twitch icon
   const twitchIcon = document.createElement("img");
-  twitchIcon.src = "css/twitch.png"; // Ensure the path to your Twitch logo is correct
+  twitchIcon.src = "css/twitch.png";
   twitchIcon.alt = "Twitch";
   twitchIcon.style.width = "15px";
-  twitchIcon.style.marginRight = "2px"; // Adjust spacing between the icon and the text
+  twitchIcon.style.marginRight = "2px";
   twitchIcon.style.verticalAlign = "middle";
 
   // Channel name
   const channelNameSpan = document.createElement("span");
   channelNameSpan.textContent = `${stream.channelName}`;
-  channelNameSpan.style.marginRight = "5px"; // Ensures some spacing to the next text
+  channelNameSpan.style.marginRight = "5px";
   channelNameSpan.style.verticalAlign = "middle";
   channelNameSpan.style.color = "#c6c4c4";
 
@@ -559,7 +559,7 @@ function showContextMenu(stream, x, y) {
         deleteButton.style.display = "none"; // Initially hidden
         deleteButton.onclick = function (event) {
           event.stopPropagation(); // Prevent triggering the menuItem click
-          deleteGroup(index, contextMenu); // Pass the index and contextMenu here
+          deleteGroup(index, contextMenu);
         };
 
         menuItem.appendChild(checkBox);
@@ -651,7 +651,7 @@ function removeFromGroup(stream, groupName) {
     const groups = data.favoriteGroups || [];
     const group = groups.find((g) => g.name === groupName);
     if (group) {
-      group.streamers = group.streamers.filter((s) => s !== stream.channelName); // Use channelName
+      group.streamers = group.streamers.filter((s) => s !== stream.channelName);
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
         console.log(`Removed ${stream.channelName} from ${groupName}`);
         updateLiveStreams();
@@ -682,7 +682,7 @@ function createNewGroup(groupName, stream, contextMenu) {
 
         const checkBox = document.createElement("input");
         checkBox.type = "checkbox";
-        checkBox.checked = true; // Since it's a new group with this stream, checkbox should be checked
+        checkBox.checked = true;
 
         const groupNameSpan = document.createElement("span");
         groupNameSpan.textContent = groupName;

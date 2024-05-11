@@ -121,7 +121,7 @@ function displayGroups() {
   );
 }
 
-// Global function to delete a streamer from a group
+// delete a streamer from a group
 function deleteStreamer(groupIndex, streamerIndex) {
   chrome.storage.local.get("favoriteGroups", function (data) {
     var groups = data.favoriteGroups || [];
@@ -140,7 +140,7 @@ function deleteStreamer(groupIndex, streamerIndex) {
   });
 }
 
-// Global function to delete a group
+//  delete a group
 function deleteGroup(index) {
   chrome.storage.local.get("favoriteGroups", function (data) {
     var groups = data.favoriteGroups || [];
@@ -153,7 +153,7 @@ function deleteGroup(index) {
   });
 }
 
-// Global function to get the followed list
+// get the followed list
 function getFollowedList() {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get("followedList", function (data) {
@@ -166,7 +166,7 @@ function getFollowedList() {
   });
 }
 
-// Global function to show the streamer dropdown
+// show the streamer dropdown
 function showAddStreamerDropdown(groupIndex) {
   getFollowedList()
     .then((followedList) => {
@@ -219,7 +219,7 @@ function showAddStreamerDropdown(groupIndex) {
 
         // Set width, position, and height of dropdown
         dropdownMenu.style.width = "300px";
-        dropdownMenu.style.position = "fixed"; // Changed from 'absolute' to 'fixed'
+        dropdownMenu.style.position = "fixed";
         dropdownMenu.style.overflowY = "auto";
         dropdownMenu.style.maxHeight = "400px";
 
@@ -237,21 +237,21 @@ function showAddStreamerDropdown(groupIndex) {
         message.style.padding = "10px";
         message.style.fontSize = "140%";
         message.style.fontWeight = "bold";
-        message.style.color = "#efeff1"; // Ensure this color contrasts well with the background
-        message.style.backgroundColor = "rgba(98, 80, 123, 0.8)"; // Purple background with transparency
-        message.style.borderRadius = "8px"; // Rounded corners
-        message.style.textAlign = "center"; // Center align the text
+        message.style.color = "#efeff1";
+        message.style.backgroundColor = "rgba(98, 80, 123, 0.8)";
+        message.style.borderRadius = "8px";
+        message.style.textAlign = "center";
         message.style.position = "fixed";
-        message.style.width = "300px"; // Match dropdown width
+        message.style.width = "300px";
         var leftAdjustment = 20;
         message.style.left = `${leftPosition + leftAdjustment}px`;
-        message.style.top = "20px"; // Initial top position, adjust based on actual dropdown position
-        message.style.zIndex = "4"; // Ensure it's above the overlay
+        message.style.top = "20px";
+        message.style.zIndex = "4";
         document.body.appendChild(message);
 
         // Adjust the message position based on the actual position of the dropdown
         var dropdownRect = dropdownMenu.getBoundingClientRect();
-        var gapBetweenMessageAndDropdown = 13; // Decrease this value to move message closer to dropdown
+        var gapBetweenMessageAndDropdown = 13;
         message.style.top =
           dropdownRect.top -
           message.offsetHeight +
@@ -272,41 +272,41 @@ function showAddStreamerDropdown(groupIndex) {
         // Create dropdown items
         followedList.forEach(function (channel) {
           var dropdownItem = document.createElement("a");
-          dropdownItem.className = "dropdown-item"; // Add a class for styling
-          dropdownItem.style.display = "flex"; // Set as a flex container
-          dropdownItem.style.alignItems = "center"; // Center items vertically
-          dropdownItem.style.justifyContent = "space-between"; // Space out items
+          dropdownItem.className = "dropdown-item";
+          dropdownItem.style.display = "flex";
+          dropdownItem.style.alignItems = "center";
+          dropdownItem.style.justifyContent = "space-between";
 
           // Create an image element for the Twitch logo
           var twitchLogo = document.createElement("img");
-          twitchLogo.src = "css/twitch.png"; // Replace with the correct path to your Twitch logo image
+          twitchLogo.src = "css/twitch.png";
           twitchLogo.alt = "Twitch Logo";
-          twitchLogo.style.width = "13px"; // Adjust the size as needed
+          twitchLogo.style.width = "13px";
 
           // Append the Twitch logo to the dropdown item
           dropdownItem.appendChild(twitchLogo);
 
           // Create a span element for the channel name with increased font size
           var channelNameSpan = document.createElement("span");
-          channelNameSpan.className = "dropdown-channel-name"; // Apply the new class
-          channelNameSpan.textContent = " " + channel.broadcaster_name; // Add a space before the channel name
+          channelNameSpan.className = "dropdown-channel-name";
+          channelNameSpan.textContent = " " + channel.broadcaster_name;
 
           // Append the channel name span to the dropdown item
           dropdownItem.appendChild(channelNameSpan);
 
           // Create a Font Awesome plus icon and append it to the dropdown item
           var plusIcon = document.createElement("i");
-          plusIcon.className = "fas fa-plus"; // Font Awesome plus icon class
-          plusIcon.style.float = "right"; // Position the icon to the right
-          plusIcon.style.marginRight = "10px"; // Add some margin to the right
-          plusIcon.style.opacity = "0"; // Initially hidden
+          plusIcon.className = "fas fa-plus";
+          plusIcon.style.float = "right";
+          plusIcon.style.marginRight = "10px";
+          plusIcon.style.opacity = "0";
           dropdownItem.appendChild(plusIcon);
 
           dropdownItem.onmouseenter = function () {
-            plusIcon.style.opacity = "1"; // Show icon on hover
+            plusIcon.style.opacity = "1";
           };
           dropdownItem.onmouseleave = function () {
-            plusIcon.style.opacity = "0"; // Hide icon when not hovered
+            plusIcon.style.opacity = "0";
           };
 
           dropdownItem.onclick = function () {
@@ -377,9 +377,9 @@ function filterDropdown(dropdownMenu, searchValue) {
 
     if (textValue.toLowerCase().indexOf(searchValue) > -1) {
       item.style.display = "";
-      item.style.display = "flex"; // Reapply flexbox display
-      item.style.alignItems = "center"; // Reapply vertical centering
-      item.style.justifyContent = "space-between"; // Reapply space distribution
+      item.style.display = "flex";
+      item.style.alignItems = "center";
+      item.style.justifyContent = "space-between";
       noResultsFound = false;
     } else {
       item.style.display = "none";
@@ -395,15 +395,15 @@ function filterDropdown(dropdownMenu, searchValue) {
       noResultsMessage.className = "no-results-message";
       noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
 
-      noResultsMessage.style.marginTop = "30px"; // Optional: style as needed
+      noResultsMessage.style.marginTop = "30px";
       noResultsMessage.style.marginLeft = "20px";
-      noResultsMessage.style.fontSize = "1.1em"; // Increase font size by 10%
+      noResultsMessage.style.fontSize = "1.1em";
       dropdownMenu.appendChild(noResultsMessage);
     } else {
       // Update the existing no results message
       noResultsMessage.textContent = `"${searchValue}" is not in your Twitch follow list!`;
-      noResultsMessage.style.display = ""; // Make sure it's visible
-      noResultsMessage.style.fontSize = "1.1em"; // Ensure font size is updated
+      noResultsMessage.style.display = "";
+      noResultsMessage.style.fontSize = "1.1em";
     }
   } else if (noResultsMessage) {
     // Hide the no results message if results are found
@@ -507,7 +507,7 @@ function updatePreview() {
 
       var channelNameSpan = document.createElement("span");
       channelNameSpan.textContent = previewStream.channelName;
-      channelNameSpan.className = "channel-name"; // Existing class for channel name
+      channelNameSpan.className = "channel-name";
 
       if (showAvatar && previewStream.avatar) {
         var avatarImg = document.createElement("img");
@@ -524,7 +524,7 @@ function updatePreview() {
       // Create a span for the viewers count and the signal icon
       var viewersSpan = document.createElement("span");
       viewersSpan.textContent = `\u00A0- `;
-      viewersSpan.className = "viewers-count"; // Added class for viewers count
+      viewersSpan.className = "viewers-count";
 
       // Add text node for viewers count
       var viewersCountText = document.createTextNode(
@@ -537,10 +537,10 @@ function updatePreview() {
         var signalIconSpan = document.createElement("span");
         signalIconSpan.className = "signal-icon";
         var signalIconImg = document.createElement("img");
-        signalIconImg.src = "css/signal.svg"; // Path to the signal icon
+        signalIconImg.src = "css/signal.svg";
         signalIconImg.style.height = "13px";
         signalIconImg.style.width = "13px";
-        signalIconImg.style.marginLeft = "5px"; // Adjusted margin left
+        signalIconImg.style.marginLeft = "5px";
         signalIconSpan.appendChild(signalIconImg);
 
         viewersSpan.appendChild(signalIconSpan);
@@ -564,7 +564,7 @@ function showTemporaryInfo(message) {
   infoDiv.style.bottom = "20px";
   infoDiv.style.left = "50%";
   infoDiv.style.transform = "translateX(-50%)";
-  infoDiv.style.backgroundColor = "#4CAF50"; // You can choose your color
+  infoDiv.style.backgroundColor = "#4CAF50";
   infoDiv.style.color = "white";
   infoDiv.style.padding = "10px";
   infoDiv.style.borderRadius = "5px";
@@ -577,7 +577,7 @@ function showTemporaryInfo(message) {
   // Remove the infoDiv after 3 seconds
   setTimeout(function () {
     infoDiv.remove();
-  }, 3000); // Adjust time as needed
+  }, 3000);
 }
 
 function displayUserInfo() {
@@ -590,7 +590,7 @@ function displayUserInfo() {
         const loginButton = document.createElement("button");
         loginButton.id = "loginButton";
         loginButton.textContent = "Login with Twitch";
-        loginButton.classList.add("login-button"); // Use the class for styling
+        loginButton.classList.add("login-button");
 
         loginButton.addEventListener("click", function () {
           // Optionally add a spinner or loading indication here
@@ -602,9 +602,9 @@ function displayUserInfo() {
         const infoText = document.createElement("p");
         infoText.innerHTML =
           "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
-        infoText.style.marginTop = "10px"; // Add some spacing
-        infoText.style.fontSize = "14px"; // Adjust font size as needed
-        infoText.style.color = "#646464"; // Optional: Adjust the text color
+        infoText.style.marginTop = "10px";
+        infoText.style.fontSize = "14px";
+        infoText.style.color = "#646464";
         userInfoDiv.appendChild(infoText);
       } else if (result.userDisplayName && result.userAvatar) {
         // User is logged in, display their information
@@ -634,7 +634,7 @@ function displayUserInfo() {
         avatarContainer.addEventListener("click", (event) => {
           dropdown.style.display =
             dropdown.style.display === "block" ? "none" : "block";
-          event.stopPropagation(); // Prevent document click event from firing immediately
+          event.stopPropagation();
         });
 
         // Close dropdown when clicking outside
@@ -663,7 +663,7 @@ function displayUserInfo() {
         // Show the login tip only if it hasn't been shown before
         if (!result.loginTipShown) {
           showLoginTip();
-          chrome.storage.local.set({ loginTipShown: true }); // Set the flag to true after showing the tip
+          chrome.storage.local.set({ loginTipShown: true });
         }
       } else {
         // No user info is available
@@ -676,28 +676,28 @@ function displayUserInfo() {
 function showLoginTip() {
   const tipContainer = document.createElement("div");
   tipContainer.id = "loginTip";
-  tipContainer.style.backgroundColor = "#6441a5"; // Twitch purple
+  tipContainer.style.backgroundColor = "#6441a5";
   tipContainer.style.color = "white";
   tipContainer.style.padding = "10px";
   tipContainer.style.borderRadius = "5px";
   tipContainer.style.marginTop = "10px";
   tipContainer.style.display = "flex";
-  tipContainer.style.flexDirection = "column"; // Changed to column layout
-  tipContainer.style.alignItems = "center"; // Center items vertically
-  tipContainer.style.justifyContent = "center"; // Center items horizontally
+  tipContainer.style.flexDirection = "column";
+  tipContainer.style.alignItems = "center";
+  tipContainer.style.justifyContent = "center";
   tipContainer.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
   tipContainer.style.fontFamily = "'Arial', sans-serif";
 
   const tipText = document.createElement("span");
   tipText.textContent = "Pin popup extension for easy access!";
-  tipText.style.textAlign = "center"; // Ensure the text is centered
+  tipText.style.textAlign = "center";
   tipContainer.appendChild(tipText);
 
   const tipImage = document.createElement("img");
-  tipImage.src = "css/infopin.png"; // Path to your pin image
+  tipImage.src = "css/infopin.png";
   tipImage.alt = "Pin Icon";
   tipImage.style.width = "250px";
-  tipImage.style.marginTop = "5px"; // Space between text and image
+  tipImage.style.marginTop = "5px";
   tipContainer.appendChild(tipImage);
 
   const userInfoDiv = document.getElementById("userInfo");
@@ -719,11 +719,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         isLoggedIn = !!result.twitchAccessToken;
         hasFollowers = result.followedList && result.followedList.length > 0;
 
-        // Now update the UI based on the new status
+        // Now we update the UI based on the new status
         displayUserInfo(); // Refreshes user info display
         setTimeout(updatePreview, 2000); // Waits for 2 seconds before updating the preview
 
-        // Optionally, you can also refresh other parts of your extension's UI
+        // Optionally, we can also refresh other parts of our extension's UI
         // For example, refresh groups display
         displayGroups();
       }
