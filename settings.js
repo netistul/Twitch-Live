@@ -327,6 +327,7 @@ function showAddStreamerDropdown(groupIndex) {
                     );
                     displayGroups(); // Refresh the displayed groups
                     showTemporaryInfo("Channel added successfully!");
+                    chrome.runtime.sendMessage({ action: "oauthComplete" });
                   }
                 );
               }
