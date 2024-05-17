@@ -12,8 +12,14 @@ document.addEventListener("DOMContentLoaded", function () {
   // The specific delay time (100ms) was chosen based on current performance and may need adjustments in the future.
   setTimeout(checkLoginAndDisplayButton, 100);
   updateSettingsIcon();
-  setInterval(updateLiveStreams, 30000);
+  // Set an interval to update live streams and check login status every 30 seconds
+  setInterval(function () {
+    updateLiveStreams();
+    setTimeout(checkLoginAndDisplayButton, 100); // Check login status shortly after updating streams
+  }, 30000);
 
+  // Accessing buttonContainer & spinner element immediately after DOMContentLoaded to ensure elements are ready for manipulation,
+  // which seems to help with the initial loading responsiveness of the popup.
   const buttonContainer = document.getElementById("buttonContainer");
   console.log("buttonContainer:", buttonContainer);
 
@@ -22,54 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
   spinner.id = "spinner";
   spinner.src = "css/loading.webp";
   spinner.style.display = "none";
-
-  chrome.storage.local.get(["twitchAccessToken"], function (result) {
-    console.log("Storage get result:", result);
-
-    if (!result.twitchAccessToken) {
-      console.log("No Twitch access token found. Adding login button.");
-
-      const loginButton = document.createElement("button");
-      loginButton.id = "loginButton";
-      loginButton.textContent = "Login with Twitch";
-      loginButton.addEventListener("click", function () {
-        spinner.style.display = "block";
-        loginButton.style.display = "none";
-        const description = document.getElementById("description");
-        description.style.display = "none";
-        notLoggedInIcon.style.display = "none";
-        chrome.runtime.sendMessage({ action: "startOAuth" });
-      });
-      buttonContainer.appendChild(loginButton);
-      console.log("Login button appended:", loginButton);
-
-      const description = document.createElement("div");
-      description.textContent =
-        "Log in with Twitch to see live channels you follow!";
-      description.id = "description";
-      buttonContainer.appendChild(description);
-      console.log("Description appended:", description);
-
-      // Create and append the not logged in icon
-      const notLoggedInIcon = document.createElement("img");
-      notLoggedInIcon.src = "css/notlogged.webp";
-      notLoggedInIcon.alt = "Not Logged In";
-      notLoggedInIcon.style.height = "auto";
-      notLoggedInIcon.style.marginTop = "10px";
-      notLoggedInIcon.style.display = "block";
-      notLoggedInIcon.style.marginLeft = "auto";
-      notLoggedInIcon.style.marginRight = "auto";
-      buttonContainer.appendChild(notLoggedInIcon);
-      console.log("Not logged in icon appended:", notLoggedInIcon);
-
-      buttonContainer.appendChild(spinner);
-      console.log("Spinner appended:", spinner);
-    } else {
-      console.log(
-        "Twitch access token is present, not showing the login button."
-      );
-    }
-  });
 
   // Event listener for the settings icon
   document
@@ -107,29 +65,56 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function checkLoginAndDisplayButton() {
-  chrome.storage.local.get(["twitchAccessToken"], function (result) {
-    if (!result.twitchAccessToken) {
-      displayLoginButton();
-    } else {
-      // User is logged in, update the streams
-      updateLiveStreams();
+  chrome.storage.local.get(
+    ["twitchAccessToken", "tokenExpired"],
+    function (result) {
+      if (!result.twitchAccessToken) {
+        // result.tokenExpired will be undefined (falsy) if not set, which is equivalent to false
+        displayLoginButton(result.tokenExpired); // This is safe; it will behave as if false if undefined
+      } else {
+        console.log("User is logged in, access token found.");
+        updateLiveStreams();
+      }
     }
-  });
+  );
 }
 
-function displayLoginButton() {
+function displayLoginButton(sessionExpired = false) {
   const buttonContainer = document.getElementById("buttonContainer");
 
-  // Clear any previous content
-  buttonContainer.innerHTML = "";
+  // Create the spinner element for loading
+  const spinner = document.createElement("img");
+  spinner.id = "spinner";
+  spinner.src = "css/loading.webp";
+  spinner.style.display = "none"; // Start hidden until needed
 
   // Create the login button
   const loginButton = document.createElement("button");
   loginButton.id = "loginButton";
   loginButton.textContent = "Login with Twitch";
   loginButton.addEventListener("click", function () {
+    // Clear any previous content when login is initiated
+    buttonContainer.innerHTML = "";
+    spinner.style.display = "block"; // Show the spinner when login is initiated
+    // Append spinner to the button container when the login button is clicked
+    buttonContainer.appendChild(spinner);
     chrome.runtime.sendMessage({ action: "startOAuth" });
   });
+
+  // Clear any previous content
+  buttonContainer.innerHTML = "";
+
+  // If the session has expired, display a notification message
+  if (sessionExpired) {
+    const expirationMessage = document.createElement("div");
+    expirationMessage.textContent =
+      "Your session has expired. Please log in again.";
+    expirationMessage.style.color = "#b41541";
+    expirationMessage.style.marginBottom = "10px";
+    expirationMessage.style.fontSize = "14px";
+    buttonContainer.appendChild(expirationMessage);
+  }
+
   buttonContainer.appendChild(loginButton);
 
   // Create and append the description text
@@ -149,13 +134,6 @@ function displayLoginButton() {
   notLoggedInIcon.style.marginLeft = "auto";
   notLoggedInIcon.style.marginRight = "auto";
   buttonContainer.appendChild(notLoggedInIcon);
-
-  // Create the spinner element
-  const spinner = document.createElement("img");
-  spinner.id = "spinner";
-  spinner.src = "css/loading.webp";
-  spinner.style.display = "none";
-  buttonContainer.appendChild(spinner);
 }
 
 function updateLiveStreams() {

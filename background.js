@@ -38,6 +38,8 @@ function fetchList() {
   chrome.storage.local.get(["twitchAccessToken", "userId"], (result) => {
     if (result.twitchAccessToken && result.userId) {
       fetchFollowList(result.twitchAccessToken, result.userId);
+    } else {
+      console.log("Access Token or User ID not found.");
     }
   });
 }
@@ -199,16 +201,38 @@ function fetchFollowList(
     url += `&after=${cursor}`;
   }
 
-  console.log("Fetching follow list...");
+  console.log("Fetching follow list with URL:", url); // Log the URL being accessed
 
   fetch(url, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      "Client-Id": twitchClientId,
+      "Client-ID": twitchClientId,
     },
   })
-    .then((response) => response.json())
+    .then((response) => {
+      if (response.status === 401) {
+        console.error(
+          "HTTP error 401: Unauthorized - Possible invalid or expired token"
+        );
+        chrome.storage.local.set({ tokenExpired: true }, () => {
+          console.log("Token expiration flag set in storage.");
+        });
+        chrome.storage.local.remove("twitchAccessToken", () => {
+          console.log(
+            "Access token removed from storage due to expiration or invalidity."
+          );
+          // Optionally, trigger re-authentication or notify the user to re-login
+          // chrome.runtime.sendMessage({ action: "reAuthenticate" });
+        });
+        throw new Error("Unauthorized access - Token invalidated");
+      }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((data) => {
+      console.log("Follow list fetched:", data); // Log the data fetched
       followedList = followedList.concat(data.data);
       if (data.pagination && data.pagination.cursor) {
         // If there's more data, keep fetching
@@ -229,7 +253,7 @@ function fetchFollowList(
               { action: "oauthComplete" },
               function (response) {
                 if (chrome.runtime.lastError) {
-                  console.log(
+                  console.error(
                     "Error sending message to popup:",
                     chrome.runtime.lastError.message
                   );
@@ -242,7 +266,9 @@ function fetchFollowList(
         });
       }
     })
-    .catch((error) => console.error("Error fetching follow list:", error));
+    .catch((error) => {
+      console.error("Error fetching follow list:", error);
+    });
 }
 
 function fetchStreamData(accessToken, followedList) {
@@ -279,6 +305,7 @@ function fetchStreamData(accessToken, followedList) {
         return response.json();
       })
       .then((streamData) => {
+        console.log("API Response for Streams:", streamData);
         if (streamData && streamData.data && streamData.data.length > 0) {
           const stream = streamData.data[0];
           console.log(
@@ -303,6 +330,8 @@ function fetchStreamData(accessToken, followedList) {
               },
             }).then((response) => response.json()),
           ]).then(([categoryData, userData]) => {
+            console.log("Category Data:", categoryData); // Log the category data
+            console.log("User Data:", userData); // Log the user data
             if (categoryData && userData) {
               const categoryName =
                 categoryData.data && categoryData.data.length > 0
@@ -339,6 +368,7 @@ function fetchStreamData(accessToken, followedList) {
 
   Promise.all(streamFetchPromises).then((streamData) => {
     const liveStreams = streamData.filter((data) => data !== null);
+    console.log("All fetched stream data:", liveStreams);
 
     chrome.storage.local.get(
       { lastKnownLiveStreams: {}, startupTime: 0, enableNotifications: false },
