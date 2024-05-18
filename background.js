@@ -34,7 +34,6 @@ function setupAlarm() {
 }
 
 function fetchList() {
-  console.log("fetchList called");
   chrome.storage.local.get(["twitchAccessToken", "userId"], (result) => {
     if (result.twitchAccessToken && result.userId) {
       fetchFollowList(result.twitchAccessToken, result.userId);
@@ -47,7 +46,6 @@ function fetchList() {
 // Alarm listener
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "fetchDataAlarm") {
-    console.log("Alarm triggered");
     fetchList(); // Call your data fetching function
   }
 });
@@ -232,7 +230,6 @@ function fetchFollowList(
       return response.json();
     })
     .then((data) => {
-      console.log("Follow list fetched:", data); // Log the data fetched
       followedList = followedList.concat(data.data);
       if (data.pagination && data.pagination.cursor) {
         // If there's more data, keep fetching
@@ -305,12 +302,8 @@ function fetchStreamData(accessToken, followedList) {
         return response.json();
       })
       .then((streamData) => {
-        console.log("API Response for Streams:", streamData);
         if (streamData && streamData.data && streamData.data.length > 0) {
           const stream = streamData.data[0];
-          console.log(
-            `Live Channel: ${channel.broadcaster_name}, Viewers: ${stream.viewer_count}`
-          );
 
           // Fetch the category and user data (for avatar) for live streams
           const categoryUrl = `https://api.twitch.tv/helix/games?id=${stream.game_id}`;
@@ -330,8 +323,6 @@ function fetchStreamData(accessToken, followedList) {
               },
             }).then((response) => response.json()),
           ]).then(([categoryData, userData]) => {
-            console.log("Category Data:", categoryData); // Log the category data
-            console.log("User Data:", userData); // Log the user data
             if (categoryData && userData) {
               const categoryName =
                 categoryData.data && categoryData.data.length > 0
@@ -368,7 +359,6 @@ function fetchStreamData(accessToken, followedList) {
 
   Promise.all(streamFetchPromises).then((streamData) => {
     const liveStreams = streamData.filter((data) => data !== null);
-    console.log("All fetched stream data:", liveStreams);
 
     chrome.storage.local.get(
       { lastKnownLiveStreams: {}, startupTime: 0, enableNotifications: false },
@@ -408,8 +398,6 @@ function fetchStreamData(accessToken, followedList) {
             // Cache the count of live streams
             const liveCount = liveStreams.length;
             chrome.storage.local.set({ liveStreamCount: liveCount }, () => {
-              console.log("Live stream count cached");
-
               // Update the badge with the live stream count
               chrome.action.setBadgeText({ text: liveCount.toString() });
               chrome.action.setBadgeBackgroundColor({ color: "#6366f1" }); // Twitch purple color

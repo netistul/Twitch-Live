@@ -58,7 +58,7 @@
 }
 
 body.dark-mode .custom-tooltip {
-  background-color: rgba(5, 5, 5, 0.984); /* Darker Twitch Purple */
+  background-color: #634590c5; /* Darker Twitch Purple */
   /* Other styling can remain the same */
 }
 

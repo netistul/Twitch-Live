@@ -254,7 +254,7 @@ body {
 .access-count {
   display: none; /* Hide access count by default */
   font-size: 7px; /* Smaller font size */
-  color: #45424258; /* Lighter color for a subtle appearance */
+  color: #dadada; /* Lighter color for a subtle appearance */
   margin-left: 10px; /* Space from the channel name */
 }
 
@@ -269,7 +269,7 @@ body {
   font-size: 12px;
   /* Removed white-space and text-overflow properties */
   overflow: visible; /* Ensure overflow is visible */
-  background-color: #c5bdd1; /* Twitch Purple */
+  background-color: #634590c5; /* Twitch Purple */
   color: white;
   text-align: center;
   border-radius: 6px;

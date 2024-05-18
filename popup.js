@@ -72,7 +72,6 @@ function checkLoginAndDisplayButton() {
         // result.tokenExpired will be undefined (falsy) if not set, which is equivalent to false
         displayLoginButton(result.tokenExpired); // This is safe; it will behave as if false if undefined
       } else {
-        console.log("User is logged in, access token found.");
         updateLiveStreams();
       }
     }
@@ -189,7 +188,7 @@ function updateLiveStreams() {
           // Use setTimeout to delay the redirection
           setTimeout(() => {
             window.open(channelLink.href, "_blank");
-          }, 10); // Delay in milliseconds, 100 is just an example
+          }, 10); // Delay in milliseconds, 10 is just an example
         });
 
         const wrapperDiv = document.createElement("div");
@@ -199,8 +198,9 @@ function updateLiveStreams() {
         const subWrapper = document.createElement("div");
         subWrapper.className = showAvatar ? "sub-wrapper-with-avatar" : "";
 
+        let avatarImg;
         if (showAvatar && stream.avatar) {
-          const avatarImg = document.createElement("img");
+          avatarImg = document.createElement("img");
           avatarImg.src = stream.avatar;
           avatarImg.className = "stream-avatar";
           avatarImg.alt = `${stream.channelName}'s avatar`;
@@ -213,6 +213,7 @@ function updateLiveStreams() {
           channelLink.classList.add("with-avatar");
           wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
         }
+
         const channelNameSpan = document.createElement("span");
         channelNameSpan.className = "channel-name";
         channelNameSpan.textContent = stream.channelName;
@@ -259,31 +260,39 @@ function updateLiveStreams() {
           wrapperDiv.appendChild(channelNameSpan);
         }
 
-        const accessCountDiv = document.createElement("div");
-        accessCountDiv.className = "access-count-div";
-        accessCountDiv.style.position = "absolute";
-        accessCountDiv.style.bottom = "0";
-        accessCountDiv.style.left = "0";
-        accessCountDiv.style.width = "100%";
-        accessCountDiv.style.boxSizing = "border-box";
-        accessCountDiv.style.padding = "0 5px";
-        accessCountDiv.style.margin = "0";
-
+        // Create the tooltip for the access count
+        let tooltip;
         if (hideAccessedCount) {
           const accessCount = channelAccess[stream.broadcasterLogin] || 0;
-          const accessCountSpan = document.createElement("span");
-          accessCountSpan.className = "access-count";
-          accessCountSpan.textContent = `Accessed: ${accessCount} times`;
-          accessCountSpan.style.display = "none";
-          accessCountDiv.appendChild(accessCountSpan);
-          wrapperDiv.appendChild(accessCountDiv);
+          tooltip = document.createElement("div");
+          tooltip.className = "avatar-tooltip";
+          tooltip.textContent = `Accessed: ${accessCount} times`;
+          tooltip.style.position = "absolute";
+          tooltip.style.display = "none";
+          tooltip.style.padding = "5px";
+          tooltip.style.background = "rgba(0, 0, 0, 0.8)";
+          tooltip.style.color = "white";
+          tooltip.style.borderRadius = "3px";
+          tooltip.style.zIndex = "1000";
+          document.body.appendChild(tooltip);
 
-          channelItem.onmouseover = function () {
-            accessCountSpan.style.display = "block";
-          };
-          channelItem.onmouseout = function () {
-            accessCountSpan.style.display = "none";
-          };
+          // Add hover event listeners to the avatar image
+          if (avatarImg) {
+            avatarImg.addEventListener("mouseover", function (e) {
+              tooltip.style.display = "block";
+              tooltip.style.left = e.pageX + 10 + "px";
+              tooltip.style.top = e.pageY + 10 + "px";
+            });
+
+            avatarImg.addEventListener("mousemove", function (e) {
+              tooltip.style.left = e.pageX + 10 + "px";
+              tooltip.style.top = e.pageY + 10 + "px";
+            });
+
+            avatarImg.addEventListener("mouseout", function () {
+              tooltip.style.display = "none";
+            });
+          }
         }
 
         if (!showAvatar || !stream.avatar) {
