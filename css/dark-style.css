@@ -98,7 +98,7 @@ body.dark-mode .custom-tooltip {
 }
 
 .dark-mode .custom-context-menu {
-  background-color: #333;
+  background-color: #363535;
   color: #da285a;
 }
 
@@ -138,6 +138,10 @@ body.dark-mode .custom-tooltip {
 
 .dark-mode .delete-group-button:hover {
   background-color: #ce3838; /* Darker hover background for dark mode */
+}
+
+.dark-mode .group-name {
+  color: #ffffffc7; /* Optional: Change text color */
 }
 
 /* Dark theme styles */

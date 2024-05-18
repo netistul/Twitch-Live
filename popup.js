@@ -511,7 +511,7 @@ function showContextMenu(stream, x, y) {
   channelNameSpan.textContent = `${stream.channelName}`;
   channelNameSpan.style.marginRight = "5px";
   channelNameSpan.style.verticalAlign = "middle";
-  channelNameSpan.style.color = "#c6c4c4";
+  channelNameSpan.style.color = "#9182c1";
 
   // Text "to favorite list:"
   const toFavoriteGroupText = document.createElement("span");
@@ -537,6 +537,7 @@ function showContextMenu(stream, x, y) {
         checkBox.checked = group.streamers.includes(stream.channelName);
 
         const groupNameSpan = document.createElement("span");
+        groupNameSpan.className = "group-name";
         groupNameSpan.textContent = group.name;
 
         // Create delete button
@@ -672,11 +673,31 @@ function createNewGroup(groupName, stream, contextMenu) {
         checkBox.checked = true;
 
         const groupNameSpan = document.createElement("span");
+        groupNameSpan.className = "group-name"; // Add this line
         groupNameSpan.textContent = groupName;
+
+        // Create delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete this entire list";
+        deleteButton.className = "delete-group-button";
+        deleteButton.style.display = "none"; // Initially hidden
+        deleteButton.onclick = function (event) {
+          event.stopPropagation(); // Prevent triggering the menuItem click
+          deleteGroup(groups.length - 1, contextMenu);
+        };
 
         menuItem.appendChild(checkBox);
         menuItem.appendChild(groupNameSpan);
+        menuItem.appendChild(deleteButton);
         contextMenu.insertBefore(menuItem, contextMenu.lastChild); // Add before the "Add new favorite list" button
+
+        // Show delete button on hover
+        menuItem.onmouseenter = function () {
+          deleteButton.style.display = "block";
+        };
+        menuItem.onmouseleave = function () {
+          deleteButton.style.display = "none";
+        };
 
         menuItem.addEventListener("click", function (event) {
           if (event.target !== checkBox) {
