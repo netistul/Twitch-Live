@@ -153,3 +153,13 @@ body.dark-mode .custom-tooltip {
 .dark-mode .context-menu-item.add-new-group-button:hover {
   background-color: #3b3b3b; /* Hover color for dark theme */
 }
+
+.dark-mode .delete-group-button {
+  background-color: #ed2c2263;
+  color: rgb(181, 171, 171);
+}
+
+.dark-mode .delete-group-button:hover {
+  color: rgb(238, 234, 234);
+  background-color: #ce3838;
+}
