@@ -427,7 +427,7 @@ input:checked + .slider:before {
 .channel-name-with-avatar {
   color: #2e232f; /* Change text color */
   font-weight: bold; /* Apply bold font weight */
-  font-family: 'Noto Sans', Arial, sans-serif; /* Use Open Sans font */
+  font-family: "Noto Sans", Arial, sans-serif; /* Use Open Sans font */
   font-size: 14px;
 }
 
@@ -438,17 +438,16 @@ input:checked + .slider:before {
   transform: translateY(1.9px);
 }
 
-
 @font-face {
-  font-family: 'Open Sans';
-  src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+  font-family: "Open Sans";
+  src: url("../fonts/OpenSans-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Open Sans';
-  src: url('../fonts/OpenSans-Bold.ttf') format('truetype');
+  font-family: "Open Sans";
+  src: url("../fonts/OpenSans-Bold.ttf") format("truetype");
   font-weight: bold;
   font-style: normal;
 }
@@ -459,8 +458,6 @@ input:checked + .slider:before {
   font-weight: normal;
   font-style: normal;
 }
-
-
 
 #showAvatarCheckbox {
   display: none;
@@ -490,9 +487,9 @@ input:checked + .slider:before {
   border: 1px solid #ddd;
   border-radius: 5px;
   padding: 5px;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-40%);
+  top: 100%; /* Position it below the avatar */
+  left: 0; /* Align with the left edge of the containing element */
+  transform: translateX(0); /* Remove horizontal translation */
   z-index: 10;
   white-space: nowrap; /* Prevent wrapping to a new line */
 }
@@ -501,9 +498,9 @@ input:checked + .slider:before {
   font-size: 16px;
   text-decoration: none;
   color: black;
-  display: inline-flex; /* Use inline-flex for proper alignment */
+  display: flex; /* Use flex for proper alignment */
   align-items: center;
-  padding: 3px 33px; /* Add some padding for better spacing */
+  padding: 5px 10px; /* Adjust padding for better spacing */
 }
 
 .logout-dropdown a:hover {
@@ -511,7 +508,7 @@ input:checked + .slider:before {
 }
 
 .logout-dropdown a img {
-  margin-right: 5px;
+  margin-right: 5px; /* Space between icon and text */
 }
 
 #loginButton {
@@ -603,12 +600,10 @@ input:checked + .slider:before {
   margin: 20px 0; /* Space above and below the separator */
 }
 
-
 /* Add margin to the bottom of the dark mode switch container */
 .dark-mode-switch {
   margin-bottom: 14px; /* Adjust the value as needed */
 }
-
 
 /* Style for the checkbox container */
 .checkbox-container {
@@ -679,16 +674,16 @@ input:checked + .slider:before {
   user-select: none;
 }
 
-  /* Custom styling for the bell icons */
-  .custom-bell-icon {
-    position: absolute;
-    left: 19px; /* Adjust this to align with your other checkboxes */
-    top: 50%;
-    transform: translateY(-50%);
-    width: 25px; /* Adjust the width as needed */
-    height: 25px; /* Adjust the height as needed */
-    fill: #28a745; /* Adjust the fill color as needed */
-  }
+/* Custom styling for the bell icons */
+.custom-bell-icon {
+  position: absolute;
+  left: 19px; /* Adjust this to align with your other checkboxes */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px; /* Adjust the width as needed */
+  height: 25px; /* Adjust the height as needed */
+  fill: #28a745; /* Adjust the fill color as needed */
+}
 
 /* Create a custom checkbox */
 .styled-label:before {
@@ -705,7 +700,7 @@ input:checked + .slider:before {
 
 /* Style for when the checkbox is checked */
 .styled-checkbox:checked + .styled-label:before {
-  background-color: #2196F3; /* Change color when checked */
+  background-color: #2196f3; /* Change color when checked */
 }
 
 /* Adding a checkmark when the checkbox is checked */
@@ -721,18 +716,15 @@ input:checked + .slider:before {
   transform: translateY(-50%) rotate(45deg);
 }
 
-
-  /* Hides the default checkbox */
-  .styled-checkbox {
-    display: none;
-  }
-
-
 /* Hides the default checkbox */
 .styled-checkbox {
   display: none;
 }
 
+/* Hides the default checkbox */
+.styled-checkbox {
+  display: none;
+}
 
 /* Style for bell icon label */
 .bell-icon-label {
@@ -773,7 +765,6 @@ input:checked + .slider:before {
 .styled-checkbox:checked + .bell-icon-label .fa-regular {
   opacity: 0;
 }
-
 
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
