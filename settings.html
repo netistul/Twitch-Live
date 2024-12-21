@@ -38,6 +38,21 @@
         <div id="previewContainer" class="preview-container">
           <!-- Preview container content -->
         </div>
+
+        
+            <!-- Dropdown for stream grouping by name -->
+    <div id="streamGroupingOption" class="optionItem">
+      <div class="streamGroupingTitle">
+        Group Twitch Channels by Game
+        <span class="tooltip-text">
+          Automatically categorizes your followed Twitch streams by the games they're currently playing. Streamers added to your favorite groups will stay in those groups.
+        </span>
+      </div>
+      <select id="streamGroupingSelect" class="styled-select">
+        <option value="none">No grouping (by default)</option>
+        <option value="game">Group by game</option>
+      </select>
+    </div>
         <!-- Separator -->
         <div class="separator"></div>
         <!-- Dark Mode Toggle Switch -->
@@ -56,7 +71,10 @@
               >Click it for dark theme</span
             >
           </label>
+          
         </div>
+   
+
  <!-- Checkbox for hiding accessed count -->
 <div class="checkbox-container">
   <input

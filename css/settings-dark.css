@@ -297,3 +297,9 @@ body.dark-mode {
 #darkModeToggle:checked + .btn-color-mode-switch-inner .slider-text {
   color: #fff;
 }
+
+/* Dark mode support */
+.dark-mode .styled-select {
+  background-color: var(--dark-background);
+  border-color: #444;
+}

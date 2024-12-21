@@ -19,7 +19,7 @@ function displayGroups() {
       <img src="css/nogroup.gif" style="display: block; margin: 0 auto;">
       <strong>No Favorite Groups Created Yet</strong><br><br>
       This is a list that will help you filter your favorite live streams from the popup into new category groups. <br><br>
-      You can create a group and add any Twitch channel to it, organizing your streams.
+      You can create a group and add any Twitch channel to it, organizing your streams. <br><br><small>💡 You can do this directly from this page or from the popup by right-clicking on any stream channel to open the context menu. From the menu, you can select an existing group or create a new one to add the stream.</small>
     </p>`;
         favoriteListText.style.display = "none";
       } else {
@@ -838,4 +838,25 @@ document.addEventListener("DOMContentLoaded", function () {
       ? "Live Twitch Notifications Enabled"
       : "Enable Live Notifications";
   }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Load and set the stream grouping preference
+  chrome.storage.local.get("streamGrouping", function (data) {
+    var groupingPreference = data.streamGrouping || "none"; // Default to "none"
+    document.getElementById("streamGroupingSelect").value = groupingPreference;
+    console.log("Loaded Stream Grouping preference:", groupingPreference);
+  });
+
+  // Save the stream grouping preference when changed
+  document
+    .getElementById("streamGroupingSelect")
+    .addEventListener("change", function () {
+      var selectedOption = this.value;
+      chrome.storage.local.set({ streamGrouping: selectedOption }, function () {
+        // Send a message to the background script to update the stream list
+        chrome.runtime.sendMessage({ action: "oauthComplete" });
+        console.log("Stream Grouping preference updated:", selectedOption);
+      });
+    });
 });

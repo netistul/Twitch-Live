@@ -7,19 +7,17 @@ document.addEventListener("DOMContentLoaded", function () {
   // Update live streams immediately for all users
   updateLiveStreams();
 
-  // Delay checking login status to ensure smooth rendering.
-  // This delay helps avoid rendering issues where the login button does not appear promptly.
-  // The specific delay time (100ms) was chosen based on current performance and may need adjustments in the future.
+  // Delay checking login status to ensure smooth rendering
   setTimeout(checkLoginAndDisplayButton, 100);
   updateSettingsIcon();
+
   // Set an interval to update live streams and check login status every 30 seconds
   setInterval(function () {
     updateLiveStreams();
-    setTimeout(checkLoginAndDisplayButton, 100); // Check login status shortly after updating streams
+    setTimeout(checkLoginAndDisplayButton, 100);
   }, 30000);
 
-  // Accessing buttonContainer & spinner element immediately after DOMContentLoaded to ensure elements are ready for manipulation,
-  // which seems to help with the initial loading responsiveness of the popup.
+  // Accessing buttonContainer & spinner element
   const buttonContainer = document.getElementById("buttonContainer");
   console.log("buttonContainer:", buttonContainer);
 
@@ -29,26 +27,48 @@ document.addEventListener("DOMContentLoaded", function () {
   spinner.src = "css/loading.webp";
   spinner.style.display = "none";
 
-  // Event listener for the settings icon
-  document
-    .getElementById("settingsIcon")
-    .addEventListener("click", function () {
-      var screenWidth = 585; // Define the width you want for the window
-      var screenHeight = Math.min(window.screen.availHeight, 600);
+  // Settings icon handling with hover effects
+  const settingsIcon = document.getElementById("settingsIcon");
+  let originalSrc = settingsIcon.src; // Store the original image source
 
-      window.open(
-        "settings.html",
-        "ExtensionSettings",
-        "width=" + screenWidth + ",height=" + screenHeight
-      );
-    });
+  settingsIcon.addEventListener("mouseenter", function () {
+    // Add rotation class
+    this.classList.add('rotating');
+
+    // Store the original source and change to emoji
+    settingsIcon.setAttribute('data-original-src', settingsIcon.src);
+    settingsIcon.src = 'css/cog.png'; // Change to the path of your settings/cog icon
+    // Alternative: use emoji directly
+    // this.outerHTML = '<div id="settingsIcon" class="rotating">⚙️</div>';
+  });
+
+  settingsIcon.addEventListener("mouseleave", function () {
+    // Get original source and restore it
+    const originalSrc = settingsIcon.getAttribute('data-original-src');
+    if (originalSrc) {
+      settingsIcon.src = originalSrc;
+    }
+
+    // Remove rotation class after animation completes
+    setTimeout(() => {
+      this.classList.remove('rotating');
+    }, 500);
+  });
+
+  // Settings click handler
+  settingsIcon.addEventListener("click", function () {
+    var screenWidth = 585;
+    var screenHeight = Math.min(window.screen.availHeight, 730);
+
+    window.open(
+      "settings.html",
+      "ExtensionSettings",
+      "width=" + screenWidth + ",height=" + screenHeight
+    );
+  });
 
   // Listener for OAuth completion
-  chrome.runtime.onMessage.addListener(function (
-    message,
-    sender,
-    sendResponse
-  ) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "oauthComplete") {
       applyDarkMode();
       spinner.style.display = "none"; // Hide the spinner
@@ -143,6 +163,7 @@ function updateLiveStreams() {
       "showAvatar",
       "channelAccess",
       "hideAccessedCount",
+      "streamGrouping",
     ],
     function (result) {
       const liveStreams = result.liveStreams || [];
@@ -154,6 +175,7 @@ function updateLiveStreams() {
         result.hideAccessedCount !== undefined
           ? result.hideAccessedCount
           : false;
+      const streamGrouping = result.streamGrouping || "none";
       // Default to true
 
       // Sort channels based on access count
@@ -375,39 +397,63 @@ function updateLiveStreams() {
           )
       );
 
-      // Display "MORE LIVE TWITCH CHANNELS" only if any favorite group is live
-      if (ungroupedStreams.length > 0 && isAnyFavoriteGroupLive) {
-        const otherChannelsHeader = document.createElement("h3");
-        otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
-        otherChannelsHeader.classList.add("group-header");
-        scrollContainer.appendChild(otherChannelsHeader);
-      }
+      // If grouping by game is enabled
+      if (streamGrouping === "game" && ungroupedStreams.length > 0) {
+        // Group streams by game name
+        const gameGroups = {};
+        ungroupedStreams.forEach(stream => {
+          const gameName = stream.category || "Other";
+          if (!gameGroups[gameName]) {
+            gameGroups[gameName] = [];
+          }
+          gameGroups[gameName].push(stream);
+        });
 
-      ungroupedStreams.forEach((stream, index) => {
-        appendStreamLink(stream, scrollContainer);
+        // Sort game names alphabetically
+        const sortedGameNames = Object.keys(gameGroups).sort();
 
-        // Check if the current stream is the last in the list
-        if (index === ungroupedStreams.length - 1) {
-          // Apply additional spacing to the last stream item
-          const lastStreamItem = scrollContainer.lastChild;
-          lastStreamItem.style.marginBottom = "5px";
+        // Create headers and add streams for each game group
+        sortedGameNames.forEach((gameName, gameIndex) => {
+          const gameHeader = document.createElement("h3");
+          gameHeader.textContent = gameName.toUpperCase();
+          gameHeader.classList.add("group-header");
+          scrollContainer.appendChild(gameHeader);
+
+          // Add all streams for this game
+          gameGroups[gameName].forEach((stream, streamIndex) => {
+            appendStreamLink(stream, scrollContainer);
+
+            // Add margin to the last stream in the last game group
+            if (gameIndex === sortedGameNames.length - 1 &&
+              streamIndex === gameGroups[gameName].length - 1) {
+              const lastStreamItem = scrollContainer.lastChild;
+              lastStreamItem.style.marginBottom = "5px";
+            }
+          });
+        });
+      } else {
+        // Original behavior remains the same
+        if (ungroupedStreams.length > 0 && isAnyFavoriteGroupLive) {
+          const otherChannelsHeader = document.createElement("h3");
+          otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
+          otherChannelsHeader.classList.add("group-header");
+          scrollContainer.appendChild(otherChannelsHeader);
         }
-      });
+
+        ungroupedStreams.forEach((stream, index) => {
+          appendStreamLink(stream, scrollContainer);
+
+          if (index === ungroupedStreams.length - 1) {
+            const lastStreamItem = scrollContainer.lastChild;
+            lastStreamItem.style.marginBottom = "5px";
+          }
+        });
+      }
 
       container.appendChild(scrollContainer);
       container.scrollTop = currentScrollPosition;
     }
   );
-}
-
-function incrementChannelAccess(broadcasterLogin) {
-  chrome.storage.local.get(["channelAccess"], function (result) {
-    let channelAccess = result.channelAccess || {};
-    channelAccess[broadcasterLogin] =
-      (channelAccess[broadcasterLogin] || 0) + 1;
-
-    chrome.storage.local.set({ channelAccess: channelAccess });
-  });
 }
 
 // Function to update the settings icon based on user login status

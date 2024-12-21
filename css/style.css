@@ -236,19 +236,36 @@ body {
 }
 
 #settingsIcon {
-  width: 10%; /* Example of using relative size */
-  height: 10%; /* Maintain aspect ratio */
-  max-width: 35px; /* Limit the size to not be too large */
+  width: 10%;
+  height: 10%;
+  max-width: 35px;
   max-height: 35px;
-  border-radius: 50%; /* Make it circular */
   object-fit: cover;
-  opacity: 0.5; /* 50% opacity */
+  opacity: 0.5;
+  transition: all 0.3s ease;
 }
 
 #settingsIcon:hover {
-  box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
-  border-radius: 20px; /* Keep the avatar round */
-  cursor: pointer; /* Change cursor to indicate interactivity */
+  cursor: pointer;
+  opacity: 1;
+}
+
+@keyframes rotateAvatar {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating {
+  animation: rotateAvatar 0.5s ease-in-out;
+}
+
+/* Add click (active) state */
+#settingsIcon:active {
+  transform: scale(0.75);
 }
 
 .access-count {

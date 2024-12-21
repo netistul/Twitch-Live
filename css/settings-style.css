@@ -666,6 +666,16 @@ input:checked + .slider:before {
   opacity: 1;
 }
 
+.streamGroupingTitle {
+  position: relative;
+  display: inline-block;
+}
+
+.streamGroupingTitle:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* Style for new custom checkbox */
 .styled-label {
   position: relative;
@@ -762,8 +772,54 @@ input:checked + .slider:before {
   opacity: 1;
 }
 
-.styled-checkbox:checked + .bell-icon-label .fa-regular {
-  opacity: 0;
+/* dropdown */
+.select-container {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+.styled-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 14px;
+  cursor: pointer;
+  width: 200px;
+  margin-left: 10px;
+}
+
+.styled-select:hover {
+  border-color: var(--accent-color);
+}
+
+.styled-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.2);
+}
+
+.streamGroupingTitle {
+  text-align: center;
+  margin-bottom: 10px;
+  width: 100%;
+  font-size: 14px;
+}
+
+#streamGroupingSelect {
+  display: block;
+  margin: 0 auto;
+  width: 200px;
+}
+
+#streamGroupingOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
 }
 
 /* Custom Scrollbar Styles */
