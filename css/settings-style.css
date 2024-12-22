@@ -276,15 +276,39 @@ input[type="text"] {
   margin-top: 20px; /* Space from top */
 }
 
-#settingsTable,
-#optionsMenu {
-  margin: 0 10px; /* Space around each container */
+.settings-group {
+  width: 100%;
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.settings-group-title {
+  font-family: "Noto Sans Display", sans-serif;
+  font-size: 16px;
+  color: #6441a5;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e6e6e6;
+}
+
+/* Adjust spacing for items within groups */
+.settings-group .optionItem,
+.settings-group .checkbox-container {
+  margin: 15px 0;
 }
 
 #optionsMenu {
-  display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Center items within options menu */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #d7cfcf; /* Restored the original background color */
+  border-radius: 8px;
+  padding: 20px;
+  margin: 0 10px;
+  min-width: 400px;
 }
 
 .optionsMenuHeader {
@@ -296,16 +320,16 @@ input[type="text"] {
 }
 
 #showAvatarOption {
-  display: flex; /* Use flexbox for layout */
-  align-items: center; /* Align items vertically */
-  justify-content: center; /* Center items horizontally */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .showAvatarLabel {
-  margin-right: 10px; /* Spacing between label and switch */
-  font-family: Verdana, sans-serif; /* Example font */
-  color: #6441a5; /* Twitch-like purple color */
-  font-size: 14px; /* Font size */
+  font-family: Verdana, sans-serif;
+  color: #6441a5;
+  font-size: 14px;
 }
 
 .delete-group-btn:hover {
@@ -402,21 +426,27 @@ input:checked + .slider:before {
 
 .preview-container {
   margin-top: 10px;
+  margin-bottom: 15px;
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 5px;
-  display: flex;
-  align-items: center;
+  background-color: #efeff1;
+  width: auto; /* Changed from 100% to auto */
+  max-width: 100%; /* Ensures it doesn't overflow */
+  box-sizing: border-box; /* Include padding and border in width calculation */
 }
+
 .stream-preview {
   display: flex;
   align-items: center;
   font-family: Verdana, sans-serif;
   font-size: 13px;
-  white-space: nowrap; /* Prevents text from wrapping to the next line */
-  overflow: hidden; /* Hides text that overflows the container */
-  text-overflow: ellipsis; /* Adds ellipsis to text that overflows */
-  padding: 5px; /* Add some padding */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .user-avatar-container {
@@ -669,6 +699,7 @@ input:checked + .slider:before {
 .streamGroupingTitle {
   position: relative;
   display: inline-block;
+  margin-top: 5px;
 }
 
 .streamGroupingTitle:hover .tooltip-text {
@@ -687,12 +718,12 @@ input:checked + .slider:before {
 /* Custom styling for the bell icons */
 .custom-bell-icon {
   position: absolute;
-  left: 19px; /* Adjust this to align with your other checkboxes */
+  left: 0; /* Align with the container edge */
   top: 50%;
   transform: translateY(-50%);
-  width: 25px; /* Adjust the width as needed */
-  height: 25px; /* Adjust the height as needed */
-  fill: #28a745; /* Adjust the fill color as needed */
+  width: 25px;
+  height: 25px;
+  fill: #28a745;
 }
 
 /* Create a custom checkbox */
@@ -739,13 +770,12 @@ input:checked + .slider:before {
 /* Style for bell icon label */
 .bell-icon-label {
   position: relative;
-  padding-left: 33px; /* Space for the bell icon */
+  padding-left: 32px; /* Changed from 33px to match styled-label */
   cursor: pointer;
   user-select: none;
   display: flex;
-  align-items: center; /* Align icon and text vertically */
+  align-items: center;
 }
-
 /* Style for bell icon */
 .bell-icon-label i {
   position: absolute;
@@ -757,7 +787,7 @@ input:checked + .slider:before {
 
 /* Style for the label text */
 .label-text {
-  margin-left: 18px;
+  margin-left: 0; /* Remove extra margin */
   font-family: Verdana, sans-serif;
 }
 
@@ -790,6 +820,11 @@ input:checked + .slider:before {
   cursor: pointer;
   width: 200px;
   margin-left: 10px;
+}
+
+.styled-select option {
+  background-color: white; /* or any suitable background color */
+  color: black; /* or any suitable text color */
 }
 
 .styled-select:hover {
@@ -829,7 +864,7 @@ input:checked + .slider:before {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #efeff1; /* Light gray track */
+  background-color: #2c2c2c; /* Light gray track */
 }
 
 ::-webkit-scrollbar-thumb {
@@ -844,5 +879,5 @@ input:checked + .slider:before {
 /* For Firefox */
 * {
   scrollbar-width: thin; /* Width of the scrollbar */
-  scrollbar-color: #6441a5 #efeff1; /* Thumb and track colors */
+  scrollbar-color: #6441a5 #2c2c2c; /* Thumb and track colors */
 }

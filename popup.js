@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Settings click handler
   settingsIcon.addEventListener("click", function () {
-    var screenWidth = 585;
+    var screenWidth = 780;
     var screenHeight = Math.min(window.screen.availHeight, 730);
 
     window.open(

@@ -303,3 +303,19 @@ body.dark-mode {
   background-color: var(--dark-background);
   border-color: #444;
 }
+
+.dark-mode #optionsMenu {
+  background-color: #1e1e22; /* Restored the original background color */
+  color: #fff;
+}
+
+.dark-mode .settings-group-title {
+  color: #6441a5;
+  border-bottom: 2px solid #252525;
+}
+
+.dark-mode .settings-group {
+  color: #fff;
+  background-color: #121212;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
