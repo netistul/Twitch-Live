@@ -456,6 +456,15 @@ function updateLiveStreams() {
   );
 }
 
+function incrementChannelAccess(broadcasterLogin) {
+  chrome.storage.local.get(["channelAccess"], function (result) {
+    let channelAccess = result.channelAccess || {};
+    channelAccess[broadcasterLogin] =
+      (channelAccess[broadcasterLogin] || 0) + 1;
+    chrome.storage.local.set({ channelAccess: channelAccess });
+  });
+}
+
 // Function to update the settings icon based on user login status
 function updateSettingsIcon() {
   const settingsIcon = document.getElementById("settingsIcon");
