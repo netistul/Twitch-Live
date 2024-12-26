@@ -49,10 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
       settingsIcon.src = originalSrc;
     }
 
-    // Remove rotation class after animation completes
-    setTimeout(() => {
-      this.classList.remove('rotating');
-    }, 500);
+    // Remove rotation class
+    this.classList.remove('rotating');
   });
 
   // Settings click handler
