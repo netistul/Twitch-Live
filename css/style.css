@@ -236,7 +236,7 @@ body {
   pointer-events: none; /* Prevent hover issues */
 }
 
-/* Add this to ensure proper positioning context */
+/* to ensure proper positioning context */
 .channel-link {
   position: relative;
   display: inline-block;
@@ -353,25 +353,25 @@ body {
 
 .custom-tooltip {
   visibility: hidden;
-  max-width: 300px; /* Adjust if needed */
-  min-width: 100px; /* Optional, adjust as needed */
+  max-width: 300px;
+  min-width: 100px;
   font-size: 12px;
   /* Removed white-space and text-overflow properties */
-  overflow: visible; /* Ensure overflow is visible */
-  background-color: #634590c5; /* Twitch Purple */
+  overflow: visible;
+  background-color: #634590c5;
   color: white;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 10px; /* Add some horizontal padding */
-  position: fixed; /* Use fixed positioning */
+  padding: 5px 10px;
+  position: fixed;
   z-index: 1;
-  white-space: normal; /* Allows text to wrap */
-  overflow-wrap: break-word; /* Ensures long words don't overflow */
+  white-space: normal;
+  overflow-wrap: break-word;
 
-  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  text-overflow: ellipsis;
   opacity: 0;
   transition: opacity 0.3s;
-  pointer-events: none; /* Prevent the tooltip from capturing mouse events */
+  pointer-events: none;
 }
 
 .channel-name:hover .custom-tooltip {
@@ -406,7 +406,7 @@ body {
 /* Increase height for high-resolution screens */
 @media screen and (min-width: 1920px) {
   #scrollContainer {
-    max-height: 90vh; /* Adjust as needed for larger screens */
+    max-height: 90vh;
     /* ... other styles ... */
   }
 }

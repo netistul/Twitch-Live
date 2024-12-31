@@ -1272,7 +1272,33 @@ document.addEventListener("DOMContentLoaded", function () {
             container.classList.remove('open');
           }
         });
+
         selectContainer.classList.toggle('open');
+
+        if (selectContainer.classList.contains('open')) {
+          const optionsElement = selectContainer.querySelector('.custom-select-options');
+          const headerElement = selectContainer.querySelector('.custom-select-header');
+          const containerRect = selectContainer.getBoundingClientRect();
+          const viewportHeight = window.innerHeight;
+
+          // Reset any existing positioning
+          optionsElement.style.top = '';
+          optionsElement.style.bottom = '';
+
+          // Check if dropdown would overflow viewport
+          const dropdownHeight = optionsElement.offsetHeight;
+          const spaceBelow = viewportHeight - containerRect.bottom;
+
+          if (spaceBelow < dropdownHeight + 10) {
+            // Position above the header, directly adjacent
+            optionsElement.style.bottom = `${headerElement.offsetHeight - 4}px`;
+            optionsElement.style.top = 'auto';
+          } else {
+            // Position below the header
+            optionsElement.style.top = '100%';
+          }
+        }
+
         e.stopPropagation();
       });
 

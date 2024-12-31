@@ -980,6 +980,7 @@ input:checked + .slider:before {
   text-overflow: ellipsis;
   max-width: 100px;
 }
+
 /* dropdown */
 .custom-select-container {
   position: relative;
@@ -1027,16 +1028,13 @@ input:checked + .slider:before {
 
 .custom-select-options {
   position: absolute;
-  top: calc(100% + 4px);
   left: 0;
-  width: 100%;
+  width: 250px;
   white-space: nowrap;
-  padding: 0; /* No padding to avoid mismatch */
+  padding: 0;
   border: 1px solid #3a3a3d;
-  box-sizing: border-box; /* Matches header */
-  width: 250px; /* Same as header */
+  box-sizing: border-box;
   background-color: #ffffff;
-  border: 1px solid #3a3a3d;
   border-radius: 0.25rem;
   display: none;
   z-index: 1000;
