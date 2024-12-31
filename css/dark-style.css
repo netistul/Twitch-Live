@@ -163,3 +163,22 @@ body.dark-mode .custom-tooltip {
   color: rgb(238, 234, 234);
   background-color: #ce3838;
 }
+.dark-mode .group-name.editing {
+  background-color: #6d2b2b;
+}
+
+.dark-mode .group-name:hover {
+  background-color: #2a2a2a;
+}
+
+.dark-mode .actions-container {
+  background: #2a2a2a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .editing-group-name {
+  background-color: #f0f0f0; /* Background color in edit mode */
+  padding: 2px 4px;
+  outline: none;
+  white-space: normal; /* Allow wrapping while editing */
+}

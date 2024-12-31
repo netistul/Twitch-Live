@@ -15,12 +15,14 @@ function displayGroups() {
 
       if (groups.length === 0) {
         groupListContainer.innerHTML = `
-      <p style="font-size: 16px; text-align: center;">
-      <img src="css/nogroup.gif" style="display: block; margin: 0 auto;">
-      <strong>No Favorite Groups Created Yet</strong><br><br>
-      This is a list that will help you filter your favorite live streams from the popup into new category groups. <br><br>
-      You can create a group and add any Twitch channel to it, organizing your streams. <br><br><small>💡 You can do this directly from this page or from the popup by right-clicking on any stream channel to open the context menu. From the menu, you can select an existing group or create a new one to add the stream.</small>
-    </p>`;
+          <p style="font-size: 16px; text-align: center;">
+            <img src="css/nogroup.gif" style="display: block; margin: 0 auto;">
+            <strong>No Favorite Groups Created Yet</strong><br><br>
+            This is a list that will help you filter your favorite live streams from the popup into new category groups.
+            <br><br>
+            You can create a group and add any Twitch channel to it, organizing your streams.
+            <br><br><small>💡 You can do this directly from this page or from the popup by right-clicking on any stream channel to open the context menu. From the menu, you can select an existing group or create a new one to add the stream.</small>
+          </p>`;
         favoriteListText.style.display = "none";
       } else {
         favoriteListText.style.display = "block";
@@ -31,9 +33,71 @@ function displayGroups() {
           var groupItem = document.createElement("li");
           groupItem.classList.add("group-item");
 
+          var groupNameContainer = document.createElement("div");
+          groupNameContainer.className = "group-name-container";
           var groupNameSpan = document.createElement("span");
           groupNameSpan.textContent = group.name;
-          groupItem.appendChild(groupNameSpan);
+          groupNameSpan.className = "group-name";
+          var editGroupBtn = document.createElement("button");
+          editGroupBtn.textContent = "✏️";
+          editGroupBtn.className = "edit-group-btn-settings";
+
+          const enterEditMode = () => {
+            groupNameSpan.contentEditable = true;
+            groupNameSpan.classList.add("editing");
+            groupNameSpan.focus();
+
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.selectNodeContents(groupNameSpan);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            const originalName = groupNameSpan.textContent;
+
+            const saveEdit = () => {
+              const newName = groupNameSpan.textContent.trim();
+              if (newName && newName !== originalName) {
+                chrome.storage.local.get("favoriteGroups", function (data) {
+                  var groups = data.favoriteGroups || [];
+                  if (groups[index]) {
+                    groups[index].name = newName;
+                    chrome.storage.local.set({ favoriteGroups: groups }, function () {
+                      console.log("Group name updated:", newName);
+                    });
+                  }
+                });
+              } else if (!newName) {
+                groupNameSpan.textContent = originalName;
+              }
+              groupNameSpan.contentEditable = false;
+              groupNameSpan.classList.remove("editing");
+            };
+
+            groupNameSpan.onkeydown = function (e) {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                saveEdit();
+                groupNameSpan.blur();
+              } else if (e.key === 'Escape') {
+                groupNameSpan.textContent = originalName;
+                groupNameSpan.contentEditable = false;
+                groupNameSpan.classList.remove("editing");
+                groupNameSpan.blur();
+              }
+            };
+
+            groupNameSpan.onblur = saveEdit;
+          };
+
+          groupNameSpan.onclick = enterEditMode;
+          editGroupBtn.onclick = enterEditMode;
+          groupNameSpan.style.cursor = "pointer";
+
+          groupNameContainer.appendChild(groupNameSpan);
+          groupNameContainer.appendChild(editGroupBtn);
+          groupItem.appendChild(groupNameContainer);
 
           var streamersList = document.createElement("ul");
           streamersList.classList.add("streamers-list");
@@ -60,26 +124,36 @@ function displayGroups() {
             streamerItem.appendChild(streamerNameSpan);
 
             var deleteStreamerBtn = document.createElement("button");
-            deleteStreamerBtn.textContent = "x";
-            deleteStreamerBtn.style.width = "30px";
+            deleteStreamerBtn.textContent = "❌";
+            deleteStreamerBtn.style.width = "24px";
+            deleteStreamerBtn.style.background = "transparent";
+            deleteStreamerBtn.style.border = "none";
+            deleteStreamerBtn.style.cursor = "pointer";
+            deleteStreamerBtn.style.padding = "2px";
+            deleteStreamerBtn.style.fontSize = "12px";
+            deleteStreamerBtn.style.opacity = "0.6";
+            deleteStreamerBtn.style.transition = "all 0.2s ease";
+
+            deleteStreamerBtn.onmouseover = function () {
+              this.style.opacity = "1";
+              this.style.transform = "scale(1.2)";
+            };
+
+            deleteStreamerBtn.onmouseout = function () {
+              this.style.opacity = "0.6";
+              this.style.transform = "scale(1)";
+            };
+
             deleteStreamerBtn.onclick = function () {
               deleteStreamer(index, streamerIndex);
             };
+
             streamerItem.appendChild(deleteStreamerBtn);
-
             streamersList.appendChild(streamerItem);
-
-            if (
-              (streamerIndex % 5 === 4 && streamerIndex !== 0) ||
-              streamerIndex === group.streamers.length - 1
-            ) {
-              groupItem.appendChild(streamersList);
-              streamersList = document.createElement("ul");
-              streamersList.classList.add("streamers-list");
-              streamersList.style.listStyleType = "none";
-              streamersList.style.padding = "0";
-            }
           });
+
+          // Append the streamersList after all streamers are added
+          groupItem.appendChild(streamersList);
 
           var buttonContainer = document.createElement("div");
           buttonContainer.classList.add("button-container");
@@ -95,11 +169,10 @@ function displayGroups() {
             };
           } else {
             addStreamerBtn.onclick = function () {
-              alert(
-                "Log in or follow more streamers to have Twitch channels here!"
-              );
+              alert("Log in or follow more streamers to have Twitch channels here!");
             };
           }
+
           buttonContainer.appendChild(addStreamerBtn);
 
           var deleteBtn = document.createElement("button");
@@ -109,8 +182,8 @@ function displayGroups() {
             deleteGroup(index);
             displayGroups();
           };
-          buttonContainer.appendChild(deleteBtn);
 
+          buttonContainer.appendChild(deleteBtn);
           groupItem.appendChild(buttonContainer);
           groupList.appendChild(groupItem);
         });
@@ -120,6 +193,7 @@ function displayGroups() {
     }
   );
 }
+
 
 // delete a streamer from a group
 function deleteStreamer(groupIndex, streamerIndex) {
@@ -454,31 +528,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Load and set the "Show Avatar" preference
   chrome.storage.local.get("showAvatar", function (data) {
-    document.getElementById("showAvatarCheckbox").checked =
-      data.showAvatar === true;
-  });
+    const isShowAvatar = data.showAvatar !== undefined ? data.showAvatar : true; // Default to true
+    const checkbox = document.getElementById("showAvatarCheckbox");
+    checkbox.checked = isShowAvatar;
 
-  // Save the "Show Avatar" preference when changed
-  document
-    .getElementById("showAvatarCheckbox")
-    .addEventListener("change", function () {
-      chrome.storage.local.set({ showAvatar: this.checked }, function () {
-        console.log("Show Avatar preference updated:", this.checked);
-      });
-    });
+    // Save the default value if it's a new installation
+    if (data.showAvatar === undefined) {
+      chrome.storage.local.set({ showAvatar: true });
+    }
 
-  // Load and set the "Show Avatar" preference
-  chrome.storage.local.get("showAvatar", function (data) {
-    var checkbox = document.getElementById("showAvatarCheckbox");
-    checkbox.checked = data.showAvatar === true;
     updatePreview(); // Update preview on page load
   });
 
   // Save the "Show Avatar" preference when changed
+  // event listener for the "Show Avatar" checkbox - it's checking when the avatar display setting changes. 
+  // When you uncheck "Show Avatar", it forces the title display back to hover mode if it was set to newline.
   document
     .getElementById("showAvatarCheckbox")
     .addEventListener("change", function () {
-      chrome.storage.local.set({ showAvatar: this.checked }, function () {
+      const isChecked = this.checked;
+
+      // If avatar is being disabled, check and reset streamTitleDisplay
+      if (!isChecked) {
+        chrome.storage.local.get("streamTitleDisplay", function (result) {
+          if (result.streamTitleDisplay === "newline") {
+            // Reset streamTitleDisplay to hover
+            chrome.storage.local.set({ streamTitleDisplay: "hover" }, function () {
+              console.log("Stream title display reset to hover");
+              // Update the dropdown UI
+              const titleDisplaySelect = document.getElementById("streamTitleDisplaySelect");
+              if (titleDisplaySelect) {
+                titleDisplaySelect.value = "hover";
+                const selectedOption = titleDisplaySelect.parentElement.querySelector('.selected-option');
+                if (selectedOption) {
+                  selectedOption.textContent = "Show channel avatar (default)";
+                }
+              }
+            });
+          }
+        });
+      }
+
+      // Save the avatar preference
+      chrome.storage.local.set({ showAvatar: isChecked }, function () {
         chrome.runtime.sendMessage({ action: "oauthComplete" });
         updatePreview(); // Update preview on checkbox change
       });
@@ -486,76 +578,260 @@ document.addEventListener("DOMContentLoaded", function () {
 
   displayUserInfo();
   displayGroups();
-});
 
+});
 var previewStream = null;
 
 function updatePreview() {
-  chrome.storage.local.get("liveStreams", function (data) {
+  chrome.storage.local.get(["liveStreams", "streamTitleDisplay", "showStreamTime"], function (data) {
     var liveStreams = data.liveStreams || [];
+    var streamTitleDisplay = data.streamTitleDisplay || "off";
+    var showStreamTime = data.showStreamTime === "on";
     var previewContainer = document.getElementById("previewContainer");
 
     if (liveStreams.length > 0) {
-      previewStream =
-        liveStreams[Math.floor(Math.random() * liveStreams.length)];
-
+      previewStream = liveStreams[Math.floor(Math.random() * liveStreams.length)];
       previewContainer.innerHTML = "";
 
       var showAvatar = document.getElementById("showAvatarCheckbox").checked;
 
       var previewDiv = document.createElement("div");
       previewDiv.className = "stream-preview";
+      previewDiv.style.position = "relative";
 
-      var channelNameSpan = document.createElement("span");
-      channelNameSpan.textContent = previewStream.channelName;
-      channelNameSpan.className = "channel-name";
+      if (streamTitleDisplay === "newline") {
+        previewDiv.style.display = "flex";
+        previewDiv.style.alignItems = "flex-start";
+      }
 
-      if (showAvatar && previewStream.avatar) {
+      // Handle the newline case with thumbnail
+      if (showAvatar && streamTitleDisplay === "newline" && previewStream.thumbnail) {
+        var thumbnailWrapper = document.createElement("div");
+        thumbnailWrapper.style.position = "relative"; // This is important for absolute positioning of overlay
+        thumbnailWrapper.style.flexShrink = "0";
+        thumbnailWrapper.style.width = "80px"; // Match thumbnail width
+        thumbnailWrapper.style.height = "45px"; // Match thumbnail height
+        thumbnailWrapper.style.marginRight = "5px";
+
+        var thumbnailImg = document.createElement("img");
+        thumbnailImg.className = "stream-thumbnail";
+        thumbnailImg.style.width = "100%";
+        thumbnailImg.style.height = "100%";
+        thumbnailImg.style.objectFit = "cover";
+        thumbnailImg.style.borderRadius = "4px";
+
+        thumbnailImg.src = "css/dark-thumbnail-placeholder.svg";
+        thumbnailImg.style.backgroundColor = "#18181b";
+
+        const actualImage = new Image();
+        actualImage.onload = () => {
+          thumbnailImg.src = previewStream.thumbnail.replace('{width}', '80').replace('{height}', '45');
+        };
+        actualImage.src = previewStream.thumbnail.replace('{width}', '80').replace('{height}', '45');
+
+        // Add stream time overlay for newline mode
+        if (showStreamTime) {
+          var timeOverlay = document.createElement("div");
+          timeOverlay.className = "stream-time-overlay";
+          timeOverlay.textContent = formatStreamTime(previewStream.started_at);
+
+          // Update time every second
+          const timeInterval = setInterval(() => {
+            if (timeOverlay) {
+              timeOverlay.textContent = formatStreamTime(previewStream.started_at);
+            }
+          }, 1000);
+
+          // Clear interval when element is removed
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              mutation.removedNodes.forEach((node) => {
+                if (node.contains(timeOverlay)) {
+                  clearInterval(timeInterval);
+                  observer.disconnect();
+                }
+              });
+            });
+          });
+          observer.observe(previewContainer, { childList: true, subtree: true });
+
+          thumbnailWrapper.appendChild(timeOverlay);
+        }
+
+        thumbnailWrapper.appendChild(thumbnailImg);
+        previewDiv.appendChild(thumbnailWrapper);
+      }
+      // Handle the regular avatar case
+      else if (showAvatar && previewStream.avatar) {
         var avatarImg = document.createElement("img");
         avatarImg.src = previewStream.avatar;
         avatarImg.className = "stream-avatar";
         previewDiv.appendChild(avatarImg);
+      }
 
-        // Apply additional class when avatar is shown
+      // Rest of the info wrapper code remains the same...
+      const infoWrapper = document.createElement("div");
+      if (streamTitleDisplay === "newline") {
+        infoWrapper.style.display = "flex";
+        infoWrapper.style.flexDirection = "column";
+        infoWrapper.style.minWidth = "0";
+        infoWrapper.style.flex = "1";
+      } else {
+        infoWrapper.style.display = "flex";
+        infoWrapper.style.flexDirection = "column";
+      }
+
+      // Channel name
+      var channelNameSpan = document.createElement("span");
+      channelNameSpan.textContent = previewStream.channelName;
+      channelNameSpan.className = "channel-name";
+      channelNameSpan.style.marginTop = streamTitleDisplay === "newline" ? "-4px" : "0";
+      channelNameSpan.style.paddingRight = "118px";
+
+      if (showAvatar) {
         channelNameSpan.classList.add("channel-name-with-avatar");
       }
 
-      previewDiv.appendChild(channelNameSpan);
+      infoWrapper.appendChild(channelNameSpan);
 
-      // Create a span for the viewers count and the signal icon
+      // Add title and category for newline mode
+      if (streamTitleDisplay === "newline" && previewStream.title) {
+        const titleDiv = document.createElement("div");
+        titleDiv.style.marginTop = "2px";
+        titleDiv.style.fontSize = "12px";
+        titleDiv.style.color = "#9CA3AF";
+        titleDiv.style.whiteSpace = "nowrap";
+        titleDiv.style.overflow = "hidden";
+        titleDiv.style.textOverflow = "ellipsis";
+        titleDiv.style.maxWidth = "250px";
+        titleDiv.textContent = previewStream.title;
+        infoWrapper.appendChild(titleDiv);
+
+        const categoryDiv = document.createElement("div");
+        categoryDiv.style.fontSize = "11px";
+        categoryDiv.style.color = "#9CA3AF";
+        categoryDiv.style.marginTop = "2px";
+        categoryDiv.style.whiteSpace = "nowrap";
+        categoryDiv.style.overflow = "hidden";
+        categoryDiv.style.textOverflow = "ellipsis";
+        categoryDiv.textContent = previewStream.category;
+        infoWrapper.appendChild(categoryDiv);
+      } else if (showAvatar && previewStream.category) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.style.fontSize = "13px";
+        categoryDiv.style.color = "#a0acb6";
+        categoryDiv.style.marginTop = "2px";
+        categoryDiv.style.whiteSpace = "nowrap";
+        categoryDiv.style.overflow = "hidden";
+        categoryDiv.style.textOverflow = "ellipsis";
+        categoryDiv.style.fontFamily = '"Verdana", sans-serif';
+        categoryDiv.style.maxWidth = "150px";
+        categoryDiv.textContent = previewStream.category;
+        infoWrapper.appendChild(categoryDiv);
+      }
+
+      previewDiv.appendChild(infoWrapper);
+
+      // Viewers count and time (for non-newline mode)
       var viewersSpan = document.createElement("span");
-      viewersSpan.textContent = `\u00A0- `;
       viewersSpan.className = "viewers-count";
 
-      // Add text node for viewers count
-      var viewersCountText = document.createTextNode(
-        `${previewStream.viewers} `
-      );
-      viewersSpan.appendChild(viewersCountText);
+      if (showStreamTime && streamTitleDisplay !== "newline") {
+        // For non-newline mode, show time with viewers
+        const timeText = formatStreamTime(previewStream.started_at);
+
+        // Create separate span for time to style it differently
+        const timeSpan = document.createElement("span");
+        timeSpan.style.color = "#9CA3AF";
+        timeSpan.style.fontSize = "12px";
+        timeSpan.textContent = timeText;
+
+        // Add time span and viewers count
+        viewersSpan.appendChild(timeSpan);
+        viewersSpan.appendChild(document.createTextNode(` ${previewStream.viewers} `));
+
+        // Update time every second
+        const timeInterval = setInterval(() => {
+          if (timeSpan) {
+            timeSpan.textContent = formatStreamTime(previewStream.started_at);
+          }
+        }, 1000);
+
+        // Clear interval when element is removed
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.removedNodes.forEach((node) => {
+              if (node.contains(viewersSpan)) {
+                clearInterval(timeInterval);
+                observer.disconnect();
+              }
+            });
+          });
+        });
+        observer.observe(previewContainer, { childList: true, subtree: true });
+      } else {
+        // Just show viewers count if no time or newline mode
+        viewersSpan.textContent = `\u00A0 ${previewStream.viewers} `;
+      }
 
       if (showAvatar) {
-        // If show avatar is on, display the signal icon after viewers count
         var signalIconSpan = document.createElement("span");
         signalIconSpan.className = "signal-icon";
         var signalIconImg = document.createElement("img");
         signalIconImg.src = "css/signal.svg";
         signalIconImg.style.height = "13px";
         signalIconImg.style.width = "13px";
-        signalIconImg.style.marginLeft = "5px";
+        signalIconImg.style.marginLeft = "1px";
         signalIconSpan.appendChild(signalIconImg);
-
         viewersSpan.appendChild(signalIconSpan);
       }
 
-      previewDiv.appendChild(viewersSpan);
+      const viewersWrapper = document.createElement("div");
+      viewersWrapper.style.display = "flex";
+      viewersWrapper.style.alignItems = "center";
+
+      // Add category inside viewersWrapper
+      if (!showAvatar && streamTitleDisplay !== "newline" && previewStream.category) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.className = "stream-category";
+        categoryDiv.textContent = previewStream.category;
+        viewersWrapper.appendChild(categoryDiv);
+      }
+
+      if (streamTitleDisplay === "newline") {
+        viewersWrapper.style.position = "absolute";
+        viewersWrapper.style.right = "8px";
+        viewersWrapper.style.marginTop = "2px";
+        viewersWrapper.style.flexShrink = "0";
+      } else {
+        viewersWrapper.style.position = "absolute";
+        viewersWrapper.style.right = "8px";
+        viewersWrapper.style.top = "50%";
+        viewersWrapper.style.transform = "translateY(-50%)";
+      }
+
+      viewersWrapper.appendChild(viewersSpan);
+      previewDiv.appendChild(viewersWrapper);
 
       previewContainer.appendChild(previewDiv);
-
       previewContainer.style.display = "flex";
     } else {
       previewContainer.style.display = "none";
     }
   });
+}
+
+// Function to format time as HH:MM:SS
+function formatStreamTime(startTime) {
+  const now = new Date();
+  const start = new Date(startTime);
+  const diffInSeconds = Math.floor((now - start) / 1000);
+
+  const hours = Math.floor(diffInSeconds / 3600);
+  const minutes = Math.floor((diffInSeconds % 3600) / 60);
+  const seconds = diffInSeconds % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 function showTemporaryInfo(message) {
@@ -586,88 +862,97 @@ function displayUserInfo() {
     ["userDisplayName", "userAvatar", "twitchAccessToken", "loginTipShown"],
     function (result) {
       const userInfoDiv = document.getElementById("userInfo");
+      if (!userInfoDiv) return;
 
       if (!result.twitchAccessToken) {
+        // Login state code remains the same...
         const loginButton = document.createElement("button");
         loginButton.id = "loginButton";
         loginButton.textContent = "Login with Twitch";
         loginButton.classList.add("login-button");
 
         loginButton.addEventListener("click", function () {
-          // Optionally add a spinner or loading indication here
           chrome.runtime.sendMessage({ action: "startOAuth" });
         });
 
         userInfoDiv.appendChild(loginButton);
-        // Create and append the informative text
+
         const infoText = document.createElement("p");
-        infoText.innerHTML =
-          "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
+        infoText.innerHTML = "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
         infoText.style.marginTop = "10px";
         infoText.style.fontSize = "14px";
         infoText.style.color = "#646464";
         userInfoDiv.appendChild(infoText);
       } else if (result.userDisplayName && result.userAvatar) {
-        // User is logged in, display their information
+        // Modified logged-in state HTML structure
         userInfoDiv.innerHTML = `
-  <div id="userTable">
-    <div class="user-row">
-      <div class="user-cell">Logged as:</div>
-      <div class="user-cell user-avatar-container">
-        <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
-        <div class="logout-dropdown">
-          <a href="#" id="logoutButton">
-            <img src="css/logout.png" alt="Logout" class="logout-icon"> Logout
-          </a>
-        </div>
-      </div>
-      <div class="user-cell">${result.userDisplayName}</div>
-    </div>
-  </div>
-`;
+          <div id="userTable">
+            <div class="user-row">
+              <div class="user-cell">Logged as:</div>
+              <div class="user-cell user-avatar-container" role="button" tabindex="0">
+                <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
+                <div class="logout-dropdown">
+                  <button id="logoutButton" class="logout-button">
+                    <img src="css/logout.png" alt="Logout" class="logout-icon"> Logout
+                  </button>
+                </div>
+              </div>
+              <div class="user-cell">${result.userDisplayName}</div>
+            </div>
+          </div>
+        `;
 
-        const avatarContainer = document.querySelector(
-          ".user-avatar-container"
-        );
-        const dropdown = avatarContainer.querySelector(".logout-dropdown");
+        // Add event listeners immediately after creating the elements
+        const avatarContainer = userInfoDiv.querySelector(".user-avatar-container");
+        const dropdown = userInfoDiv.querySelector(".logout-dropdown");
+        const logoutButton = userInfoDiv.querySelector("#logoutButton");
 
         // Toggle dropdown on avatar click
-        avatarContainer.addEventListener("click", (event) => {
-          dropdown.style.display =
-            dropdown.style.display === "block" ? "none" : "block";
-          event.stopPropagation();
-        });
+        if (avatarContainer && dropdown) {
+          avatarContainer.addEventListener("click", (event) => {
+            event.stopPropagation();
+            dropdown.classList.toggle("show");
+          });
+
+          // Add keyboard accessibility
+          avatarContainer.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              dropdown.classList.toggle("show");
+            }
+          });
+        }
 
         // Close dropdown when clicking outside
         document.addEventListener("click", (event) => {
-          if (!avatarContainer.contains(event.target)) {
-            dropdown.style.display = "none";
+          if (dropdown && dropdown.classList.contains("show") &&
+            !avatarContainer.contains(event.target)) {
+            dropdown.classList.remove("show");
           }
         });
 
-        // Event listener for the logout button
-        const logoutButton = document.getElementById("logoutButton");
-        logoutButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          chrome.runtime.sendMessage(
-            { action: "disconnectTwitch" },
-            function (response) {
-              if (response && response.status === "success") {
-                // Refresh the page upon successful logout
-                window.location.reload();
-                chrome.storage.local.set({ loginTipShown: false });
+        // Handle logout
+        if (logoutButton) {
+          logoutButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chrome.runtime.sendMessage(
+              { action: "disconnectTwitch" },
+              function (response) {
+                if (response && response.status === "success") {
+                  window.location.reload();
+                  chrome.storage.local.set({ loginTipShown: false });
+                }
               }
-            }
-          );
-        });
+            );
+          });
+        }
 
-        // Show the login tip only if it hasn't been shown before
         if (!result.loginTipShown) {
           showLoginTip();
           chrome.storage.local.set({ loginTipShown: true });
         }
       } else {
-        // No user info is available
         userInfoDiv.textContent = "Not logged in";
       }
     }
@@ -710,6 +995,7 @@ function showLoginTip() {
   }, 7000);
 }
 
+
 // Listener for OAuth completion
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === "oauthComplete") {
@@ -732,61 +1018,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-// Function to toggle dark mode and update text
-function toggleDarkMode(isDarkMode) {
-  const themeSwitchText = document.getElementById("themeSwitchText");
-  if (isDarkMode) {
-    document.body.classList.add("dark-mode");
-    themeSwitchText.textContent = "💡 Click it for light theme"; // When in dark mode
-  } else {
-    document.body.classList.remove("dark-mode");
-    themeSwitchText.textContent = "🌙 Click it for dark theme"; // When in light mode
-  }
-}
-
-// Event listener for the dark mode toggle
-document.addEventListener("DOMContentLoaded", function () {
-  // Load and set the "Show Avatar" preference
-  chrome.storage.local.get("showAvatar", function (data) {
-    var isShowAvatar = data.showAvatar !== undefined ? data.showAvatar : true; // Set default to true
-    document.getElementById("showAvatarCheckbox").checked = isShowAvatar;
-  });
-  const darkModeToggle = document.getElementById("darkModeToggle");
-
-  // Load dark mode setting
-  chrome.storage.local.get("darkMode", function (data) {
-    const isDarkMode = data.darkMode !== undefined ? data.darkMode : true; // Default to true
-    darkModeToggle.checked = isDarkMode;
-    toggleDarkMode(isDarkMode); // Also updates the text
-  });
-
-  // Save dark mode setting and update text
-  darkModeToggle.addEventListener("change", function () {
-    const isDarkMode = this.checked;
-    chrome.storage.local.set({ darkMode: isDarkMode }, function () {
-      toggleDarkMode(isDarkMode); // Also updates the text
-
-      // Send a message to the background script
-      chrome.runtime.sendMessage({ action: "oauthComplete" });
-    });
-  });
-});
-
-// Function to toggle dark mode in settings.html
-function applyDarkModeSetting() {
-  chrome.storage.local.get("darkMode", function (data) {
-    var isDarkMode = data.darkMode !== undefined ? data.darkMode : true; // Default to true
-    if (isDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  });
-}
-
-// Apply dark mode setting when the page loads
-document.addEventListener("DOMContentLoaded", applyDarkModeSetting);
-
+// Show accessed count
 document.addEventListener("DOMContentLoaded", function () {
   // Load and set the "Do not show accessed count" preference
   chrome.storage.local.get("hideAccessedCount", function (data) {
@@ -809,54 +1041,382 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// Filter notifications
 document.addEventListener("DOMContentLoaded", function () {
   // Get elements
-  var checkbox = document.getElementById("enableNotificationsCheckbox");
-  var labelText = document.querySelector(".bell-icon-label .label-text");
+  const notificationCheckbox = document.getElementById("enableNotificationsCheckbox");
+  const filterCheckbox = document.getElementById("enableFilterCheckbox");
+  const channelList = document.getElementById("channelList");
+  const filterOption = document.getElementById("filterNotificationOption");
 
-  // Load and set the notification preference
-  chrome.storage.local.get("enableNotifications", function (data) {
-    var isChecked =
-      data.enableNotifications !== undefined ? data.enableNotifications : false;
-    checkbox.checked = isChecked;
-    updateLabelText(isChecked);
-    console.log("Loaded Enable Notifications preference:", isChecked);
+  // Load initial states
+  chrome.storage.local.get(["enableNotifications", "enableFilter", "selectedChannels"], function (data) {
+    const isNotificationsEnabled = data.enableNotifications || false;
+    const isFilterEnabled = data.enableFilter || false;
+
+    notificationCheckbox.checked = isNotificationsEnabled;
+    filterCheckbox.checked = isFilterEnabled;
+
+    updateFilterControl(isNotificationsEnabled);
+
+    // Always load the channel list, regardless of filter state
+    loadChannelList(data.selectedChannels || []);
+    updateChannelListState(isNotificationsEnabled && isFilterEnabled);
   });
 
-  // Save the notification preference when changed and update label text
-  checkbox.addEventListener("change", function () {
-    var isChecked = this.checked;
+  // Handle notification checkbox changes
+  notificationCheckbox.addEventListener("change", function () {
+    const isChecked = this.checked;
     chrome.storage.local.set({ enableNotifications: isChecked }, function () {
       console.log("Enable Notifications preference updated:", isChecked);
     });
-    updateLabelText(isChecked);
+
+    updateFilterControl(isChecked);
+    updateChannelListState(isChecked && filterCheckbox.checked);
   });
 
-  // Function to update the label text
-  function updateLabelText(isChecked) {
-    labelText.textContent = isChecked
-      ? "Live Twitch Notifications Enabled"
-      : "Enable Live Notifications";
+  // Handle filter checkbox changes
+  filterCheckbox.addEventListener("change", function () {
+    const isChecked = this.checked;
+    chrome.storage.local.set({ enableFilter: isChecked }, function () {
+      console.log("Filter preference updated:", isChecked);
+    });
+
+    updateChannelListState(isChecked && notificationCheckbox.checked);
+
+    if (!isChecked) {
+      // Clear selected channels when filter is disabled
+      chrome.storage.local.set({ selectedChannels: [] });
+      // Uncheck all checkboxes
+      const checkboxes = channelList.querySelectorAll(".channel-checkbox");
+      checkboxes.forEach(checkbox => checkbox.checked = false);
+    }
+  });
+
+  function updateFilterControl(notificationsEnabled) {
+    filterOption.style.opacity = notificationsEnabled ? "1" : "0.5";
+    filterOption.style.pointerEvents = notificationsEnabled ? "auto" : "none";
+    filterCheckbox.disabled = !notificationsEnabled;
+  }
+
+  function updateChannelListState(enabled) {
+    channelList.style.opacity = enabled ? "1" : "0.5";
+    const containers = channelList.querySelectorAll(".channel-checkbox-container");
+
+    containers.forEach(container => {
+      const checkbox = container.querySelector(".channel-checkbox");
+      checkbox.disabled = !enabled;
+      checkbox.style.cursor = enabled ? "pointer" : "not-allowed";
+
+      // Toggle the disabled class instead of setting inline styles
+      if (!enabled) {
+        container.classList.add("disabled");
+      } else {
+        container.classList.remove("disabled");
+      }
+    });
+  }
+
+  function loadChannelList(selectedChannels) {
+    if (!channelList) {
+      console.error("Channel list element not found!");
+      return;
+    }
+
+    getFollowedList()
+      .then(followedList => {
+        console.log("Loading channels:", followedList);
+        channelList.innerHTML = "";
+
+        followedList.forEach(channel => {
+          const channelDiv = document.createElement("div");
+          channelDiv.className = "channel-checkbox-container";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = `channel-${channel.broadcaster_name}`;
+          checkbox.className = "channel-checkbox";
+          checkbox.checked = selectedChannels.includes(channel.broadcaster_name);
+
+          const label = document.createElement("label");
+          label.htmlFor = `channel-${channel.broadcaster_name}`;
+          label.textContent = channel.broadcaster_name;
+
+          checkbox.addEventListener("change", function () {
+            if (!checkbox.disabled) {
+              updateSelectedChannels();
+            }
+          });
+
+          channelDiv.appendChild(checkbox);
+          channelDiv.appendChild(label);
+          channelList.appendChild(channelDiv);
+        });
+
+        // Set initial state of the channel list
+        updateChannelListState(notificationCheckbox.checked && filterCheckbox.checked);
+      })
+      .catch(error => console.error("Error loading followed list:", error));
+  }
+
+  function updateSelectedChannels() {
+    const checkboxes = channelList.querySelectorAll(".channel-checkbox");
+    const selectedChannels = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.id.replace("channel-", ""));
+
+    chrome.storage.local.set({ selectedChannels }, function () {
+      console.log("Selected channels updated:", selectedChannels);
+    });
   }
 });
 
+// Dropdowns - Stream grouping
 document.addEventListener("DOMContentLoaded", function () {
-  // Load and set the stream grouping preference
-  chrome.storage.local.get("streamGrouping", function (data) {
-    var groupingPreference = data.streamGrouping || "none"; // Default to "none"
-    document.getElementById("streamGroupingSelect").value = groupingPreference;
-    console.log("Loaded Stream Grouping preference:", groupingPreference);
-  });
+  // Theme handling function
+  function setTheme(isDarkMode) {
+    try {
+      if (isDarkMode) {
+        document.body.classList.add("dark-mode");
+        document.body.classList.remove("light-mode");
+      } else {
+        document.body.classList.remove("dark-mode");
+        document.body.classList.add("light-mode");
+      }
+      console.log(`Theme set to: ${isDarkMode ? 'dark' : 'light'} mode`);
+    } catch (error) {
+      console.error('Error setting theme:', error);
+    }
+  }
 
-  // Save the stream grouping preference when changed
-  document
-    .getElementById("streamGroupingSelect")
-    .addEventListener("change", function () {
-      var selectedOption = this.value;
-      chrome.storage.local.set({ streamGrouping: selectedOption }, function () {
-        // Send a message to the background script to update the stream list
-        chrome.runtime.sendMessage({ action: "oauthComplete" });
-        console.log("Stream Grouping preference updated:", selectedOption);
+  // Function to get clean text without the dot
+  function getCleanOptionText(optionElement) {
+    // Get all text nodes, filter out the dot span
+    const textNodes = Array.from(optionElement.childNodes)
+      .filter(node => {
+        // Exclude the option-dot span
+        return !(node.nodeType === 1 && node.classList.contains('option-dot'));
+      })
+      .map(node => node.textContent.trim())
+      .join('')
+      .trim();
+
+    return textNodes;
+  }
+
+  // Function to handle dropdown disabled state
+  function updateTitleDisplayDropdownState(isAvatarEnabled) {
+    const titleDisplayContainer = document.querySelector('.title-display-container');
+    const titleDisplayHeader = titleDisplayContainer.querySelector('.custom-select-header');
+    const titleDisplayOptions = titleDisplayContainer.querySelector('.custom-select-options');
+
+    if (isAvatarEnabled) {
+      titleDisplayContainer.classList.remove('disabled');
+      titleDisplayHeader.removeAttribute('disabled');
+      titleDisplayHeader.style.pointerEvents = 'auto';
+      titleDisplayHeader.style.opacity = '1';
+    } else {
+      titleDisplayContainer.classList.add('disabled');
+      titleDisplayHeader.setAttribute('disabled', 'true');
+      titleDisplayHeader.style.pointerEvents = 'none';
+      titleDisplayHeader.style.opacity = '0.5';
+      titleDisplayContainer.classList.remove('open'); // Close dropdown if open
+    }
+  }
+
+  // Generic dropdown initialization function
+  function initializeDropdown(selectContainer, selectId, storageKey) {
+    try {
+      const header = selectContainer.querySelector('.custom-select-header');
+      const selectedText = header.querySelector('.selected-option');
+      const options = selectContainer.querySelectorAll('.custom-option');
+      const originalSelect = document.getElementById(selectId);
+
+      if (!header || !selectedText || !options.length || !originalSelect) {
+        throw new Error('Required dropdown elements not found');
+      }
+
+      // Load saved setting from storage
+      chrome.storage.local.get(storageKey, function (data) {
+        try {
+          const preference = data[storageKey] || (storageKey === "darkMode" ? "dark" : "off");
+
+          // Update original select value
+          originalSelect.value = preference;
+
+          // Find the matching option based on the current value
+          const matchingOption = Array.from(options).find(
+            option => option.dataset.value === preference
+          );
+
+          if (matchingOption) {
+            // Set header text without the dot
+            selectedText.textContent = getCleanOptionText(matchingOption);
+            options.forEach(opt => opt.classList.remove('selected'));
+            matchingOption.classList.add('selected');
+          }
+
+          // If the storageKey is "darkMode", apply the theme
+          if (storageKey === "darkMode") {
+            setTheme(preference === "dark");
+          }
+        } catch (error) {
+          console.error('Error in storage callback:', error);
+        }
       });
+
+      // Toggle dropdown visibility on header click
+      header.addEventListener('click', (e) => {
+        document.querySelectorAll('.custom-select-container').forEach(container => {
+          if (container !== selectContainer) {
+            container.classList.remove('open');
+          }
+        });
+        selectContainer.classList.toggle('open');
+        e.stopPropagation();
+      });
+
+      // Handle option selection
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          try {
+            const cleanText = getCleanOptionText(option);
+            const value = option.dataset.value;
+
+            // Update custom dropdown display with clean text
+            selectedText.textContent = cleanText;
+            options.forEach(opt => opt.classList.remove('selected'));
+            option.classList.add('selected');
+            selectContainer.classList.remove('open');
+
+            // Update original select value
+            originalSelect.value = value;
+
+            // If the storageKey is "darkMode", apply the theme
+            if (storageKey === "darkMode") {
+              setTheme(value === "dark");
+            }
+
+            // Create updates object for storage
+            let updates = { [storageKey]: value };
+
+            // If this is the stream title display being set to newline,
+            // automatically enable stream time
+            if (storageKey === "streamTitleDisplay" && value === "newline") {
+              updates.showStreamTime = "on";  // Set the correct value to match the select options
+
+              // Update stream time dropdown UI
+              const streamTimeContainer = document.querySelector('.custom-select-container:has(#showStreamTimeSelect)');
+              if (streamTimeContainer) {
+                const streamTimeHeader = streamTimeContainer.querySelector('.selected-option');
+                const streamTimeOptions = streamTimeContainer.querySelectorAll('.custom-option');
+
+                if (streamTimeHeader) {
+                  streamTimeHeader.textContent = "Show stream time";
+                }
+
+                streamTimeOptions.forEach(opt => {
+                  opt.classList.remove('selected');
+                  if (opt.dataset.value === 'on') {
+                    opt.classList.add('selected');
+                  }
+                });
+
+                // Update the original select for stream time
+                const streamTimeSelect = document.getElementById('showStreamTimeSelect');
+                if (streamTimeSelect) {
+                  streamTimeSelect.value = "on";  // Make sure to use the string "on"
+                }
+
+                // Trigger the change event on the original select
+                streamTimeSelect.dispatchEvent(new Event('change'));
+              }
+            }
+
+            // Save to storage
+            chrome.storage.local.set(updates, function () {
+              chrome.runtime.sendMessage({ action: "oauthComplete" });
+              console.log(`Settings updated:`, updates);
+              if (typeof updatePreview === 'function') {
+                updatePreview();
+              }
+            });
+          } catch (error) {
+            console.error('Error handling option selection:', error);
+          }
+        });
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        const isClickInside = selectContainer.contains(e.target);
+        const isHeaderClick = header === e.target || header.contains(e.target);
+
+        if (!isClickInside && !isHeaderClick) {
+          selectContainer.classList.remove('open');
+        }
+      });
+    } catch (error) {
+      console.error('Error initializing dropdown:', error);
+    }
+  }
+
+  // Initialize all dropdowns
+  try {
+    // Get the avatar checkbox
+    const avatarCheckbox = document.getElementById('showAvatarCheckbox');
+
+    // Initialize the dropdown state based on avatar checkbox
+    chrome.storage.local.get('showAvatar', function (data) {
+      const isAvatarEnabled = data.showAvatar !== false;
+      updateTitleDisplayDropdownState(isAvatarEnabled);
     });
+
+    // Add event listener for avatar checkbox changes
+    if (avatarCheckbox) {
+      avatarCheckbox.addEventListener('change', function (e) {
+        updateTitleDisplayDropdownState(e.target.checked);
+      });
+    }
+
+    document.querySelectorAll('.custom-select-container').forEach(container => {
+      const selectElement = container.querySelector('select');
+      if (selectElement) {
+        const selectId = selectElement.id;
+        const storageKey = {
+          "showStreamTimeSelect": "showStreamTime",
+          "streamGroupingSelect": "streamGrouping",
+          "streamTitleDisplaySelect": "streamTitleDisplay",
+          "themeSelect": "darkMode",
+        }[selectId];
+
+        if (storageKey) {
+          initializeDropdown(container, selectId, storageKey);
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error in dropdown initialization:', error);
+  }
+});
+
+// Menu navigation functionality
+document.addEventListener('DOMContentLoaded', function () {
+  const menuItems = document.querySelectorAll('.menu-item');
+  const sections = document.querySelectorAll('.settings-section');
+
+  menuItems.forEach(item => {
+    item.addEventListener('click', function () {
+      // Remove active class from all items
+      menuItems.forEach(i => i.classList.remove('active'));
+      sections.forEach(s => s.classList.remove('active'));
+
+      // Add active class to clicked item
+      this.classList.add('active');
+
+      // Show corresponding section
+      const sectionId = this.getAttribute('data-section') + '-section';
+      document.getElementById(sectionId).classList.add('active');
+    });
+  });
 });

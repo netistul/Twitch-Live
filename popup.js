@@ -55,8 +55,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Settings click handler
   settingsIcon.addEventListener("click", function () {
-    var screenWidth = 780;
-    var screenHeight = Math.min(window.screen.availHeight, 730);
+    var screenWidth = 700;
+    var screenHeight = Math.min(window.screen.availHeight, 880);
 
     window.open(
       "settings.html",
@@ -162,6 +162,8 @@ function updateLiveStreams() {
       "channelAccess",
       "hideAccessedCount",
       "streamGrouping",
+      "showStreamTime",
+      "streamTitleDisplay",
     ],
     function (result) {
       const liveStreams = result.liveStreams || [];
@@ -182,6 +184,8 @@ function updateLiveStreams() {
           (channelAccess[b.broadcasterLogin] || 0) -
           (channelAccess[a.broadcasterLogin] || 0)
       );
+
+      const streamTitleDisplay = result.streamTitleDisplay || "hover";
 
       const container = document.getElementById("buttonContainer");
       const currentScrollPosition = container.scrollTop;
@@ -213,25 +217,57 @@ function updateLiveStreams() {
 
         const wrapperDiv = document.createElement("div");
         wrapperDiv.className = "channel-category-wrapper";
+        wrapperDiv.style.width = "100%";  // Add this
+        wrapperDiv.style.overflow = "hidden";  // Add this
 
         // Sub-wrapper for channel name, category, and viewers
         const subWrapper = document.createElement("div");
         subWrapper.className = showAvatar ? "sub-wrapper-with-avatar" : "";
+        subWrapper.style.width = "100%";  // Add this
+        subWrapper.style.overflow = "hidden";  // Add this
 
         let avatarImg;
-        if (showAvatar && stream.avatar) {
-          avatarImg = document.createElement("img");
-          avatarImg.src = stream.avatar;
-          avatarImg.className = "stream-avatar";
-          avatarImg.alt = `${stream.channelName}'s avatar`;
-          avatarImg.style.width = "30px";
-          avatarImg.style.height = "30px";
-          avatarImg.style.borderRadius = "15px";
-          avatarImg.style.marginRight = "5px";
-          channelLink.appendChild(avatarImg);
+        if (showAvatar) {
+          console.log('Stream Title Display:', streamTitleDisplay);
+          console.log('Stream Thumbnail:', stream.thumbnail);
+          console.log('Stream Avatar:', stream.avatar);
 
-          channelLink.classList.add("with-avatar");
-          wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
+          if (streamTitleDisplay === "newline" && stream.thumbnail) {
+            avatarImg = document.createElement("img");
+
+            // Add dark placeholder while loading
+            avatarImg.src = "css/dark-thumbnail-placeholder.svg"; // Dark themed placeholder
+            avatarImg.style.backgroundColor = "#18181b"; // Twitch-like dark background
+
+            // Load the actual image in the background
+            const actualImage = new Image();
+            actualImage.onload = () => {
+              avatarImg.src = stream.thumbnail.replace('{width}', '30').replace('{height}', '30');
+            };
+            actualImage.src = stream.thumbnail.replace('{width}', '30').replace('{height}', '30');
+
+            avatarImg.className = "stream-thumbnail loading";
+            avatarImg.alt = `${stream.channelName}'s thumbnail`;
+          }
+
+          else if (stream.avatar) {
+            console.log('Creating avatar element');
+            avatarImg = document.createElement("img");
+            avatarImg.src = stream.avatar;
+            avatarImg.className = "stream-avatar";
+            avatarImg.alt = `${stream.channelName}'s avatar`;
+            avatarImg.style.width = "30px";
+            avatarImg.style.height = "30px";
+            avatarImg.style.borderRadius = "15px";
+            avatarImg.style.marginRight = "5px";
+            console.log('Avatar element created with src:', avatarImg.src);
+          }
+
+          if (avatarImg) {
+            channelLink.appendChild(avatarImg);
+            channelLink.classList.add("with-avatar");
+            wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
+          }
         }
 
         const channelNameSpan = document.createElement("span");
@@ -268,17 +304,66 @@ function updateLiveStreams() {
 
         if (showAvatar && stream.avatar) {
           channelNameSpan.classList.add("with-avatar");
+
+          // Ensure proper width and containment for categoryDiv
+          categoryDiv.style.width = "100%";
+          categoryDiv.style.overflow = "hidden";
           categoryDiv.appendChild(channelNameSpan);
 
           const categorySpan = document.createElement("span");
           categorySpan.className = "stream-category-with-avatar";
           categorySpan.textContent = stream.category;
           categorySpan.style.textAlign = "left";
+
+          // Add stream title first if the display option is set to "newline"
+          if (streamTitleDisplay === "newline") {
+            // Create a container for the title to ensure proper width constraints
+            const titleContainer = document.createElement("div");
+            Object.assign(titleContainer.style, {
+              width: "100%",
+              overflow: "hidden",
+              marginTop: "2px",
+              maxWidth: "300px", // Adjust this value based on your popup width
+              position: "relative" // Ensure the container acts as a positioning context
+            });
+
+            const titleSpan = document.createElement("span");
+            titleSpan.className = "stream-title-display";
+            titleSpan.textContent = stream.title;
+
+            Object.assign(titleSpan.style, {
+              display: "block",
+              fontSize: "12px",
+              color: "#9CA3AF",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              width: "100%",
+              maxWidth: "100%"
+            });
+
+            titleContainer.appendChild(titleSpan);
+            categoryDiv.appendChild(titleContainer);
+          }
+
+          // Then add the category with smaller style if newline is enabled
+          if (streamTitleDisplay === "newline") {
+            categorySpan.style.fontSize = "11px";
+            categorySpan.style.color = "#9CA3AF";
+            categorySpan.style.display = "block";
+            categorySpan.style.marginTop = "2px";
+          }
+
           categoryDiv.appendChild(categorySpan);
+
+          // Ensure subWrapper has proper width
+          subWrapper.style.width = "100%";
+          subWrapper.style.overflow = "hidden";
           subWrapper.appendChild(categoryDiv);
         } else {
           wrapperDiv.appendChild(channelNameSpan);
         }
+
 
         // Create the tooltip for the access count
         let tooltip;
@@ -327,13 +412,65 @@ function updateLiveStreams() {
         viewersWrapper.className = showAvatar
           ? "viewers-wrapper-with-avatar"
           : "viewers-wrapper";
+        viewersWrapper.style.display = "flex";
+        viewersWrapper.style.alignItems = "center";
+        viewersWrapper.style.gap = "8px";
+
+        // Add positioning for newline mode
+        if (streamTitleDisplay === "newline") {
+          viewersWrapper.style.position = "absolute";
+          viewersWrapper.style.top = "11px";  // Align with the top where channel name is
+          viewersWrapper.style.right = "5px"; // Keep some spacing from the right edge
+        }
 
         const viewersSpan = document.createElement("span");
         viewersSpan.className = "viewers";
         viewersSpan.textContent = stream.viewers;
+
+        const showStreamTime = result.showStreamTime === "on"; // Will be true only when explicitly "on"
+        console.log('showStreamTime setting:', result.showStreamTime);
+        console.log('showStreamTime after parsing:', showStreamTime);
+
+        if (showStreamTime) {
+          console.log('Creating time span because showStreamTime is:', showStreamTime);
+          const timeSpan = document.createElement("span");
+          timeSpan.className = "stream-time";
+          timeSpan.style.fontSize = "12px";
+          timeSpan.style.color = "#9CA3AF";
+          timeSpan.textContent = formatStreamTime(stream.started_at);
+
+          if (streamTitleDisplay === "newline" && stream.thumbnail) {
+            timeSpan.classList.add("stream-time-overlay");
+            const thumbnailContainer = document.createElement("div");
+            thumbnailContainer.style.position = "relative";
+            thumbnailContainer.appendChild(avatarImg);
+            thumbnailContainer.appendChild(timeSpan);
+            channelLink.appendChild(thumbnailContainer);
+          }
+
+          // Update the stream time every second
+          const timeInterval = setInterval(() => {
+            timeSpan.textContent = formatStreamTime(stream.started_at);
+          }, 1000);
+
+          // Clear interval when the element is removed
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              mutation.removedNodes.forEach((node) => {
+                if (node.contains(timeSpan)) {
+                  clearInterval(timeInterval);
+                  observer.disconnect();
+                }
+              });
+            });
+          });
+          observer.observe(container, { childList: true, subtree: true });
+        }
+
+
         viewersWrapper.appendChild(viewersSpan);
 
-        // Include SVG icon only if showAvatar and stream.avatar are true
+        // Include signal icon if avatar is shown
         if (showAvatar && stream.avatar) {
           const iconImg = document.createElement("img");
           iconImg.src = "css/signal.svg";
@@ -341,9 +478,11 @@ function updateLiveStreams() {
           iconImg.alt = "Signal";
           iconImg.style.height = "13px";
           iconImg.style.width = "13px";
-          iconImg.style.marginLeft = "-5px";
+          // Use -15px when stream time is shown, -1px (from CSS) when hidden
+          iconImg.style.marginLeft = showStreamTime ? "-15px" : "-13px";
           viewersWrapper.appendChild(iconImg);
         }
+
 
         if (showAvatar && stream.avatar) {
           subWrapper.appendChild(viewersWrapper);
@@ -365,6 +504,11 @@ function updateLiveStreams() {
         container.appendChild(channelItem);
       }
 
+      // Sort favorite groups alphabetically before displaying them
+      favoriteGroups.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      );
+
       favoriteGroups.forEach((group) => {
         const liveGroupStreams = liveStreams.filter((stream) =>
           group.streamers
@@ -373,7 +517,7 @@ function updateLiveStreams() {
         );
 
         if (liveGroupStreams.length > 0) {
-          isAnyFavoriteGroupLive = true; // Set to true if any favorite group is live
+          isAnyFavoriteGroupLive = true;
 
           const groupNameHeader = document.createElement("h3");
           groupNameHeader.textContent = group.name.toUpperCase();
@@ -454,6 +598,19 @@ function updateLiveStreams() {
   );
 }
 
+// Function to format time as HH:MM:SS
+function formatStreamTime(startTime) {
+  const now = new Date();
+  const start = new Date(startTime);
+  const diffInSeconds = Math.floor((now - start) / 1000);
+
+  const hours = Math.floor(diffInSeconds / 3600);
+  const minutes = Math.floor((diffInSeconds % 3600) / 60);
+  const seconds = diffInSeconds % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
 function incrementChannelAccess(broadcasterLogin) {
   chrome.storage.local.get(["channelAccess"], function (result) {
     let channelAccess = result.channelAccess || {};
@@ -513,12 +670,20 @@ window.addEventListener("unload", function () {
 
 function applyDarkMode() {
   chrome.storage.local.get("darkMode", function (data) {
-    // If darkMode is undefined or true, enable dark mode. Otherwise, use light mode.
-    var isDarkMode = data.darkMode !== undefined ? data.darkMode : true;
-    if (isDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
+    // If no theme is set (data.darkMode is undefined), use dark mode
+    const isDarkMode = !data.darkMode || data.darkMode === "dark";
+
+    try {
+      if (isDarkMode) {
+        document.body.classList.add("dark-mode");
+        document.body.classList.remove("light-mode");
+      } else {
+        document.body.classList.remove("dark-mode");
+        document.body.classList.add("light-mode");
+      }
+      console.log(`Theme set to: ${isDarkMode ? 'dark' : 'light'} mode`);
+    } catch (error) {
+      console.error('Error applying theme:', error);
     }
   });
 }
@@ -541,17 +706,14 @@ function showContextMenu(stream, x, y) {
   contextMenu.style.left = `${x}px`;
   contextMenu.style.top = `${y}px`;
 
-  // Header for the context menu updated to include the Twitch logo and the text properly
   const menuHeader = document.createElement("div");
   menuHeader.className = "context-menu-header";
 
-  // Text "Add"
   const addActionText = document.createElement("span");
   addActionText.textContent = "Add ";
-  addActionText.style.marginRight = "2px"; // Adds a small right margin
+  addActionText.style.marginRight = "2px";
   addActionText.style.verticalAlign = "middle";
 
-  // Twitch icon
   const twitchIcon = document.createElement("img");
   twitchIcon.src = "css/twitch.png";
   twitchIcon.alt = "Twitch";
@@ -559,23 +721,20 @@ function showContextMenu(stream, x, y) {
   twitchIcon.style.marginRight = "2px";
   twitchIcon.style.verticalAlign = "middle";
 
-  // Channel name
   const channelNameSpan = document.createElement("span");
   channelNameSpan.textContent = `${stream.channelName}`;
   channelNameSpan.style.marginRight = "5px";
   channelNameSpan.style.verticalAlign = "middle";
   channelNameSpan.style.color = "#9182c1";
 
-  // Text "to favorite list:"
   const toFavoriteGroupText = document.createElement("span");
   toFavoriteGroupText.textContent = "to favorite list:";
   toFavoriteGroupText.style.verticalAlign = "middle";
 
-  // Construct the header
-  menuHeader.appendChild(addActionText); // Adds "Add"
-  menuHeader.appendChild(twitchIcon); // Adds Twitch icon
-  menuHeader.appendChild(channelNameSpan); // Adds the channel name
-  menuHeader.appendChild(toFavoriteGroupText); // Adds "to favorite group:"
+  menuHeader.appendChild(addActionText);
+  menuHeader.appendChild(twitchIcon);
+  menuHeader.appendChild(channelNameSpan);
+  menuHeader.appendChild(toFavoriteGroupText);
   contextMenu.appendChild(menuHeader);
 
   chrome.storage.local.get("favoriteGroups", function (data) {
@@ -584,42 +743,156 @@ function showContextMenu(stream, x, y) {
       groups.forEach((group, index) => {
         const menuItem = document.createElement("div");
         menuItem.className = "context-menu-item";
+        menuItem.style.display = "flex";
+        menuItem.style.alignItems = "center";
+        menuItem.style.width = "100%";
+        menuItem.style.position = "relative";
+        menuItem.style.padding = "6px 8px";
 
         const checkBox = document.createElement("input");
         checkBox.type = "checkbox";
         checkBox.checked = group.streamers.includes(stream.channelName);
+        checkBox.style.marginRight = "8px";
+
+        // Create container for group name and actions
+        const groupContainer = document.createElement("div");
+        groupContainer.style.position = "relative";
+        groupContainer.style.flex = "1";
+        groupContainer.style.minWidth = "0"; // Enables text truncation
+        groupContainer.style.display = "flex";
+        groupContainer.style.alignItems = "center";
 
         const groupNameSpan = document.createElement("span");
         groupNameSpan.className = "group-name";
         groupNameSpan.textContent = group.name;
+        groupNameSpan.style.overflow = "hidden";
+        groupNameSpan.style.textOverflow = "ellipsis";
+        groupNameSpan.style.whiteSpace = "nowrap";
+        groupNameSpan.style.flex = "1";
+        groupNameSpan.style.minWidth = "0";
+        groupNameSpan.style.padding = "2px 4px";
+        groupNameSpan.style.borderRadius = "4px";
 
-        // Create delete button
+        // Create actions container
+        const actionsContainer = document.createElement("div");
+        actionsContainer.style.display = "none"; // Hidden by default
+        actionsContainer.style.alignItems = "center";
+        actionsContainer.style.marginLeft = "8px";
+        actionsContainer.style.whiteSpace = "nowrap"; // Prevent buttons from wrapping
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "✏️";
+        editButton.className = "edit-group-btn";
+
         const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete this entire list";
+        deleteButton.textContent = "🗑️";
         deleteButton.className = "delete-group-button";
-        deleteButton.style.display = "none"; // Initially hidden
+        deleteButton.title = "Delete";
+
+        // Build the DOM structure
+        actionsContainer.appendChild(editButton);
+        actionsContainer.appendChild(deleteButton);
+        groupContainer.appendChild(groupNameSpan);
+        groupContainer.appendChild(actionsContainer);
+        menuItem.appendChild(checkBox);
+        menuItem.appendChild(groupContainer);
+
+        // Function to handle entering edit mode
+        const enterEditMode = () => {
+          // Remove text truncation and allow the full text to be shown while editing
+          groupNameSpan.style.whiteSpace = "normal"; // Allow the text to wrap if needed
+          groupNameSpan.style.overflow = "visible";  // Allow the text to overflow
+          groupNameSpan.style.textOverflow = "unset"; // Remove ellipsis truncation
+
+          groupNameSpan.contentEditable = true;
+          groupNameSpan.classList.add("editing");
+          groupNameSpan.style.textAlign = "left";
+          groupNameSpan.style.display = "inline-block";
+          groupNameSpan.style.width = "fit-content";
+          groupNameSpan.focus();
+
+          // Set cursor at the end
+          const range = document.createRange();
+          const selection = window.getSelection();
+          range.selectNodeContents(groupNameSpan);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          const originalName = groupNameSpan.textContent;
+
+          const saveEdit = () => {
+            const newName = groupNameSpan.textContent.trim();
+            if (newName && newName !== originalName) {
+              chrome.storage.local.get("favoriteGroups", function (data) {
+                const groups = data.favoriteGroups || [];
+                if (groups[index]) {
+                  groups[index].name = newName;
+                  chrome.storage.local.set({ favoriteGroups: groups }, function () {
+                    console.log("Group name updated:", newName);
+                    updateLiveStreams()
+                  });
+                }
+              });
+            } else if (!newName) {
+              groupNameSpan.textContent = originalName;
+            }
+
+            groupNameSpan.contentEditable = false;
+            groupNameSpan.classList.remove("editing");
+            groupNameSpan.style.backgroundColor = "";
+
+            // Reapply truncation after editing
+            groupNameSpan.style.whiteSpace = "nowrap"; // Restore truncation after editing
+            groupNameSpan.style.overflow = "hidden";
+            groupNameSpan.style.textOverflow = "ellipsis"; // Re-enable ellipsis truncation
+          };
+
+          groupNameSpan.onkeydown = function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              saveEdit();
+              groupNameSpan.blur();
+            } else if (e.key === 'Escape') {
+              groupNameSpan.textContent = originalName;
+              groupNameSpan.contentEditable = false;
+              groupNameSpan.classList.remove("editing");
+              groupNameSpan.style.backgroundColor = "";
+              groupNameSpan.style.whiteSpace = "nowrap";
+              groupNameSpan.blur();
+            }
+          };
+
+          groupNameSpan.onblur = saveEdit;
+        };
+
+
+        // Show/hide actions on hover
+        menuItem.addEventListener('mouseenter', () => {
+          actionsContainer.style.display = "flex";
+        });
+
+        menuItem.addEventListener('mouseleave', () => {
+          actionsContainer.style.display = "none";
+        });
+
+        // Event handlers
+        groupNameSpan.onclick = enterEditMode;
+        editButton.onclick = (e) => {
+          e.stopPropagation();
+          enterEditMode();
+        };
+
         deleteButton.onclick = function (event) {
-          event.stopPropagation(); // Prevent triggering the menuItem click
+          event.stopPropagation();
           deleteGroup(index, contextMenu);
         };
 
-        menuItem.appendChild(checkBox);
-        menuItem.appendChild(groupNameSpan);
-        menuItem.appendChild(deleteButton);
-        contextMenu.appendChild(menuItem);
-
-        // Show delete button on hover
-        menuItem.onmouseenter = function () {
-          deleteButton.style.display = "block";
-        };
-        menuItem.onmouseleave = function () {
-          deleteButton.style.display = "none";
-        };
-
+        // Only trigger checkbox when clicking on non-editable areas
         menuItem.addEventListener("click", function (event) {
-          if (event.target !== checkBox) {
-            checkBox.checked = !checkBox.checked; // Toggle checkbox manually
-            checkBox.dispatchEvent(new Event("change")); // Fire the change event manually
+          if (!groupNameSpan.contains(event.target) && !editButton.contains(event.target) && !deleteButton.contains(event.target) && event.target !== checkBox) {
+            checkBox.checked = !checkBox.checked;
+            checkBox.dispatchEvent(new Event("change"));
           }
         });
 
@@ -630,6 +903,8 @@ function showContextMenu(stream, x, y) {
             removeFromGroup(stream, group.name);
           }
         });
+
+        contextMenu.appendChild(menuItem);
       });
     } else {
       const noGroupItem = document.createElement("div");
@@ -638,7 +913,6 @@ function showContextMenu(stream, x, y) {
       contextMenu.appendChild(noGroupItem);
     }
 
-    // Add new group option
     const addNewGroupItem = document.createElement("div");
     addNewGroupItem.textContent = "➕ Add new favorite list";
     addNewGroupItem.className = "context-menu-item add-new-group-button";
@@ -649,7 +923,6 @@ function showContextMenu(stream, x, y) {
     contextMenu.appendChild(addNewGroupItem);
     document.body.appendChild(contextMenu);
 
-    // Position adjustment to prevent out-of-bounds
     const menuRect = contextMenu.getBoundingClientRect();
     if (menuRect.right > window.innerWidth) {
       contextMenu.style.left = `${window.innerWidth - menuRect.width}px`;
@@ -659,7 +932,6 @@ function showContextMenu(stream, x, y) {
     }
   });
 
-  // Close the context menu when clicking outside
   document.addEventListener(
     "click",
     function closeMenu(event) {
@@ -704,7 +976,6 @@ function removeFromGroup(stream, groupName) {
 function createNewGroup(groupName, stream, contextMenu) {
   chrome.storage.local.get("favoriteGroups", function (data) {
     const groups = data.favoriteGroups || [];
-    // Check if the group already exists to avoid duplicates
     if (!groups.some((g) => g.name === groupName)) {
       const newGroup = {
         name: groupName,
@@ -712,48 +983,151 @@ function createNewGroup(groupName, stream, contextMenu) {
       };
       groups.push(newGroup);
       chrome.storage.local.set({ favoriteGroups: groups }, function () {
-        console.log(
-          `New group '${groupName}' created and added ${stream.channelName}`
-        );
-        // update list
+        console.log(`New group '${groupName}' created and added ${stream.channelName}`);
         updateLiveStreams();
-        // Add the new group to the context menu in real time
+
         const menuItem = document.createElement("div");
         menuItem.className = "context-menu-item";
+        menuItem.style.display = "flex";
+        menuItem.style.alignItems = "center";
+        menuItem.style.width = "100%";
+        menuItem.style.position = "relative";
 
         const checkBox = document.createElement("input");
         checkBox.type = "checkbox";
         checkBox.checked = true;
+        checkBox.style.marginRight = "8px";
+
+        // Create container for group name and actions
+        const groupContainer = document.createElement("div");
+        groupContainer.style.position = "relative";
+        groupContainer.style.flex = "1";
+        groupContainer.style.minWidth = "0";
+        groupContainer.style.display = "flex";
+        groupContainer.style.alignItems = "center";
 
         const groupNameSpan = document.createElement("span");
-        groupNameSpan.className = "group-name"; // Add this line
+        groupNameSpan.className = "group-name";
         groupNameSpan.textContent = groupName;
+        groupNameSpan.style.overflow = "hidden";
+        groupNameSpan.style.textOverflow = "ellipsis";
+        groupNameSpan.style.whiteSpace = "nowrap";
+        groupNameSpan.style.flex = "1";
+        groupNameSpan.style.minWidth = "0";
+        groupNameSpan.style.padding = "2px 4px";
+        groupNameSpan.style.borderRadius = "4px";
+
+        // Create actions container
+        const actionsContainer = document.createElement("div");
+        actionsContainer.style.display = "none";
+        actionsContainer.style.alignItems = "center";
+        actionsContainer.style.marginLeft = "8px";
+        actionsContainer.style.whiteSpace = "nowrap";
+
+        // Create edit button
+        const editButton = document.createElement("button");
+        editButton.textContent = "✏️";
+        editButton.className = "edit-group-btn";
 
         // Create delete button
         const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete this entire list";
+        deleteButton.textContent = "🗑️";
         deleteButton.className = "delete-group-button";
-        deleteButton.style.display = "none"; // Initially hidden
+        deleteButton.title = "Delete";
+
+        // Add buttons to actions container
+        actionsContainer.appendChild(editButton);
+        actionsContainer.appendChild(deleteButton);
+
+        // Build the DOM structure
+        groupContainer.appendChild(groupNameSpan);
+        groupContainer.appendChild(actionsContainer);
+        menuItem.appendChild(checkBox);
+        menuItem.appendChild(groupContainer);
+
+        // Add edit functionality
+        const enterEditMode = () => {
+          // Remove text truncation and allow the full text to be shown while editing
+          groupNameSpan.style.whiteSpace = "normal"; // Allow the text to wrap if needed
+          groupNameSpan.style.overflow = "visible";  // Allow the text to overflow
+          groupNameSpan.style.textOverflow = "unset"; // Remove ellipsis truncation
+
+          groupNameSpan.contentEditable = true;
+          groupNameSpan.classList.add("editing");
+          groupNameSpan.focus();
+
+          const originalName = groupNameSpan.textContent;
+
+          const saveEdit = () => {
+            const newName = groupNameSpan.textContent.trim();
+            if (newName && newName !== originalName) {
+              chrome.storage.local.get("favoriteGroups", function (data) {
+                const groups = data.favoriteGroups || [];
+                if (groups[groups.length - 1]) {
+                  groups[groups.length - 1].name = newName;
+                  chrome.storage.local.set({ favoriteGroups: groups }, function () {
+                    console.log("Group name updated:", newName);
+                    updateLiveStreams();
+                  });
+                }
+              });
+            } else if (!newName) {
+              groupNameSpan.textContent = originalName;
+            }
+
+            groupNameSpan.contentEditable = false;
+            groupNameSpan.classList.remove("editing");
+            groupNameSpan.style.backgroundColor = "";
+
+            // Reapply truncation after editing
+            groupNameSpan.style.whiteSpace = "nowrap"; // Restore truncation after editing
+            groupNameSpan.style.overflow = "hidden";
+            groupNameSpan.style.textOverflow = "ellipsis"; // Re-enable ellipsis truncation
+          };
+
+          groupNameSpan.onkeydown = function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              saveEdit();
+              groupNameSpan.blur();
+            } else if (e.key === 'Escape') {
+              groupNameSpan.textContent = originalName;
+              groupNameSpan.contentEditable = false;
+              groupNameSpan.classList.remove("editing");
+              groupNameSpan.style.backgroundColor = "";
+              groupNameSpan.style.whiteSpace = "nowrap";
+              groupNameSpan.blur();
+            }
+          };
+
+          groupNameSpan.onblur = saveEdit;
+        };
+
+        // Event handlers
+        menuItem.addEventListener('mouseenter', () => {
+          actionsContainer.style.display = "flex";
+        });
+
+        menuItem.addEventListener('mouseleave', () => {
+          actionsContainer.style.display = "none";
+        });
+
+        groupNameSpan.onclick = enterEditMode;
+        editButton.onclick = (e) => {
+          e.stopPropagation();
+          enterEditMode();
+        };
+
         deleteButton.onclick = function (event) {
-          event.stopPropagation(); // Prevent triggering the menuItem click
+          event.stopPropagation();
           deleteGroup(groups.length - 1, contextMenu);
         };
 
-        menuItem.appendChild(checkBox);
-        menuItem.appendChild(groupNameSpan);
-        menuItem.appendChild(deleteButton);
-        contextMenu.insertBefore(menuItem, contextMenu.lastChild); // Add before the "Add new favorite list" button
-
-        // Show delete button on hover
-        menuItem.onmouseenter = function () {
-          deleteButton.style.display = "block";
-        };
-        menuItem.onmouseleave = function () {
-          deleteButton.style.display = "none";
-        };
-
         menuItem.addEventListener("click", function (event) {
-          if (event.target !== checkBox) {
+          if (!groupNameSpan.contains(event.target) &&
+            !editButton.contains(event.target) &&
+            !deleteButton.contains(event.target) &&
+            event.target !== checkBox) {
             checkBox.checked = !checkBox.checked;
             checkBox.dispatchEvent(new Event("change"));
           }
@@ -766,12 +1140,15 @@ function createNewGroup(groupName, stream, contextMenu) {
             removeFromGroup(stream, groupName);
           }
         });
+
+        contextMenu.insertBefore(menuItem, contextMenu.lastChild);
       });
     } else {
       alert("A group with this name already exists.");
     }
   });
 }
+
 
 function openAddGroupForm(contextMenu, stream) {
   // Create form container if it doesn't exist
@@ -851,3 +1228,23 @@ function deleteGroup(index, contextMenu) {
     }
   });
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  const menuItems = document.querySelectorAll('.menu-item');
+  const sections = document.querySelectorAll('.settings-section');
+
+  menuItems.forEach(item => {
+    item.addEventListener('click', function () {
+      // Remove active class from all items
+      menuItems.forEach(i => i.classList.remove('active'));
+      sections.forEach(s => s.classList.remove('active'));
+
+      // Add active class to clicked item
+      this.classList.add('active');
+
+      // Show corresponding section
+      const sectionId = this.getAttribute('data-section') + '-section';
+      document.getElementById(sectionId).classList.add('active');
+    });
+  });
+});

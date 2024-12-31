@@ -7,153 +7,323 @@
     <link rel="stylesheet" type="text/css" href="css/settings-style.css" />
   </head>
   <body>
+    <header class="twitch-header">
+      <!-- Login section -->
+      <div id="userInfo"></div>
+      <h1 class="twitch-header-title">Twitch Live - Settings</h1>
+    </header>
+
     <div id="settingsContainer">
-      <div id="settingsTable">
-        <!-- Left side content remains unchanged -->
-        <p
-          id="favoriteListText"
-          style="display: none; text-align: center; font-size: 18px"
-        >
-          Your Favorite Lists:
-        </p>
-        <div id="groupListContainer">
-          <ul id="groupList"></ul>
+      <div class="settings-layout">
+        <!-- Left menu -->
+        <div id="settingsTable" class="settings-menu">
+          <ul class="menu-list">
+            <li class="menu-item active" data-section="display">
+              Display Settings
+            </li>
+            <li class="menu-item" data-section="notifications">
+              Notifications
+            </li>
+            <li class="menu-item" data-section="favorites">Favorite Groups</li>
+            <!-- Other Settings -->
+            <li class="menu-item" data-section="other-settings">
+              Other Settings
+            </li>
+          </ul>
         </div>
-        <button id="addFavoriteGroupButton">➕ Add new favorite group</button>
-      </div>
 
-      <div id="optionsMenu">
-        <div id="userInfo">
-          <!-- User information will be displayed here -->
-        </div>
-        <h2 class="optionsMenuHeader">Options Menu</h2>
-
-        <!-- Display Settings Group -->
-        <div class="settings-group">
-          <h3 class="settings-group-title">Display Settings</h3>
-          <div id="showAvatarOption" class="optionItem">
-            <div class="showAvatarLabel">Display avatar on the left</div>
-            <label class="switch">
-              <input type="checkbox" id="showAvatarCheckbox" />
-              <span class="slider round"></span>
-            </label>
-          </div>
-
-          <!-- Preview container moved inside Display Settings group -->
-          <div id="previewContainer" class="preview-container">
-            <div class="stream-preview">
-              <div class="user-avatar-container">
-                <img
-                  src="/api/placeholder/30/30"
-                  alt="Stream Avatar"
-                  class="stream-avatar"
-                />
+        <!-- Center content area -->
+        <div id="optionsMenu" class="settings-content">
+          <!-- Display Settings Section -->
+          <div id="display-section" class="settings-section active">
+            <div class="settings-group">
+              <div id="showAvatarOption" class="optionItem">
+                <div class="showAvatarLabel">Display avatar on the left</div>
+                <label class="switch">
+                  <input type="checkbox" id="showAvatarCheckbox" />
+                  <span class="slider round"></span>
+                </label>
               </div>
-              <span class="stream-info-text channel-name-with-avatar">
-                Channel Name
-                <span class="signal-icon">📶</span>
-                Example Stream Title
-              </span>
+
+              <div id="previewContainer" class="preview-container">
+                <div class="stream-preview">
+                  <div class="user-avatar-container">
+                    <img
+                      src="/api/placeholder/30/30"
+                      alt="Stream Avatar"
+                      class="stream-avatar"
+                    />
+                  </div>
+                  <span class="stream-info-text channel-name-with-avatar">
+                    Channel Name
+                    <span class="signal-icon">📶</span>
+                    Example Stream Title
+                  </span>
+                </div>
+              </div>
+
+              <!-- Stream Display Option -->
+              <div class="custom-select-container title-display-container">
+                <select id="streamTitleDisplaySelect" style="display: none">
+                  <option value="hover">Show channel avatar (default)</option>
+                  <option value="newline">Show stream thumbnail</option>
+                </select>
+
+                <p class="setting-description">
+                  Stream Thumbnail Display❔
+                  <span class="tooltip-text">
+                    Choose between displaying the channel's avatar or live
+                    stream thumbnail.<br /><br />
+                    Avatar shows the channel profile picture, while thumbnail
+                    shows a preview of the current stream.
+                  </span>
+                </p>
+
+                <!-- Custom dropdown UI -->
+                <div
+                  class="custom-select-header title-display-header"
+                  tabindex="0"
+                >
+                  <span class="selected-option"
+                    >Show channel avatar (default)</span
+                  >
+                  <div class="dropdown-arrow"></div>
+                </div>
+                <div class="custom-select-options title-display-options">
+                  <div
+                    class="custom-option title-display-option"
+                    data-value="hover"
+                  >
+                    <span class="option-dot">•</span>
+                    Show channel avatar (default)
+                  </div>
+                  <div
+                    class="custom-option title-display-option"
+                    data-value="newline"
+                  >
+                    <span class="option-dot">•</span>
+                    Show stream thumbnail
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stream Organization Option  -->
+              <div class="custom-select-container">
+                <!-- Hidden original select that handles storage -->
+                <select id="streamGroupingSelect" style="display: none">
+                  <option value="none">No grouping (by default)</option>
+                  <option value="game">Group by game</option>
+                </select>
+
+                <!-- Description for the setting -->
+                <p class="setting-description">
+                  Group Twitch Channels by Game❔
+                  <span class="tooltip-text">
+                    Automatically categorizes your followed Twitch streams by
+                    the games they're currently playing.
+                    <br /><br /><span class="tooltip-lighter-text"
+                      >Streamers added to your favorite groups will stay in
+                      those groups.</span
+                    >
+                  </span>
+                </p>
+
+                <!-- Custom dropdown UI -->
+                <div class="custom-select-header" tabindex="0">
+                  <span class="selected-option">No grouping (by default)</span>
+                  <div class="dropdown-arrow"></div>
+                </div>
+                <div class="custom-select-options">
+                  <div class="custom-option" data-value="none">
+                    <span class="option-dot">•</span>
+                    No grouping (by default)
+                  </div>
+                  <div class="custom-option" data-value="game">
+                    <span class="option-dot">•</span>
+                    Group by game
+                  </div>
+                </div>
+              </div>
+
+              <div class="custom-select-container">
+                <!-- Hidden original select that handles storage -->
+                <select id="showStreamTimeSelect" style="display: none">
+                  <option value="off">Stream time hidden (by default)</option>
+                  <option value="on">Show stream time</option>
+                </select>
+
+                <!-- Description for the setting -->
+                <p class="setting-description">
+                  Show Stream Time❔
+                  <span class="tooltip-text">
+                    Display how long each stream has been live.
+                    <span class="tooltip-lighter-text"
+                      >Shows in HH:MM:SS format next to viewer count.</span
+                    >
+                  </span>
+                </p>
+
+                <!-- Custom dropdown UI -->
+                <div class="custom-select-header" tabindex="0">
+                  <span class="selected-option"
+                    >Stream time hidden (by default)</span
+                  >
+                  <div class="dropdown-arrow"></div>
+                </div>
+                <div class="custom-select-options">
+                  <div class="custom-option" data-value="off">
+                    <span class="option-dot">•</span>
+                    Stream time hidden (by default)
+                  </div>
+                  <div class="custom-option" data-value="on">
+                    <span class="option-dot">•</span>
+                    Show stream time
+                  </div>
+                </div>
+              </div>
+
+              <!-- Theme Selection Option -->
+              <div class="custom-select-container theme-select-container">
+                <!-- Hidden original select that handles storage -->
+                <select id="themeSelect" style="display: none">
+                  <option value="light">Light theme</option>
+                  <option value="dark">Dark theme</option>
+                </select>
+
+                <!-- Description for the setting -->
+                <p class="setting-description">Choose theme:</p>
+
+                <!-- Custom dropdown UI -->
+                <div class="custom-select-header" tabindex="0">
+                  <span class="selected-option">Light theme</span>
+                  <div class="dropdown-arrow"></div>
+                </div>
+                <div class="custom-select-options">
+                  <div class="custom-option" data-value="light">
+                    <span class="option-dot">•</span>
+                    <span>💡 Light theme</span>
+                  </div>
+                  <div class="custom-option" data-value="dark">
+                    <span class="option-dot">•</span>
+                    <span>🌙 Dark theme</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div
-            id="darkModeOption"
-            class="optionItem btn-color-mode-switch dark-mode-switch"
-          >
-            <input type="checkbox" id="darkModeToggle" />
-            <label
-              for="darkModeToggle"
-              class="btn-color-mode-switch-inner"
-              data-on="Dark"
-              data-off="Light"
-            >
-              <span class="slider-text" id="themeSwitchText"
-                >Click it for dark theme</span
-              >
-            </label>
-          </div>
-        </div>
+          <!-- Notifications Section -->
+          <div id="notifications-section" class="settings-section">
+            <div class="settings-group">
+              <div class="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="enableNotificationsCheckbox"
+                  class="styled-checkbox"
+                />
+                <label
+                  for="enableNotificationsCheckbox"
+                  class="bell-icon-label"
+                >
+                  <svg
+                    class="fa-regular custom-bell-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="25"
+                    height="25"
+                    viewBox="0 0 448 512"
+                  >
+                    <path
+                      d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"
+                    />
+                  </svg>
+                  <svg
+                    class="fa-solid custom-bell-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="25"
+                    height="25"
+                    viewBox="0 0 448 512"
+                  >
+                    <path
+                      d="M224 0c-17.7 0-32 14.3-32 32V51.2C119 66 64 130.6 64 208v18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416H416c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8V208c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z"
+                    />
+                  </svg>
+                  <span class="label-text">Enable Live Notifications</span>
+                  <span class="tooltip-text">
+                    Activate to receive notifications when your followed Twitch
+                    channels go live.
+                  </span>
+                </label>
+              </div>
 
-        <!-- Stream Organization Group -->
-        <div class="settings-group">
-          <h3 class="settings-group-title">Stream Organization</h3>
-          <div id="streamGroupingOption" class="optionItem">
-            <div class="streamGroupingTitle">
-              Group Twitch Channels by Game
-              <span class="tooltip-text">
-                Automatically categorizes your followed Twitch streams by the
-                games they're currently playing. Streamers added to your
-                favorite groups will stay in those groups.
-              </span>
+              <!-- Add this after your existing notification checkbox in the notifications-section -->
+              <div id="filterNotificationOption" class="optionItem">
+                <div class="filterNotificationLabel">
+                  Filter notifications by channel
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="enableFilterCheckbox" />
+                  <span class="slider round"></span>
+                </label>
+              </div>
+
+              <div
+                id="channelList"
+                class="channel-list"
+                style="margin-top: 10px"
+              >
+                <!-- Channel checkboxes will be inserted here -->
+              </div>
             </div>
-            <select id="streamGroupingSelect" class="styled-select">
-              <option value="none">No grouping (by default)</option>
-              <option value="game">Group by game</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Notifications Group -->
-        <div class="settings-group">
-          <h3 class="settings-group-title">Notifications & Tracking</h3>
-          <div class="checkbox-container">
-            <input
-              type="checkbox"
-              id="hideAccessedCountCheckbox"
-              class="styled-checkbox"
-            />
-            <label for="hideAccessedCountCheckbox" class="styled-label">
-              Show accessed count
-              <span class="tooltip-text">
-                This will display a count in a popup window showing how many
-                times you accessed a Twitch channel. <br /><br />Hover over the
-                avatar to see the count.
-              </span>
-            </label>
           </div>
 
-          <div class="checkbox-container">
-            <input
-              type="checkbox"
-              id="enableNotificationsCheckbox"
-              class="styled-checkbox"
-            />
-            <label for="enableNotificationsCheckbox" class="bell-icon-label">
-              <svg
-                class="fa-regular custom-bell-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="25"
-                height="25"
-                viewBox="0 0 448 512"
-              >
-                <path
-                  d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"
+          <!-- Favorites Section -->
+          <div id="favorites-section" class="settings-section">
+            <p id="favoriteListText">Your Favorite Lists:</p>
+            <div id="groupListContainer">
+              <ul id="groupList"></ul>
+            </div>
+            <button id="addFavoriteGroupButton">
+              ➕ Add new favorite group
+            </button>
+          </div>
+
+          <!-- Other Settings Section -->
+          <div id="other-settings-section" class="settings-section">
+            <div class="settings-group">
+              <!-- Show Accessed Count Option -->
+              <div class="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="hideAccessedCountCheckbox"
+                  class="styled-checkbox"
                 />
-              </svg>
-              <svg
-                class="fa-solid custom-bell-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="25"
-                height="25"
-                viewBox="0 0 448 512"
-              >
-                <path
-                  d="M224 0c-17.7 0-32 14.3-32 32V51.2C119 66 64 130.6 64 208v18.8c0 47-17.3 92.4-48.5 127.6l-7.4 8.3c-8.4 9.4-10.4 22.9-5.3 34.4S19.4 416 32 416H416c12.6 0 24-7.4 29.2-18.9s3.1-25-5.3-34.4l-7.4-8.3C401.3 319.2 384 273.9 384 226.8V208c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32zm45.3 493.3c12-12 18.7-28.3 18.7-45.3H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7z"
-                />
-              </svg>
-              <span class="label-text">Enable Live Notifications</span>
-              <span class="tooltip-text">
-                Activate to receive notifications when your followed Twitch
-                channels go live.
-              </span>
-            </label>
+                <label for="hideAccessedCountCheckbox" class="styled-label">
+                  Show accessed count❔
+                  <span class="tooltip-text">
+                    This will display a count in a popup window showing how many
+                    times you accessed a Twitch channel.
+                    <br /><br />
+                    Hover over the avatar to see the count.
+                    <br /><br />
+                    Twitch channels are automatically sorted based on these
+                    access counts, displaying your most frequently visited
+                    channels first in each category. This helps you quickly find
+                    the channels you watch most often.
+                    <br /><br />
+                    <span class="tooltip-lighter-text">
+                      💡 The more you click on a channel, the higher it will
+                      appear in its category group.
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- The Modal (unchanged) -->
+    <!-- Modal for adding new favorite group -->
     <div id="myModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>

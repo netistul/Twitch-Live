@@ -2,15 +2,27 @@
 
 /* Body Style */
 body.dark-mode {
-  background-color: #0f0f12; /* Dark background for the body */
+  background-color: #1b1b1b; /* Dark background for the body */
   color: #c7c7c7; /* Lighter text color for better readability */
+}
+
+.dark-mode /* Twitch-Styled Header */
+.twitch-header {
+  background-color: #1b1b1b; /* Dark background */
+  color: white;
+  border-bottom: 1px solid rgb(38, 38, 38); /* 1px bottom border */
 }
 
 /* Settings Table Style */
 .dark-mode #settingsTable {
   background-color: #1e1e22; /* Dark background for the table */
   color: #c7c7c7; /* Light text color */
-  border: 1px solid #2a2a2e; /* Subtle border for the table */
+  border: 1px solid #202020; /* Subtle border for the table */
+  border-radius: 5px;
+}
+
+.dark-mode .menu-item {
+  color: #d0cece;
 }
 /* Button Style */
 .dark-mode #addFavoriteGroupButton {
@@ -24,7 +36,6 @@ body.dark-mode {
 
 /* Group List Container Style */
 .dark-mode #groupListContainer {
-  background-color: #1e1e22; /* Dark background */
   color: #c7c7c7;
   width: 100%;
   margin-top: 1px;
@@ -32,7 +43,6 @@ body.dark-mode {
 
 /* Group List Style */
 .dark-mode #groupList {
-  background-color: #1e1e22; /* Dark background */
   color: #c7c7c7;
   list-style-type: none;
   padding: 0;
@@ -40,7 +50,7 @@ body.dark-mode {
 
 /* Group Item Style */
 .dark-mode .group-item {
-  background-color: #2c2f33; /* Dark background */
+  background-color: #1b1b1d; /* Dark background */
   color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -48,9 +58,41 @@ body.dark-mode {
   margin-bottom: 15px;
 }
 
+.dark-mode .group-name.editing {
+  background-color: #6d2b2b;
+}
+
+.dark-mode .group-name-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.dark-mode .group-name:hover {
+  background-color: #2a2a2a;
+}
+
+.dark-mode .actions-container {
+  background: #2a2a2a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .editing-group-name {
+  background-color: #f0f0f0; /* Background color in edit mode */
+  padding: 2px 4px;
+  outline: none;
+  white-space: normal; /* Allow wrapping while editing */
+}
+
+.dark-mode .group-name {
+  color: #dfdada;
+}
+
 /* Streamers List Style */
 .dark-mode .streamers-list {
-  background-color: #2c2f33; /* Dark background */
   color: #ffffff;
   flex-basis: calc(50% - 10px);
   list-style-type: none;
@@ -68,21 +110,26 @@ body.dark-mode {
 
 /* List Item Style */
 .dark-mode #groupList > li {
-  background-color: #2c2f33; /* Dark background */
-  color: #ffffff; /* Dark background for list items */
+  background-color: #2d2d35; /* Twitch-like dark background */
+  color: #ffffff;
   padding: 10px;
   margin-bottom: 10px;
-  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
 }
 
 .dark-mode #groupList > li > ul {
   padding: 0;
 }
 
-/* List Items Style */
 .dark-mode #groupList > li > ul > li {
-  background-color: #2c2f33; /* Dark background for list items */
-  color: #ffffff; /* Light text color for readability */
+  background-color: #2d2d35; /* Slightly darker for nested items */
+  color: #efeff1; /* Slightly off-white for better eye comfort */
+  transition: background-color 0.2s ease;
+}
+
+/* Optional hover effect */
+.dark-mode #groupList > li > ul > li:hover {
+  background-color: #373740; /* Slightly lighter on hover */
 }
 
 /* Empty List Message Style */
@@ -200,7 +247,7 @@ body.dark-mode {
 
 /* Delete List Button Style */
 .dark-mode .delete-group-btn {
-  background-color: #be2633;
+  background-color: #be2633d0;
   color: white;
   padding: 5px 10px;
   border: none;
@@ -239,30 +286,12 @@ body.dark-mode {
 }
 
 .dark-mode .stream-preview .viewers-count {
-  color: #c86464; /* Light grey color for viewers count */
+  color: #e76763; /* Light grey color for viewers count */
   /* Other styles for viewers count */
 }
 
-/* Logout Dropdown Style */
-.dark-mode .logout-dropdown {
-  background-color: #2c2f33; /* Dark background for dropdown */
-  color: #ffffff; /* Light text color */
-  border: 1px solid #444; /* Dark border */
-}
-
-.dark-mode .logout-dropdown a {
-  font-size: 16px;
-  text-decoration: none;
-  color: #ffffff; /* Light text color */
-  padding: 3px 33px;
-}
-
-.dark-mode .logout-dropdown a:hover {
-  background-color: #392765; /* Dark purple background on hover */
-}
-
-.dark-mode .logout-dropdown a img {
-  margin-right: 5px;
+.dark-mode .setting-description {
+  color: #e4e4e4;
 }
 
 /* User Table Style */
@@ -273,12 +302,6 @@ body.dark-mode {
 }
 
 /* Dark Mode Option Style */
-.dark-mode #darkModeOption {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .dark-mode .darkModeLabel {
   color: #c7c7c7; /* Light text color for dark mode */
 }
@@ -298,10 +321,34 @@ body.dark-mode {
   color: #fff;
 }
 
-/* Dark mode support */
-.dark-mode .styled-select {
-  background-color: var(--dark-background);
-  border-color: #444;
+/* DISPLAY SETTINGS */
+.dark-mode .custom-select-header {
+  border: 2px solid #3a3a3d;
+  background-color: #2b2b2c;
+}
+
+.dark-mode .custom-select-header:hover {
+  border-color: #464649;
+  background-color: #323234;
+}
+
+.dark-mode .custom-select-header:focus {
+  border-color: #9147ff;
+  box-shadow: 0 0 0 1px #9147ff;
+  outline: none;
+}
+
+.dark-mode .custom-select-options {
+  background-color: #1e1e20;
+  border: 1px solid #3a3a3d;
+}
+
+.dark-mode .custom-option {
+  color: #cfcfcf;
+}
+
+.dark-mode .custom-option:hover {
+  background-color: #242425;
 }
 
 .dark-mode #optionsMenu {
@@ -316,6 +363,54 @@ body.dark-mode {
 
 .dark-mode .settings-group {
   color: #fff;
-  background-color: #121212;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .showAvatarLabel {
+  color: #e4e4e4 !important;
+}
+
+/* Dark mode styles */
+.dark-mode .channel-checkbox-container label {
+  color: #e4e4e4;
+}
+
+/* Disabled state styles - will work for both light and dark modes */
+.channel-checkbox-container.disabled label {
+  color: #666666;
+}
+
+.dark-mode .label-text {
+  color: #e4e4e4;
+}
+
+.dark-mode #hideAccessedCountCheckbox + .styled-label {
+  color: #e4e4e4;
+}
+
+.dark-mode .filterNotificationLabel {
+  color: #e4e4e4;
+}
+
+/* Dark mode Scrollbar Styles */
+.dark-mode ::-webkit-scrollbar {
+  width: 10px; /* Width of the scrollbar */
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+  background-color: #1a1a1a; /* Darker track for dark mode */
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background-color: #805ad5; /* Slightly brighter purple for dark mode */
+  border-radius: 5px; /* Rounded corners for the thumb */
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background-color: #6441a5; /* Twitch purple on hover in dark mode */
+}
+
+/* For Firefox in dark mode */
+.dark-mode * {
+  scrollbar-width: thin; /* Width of the scrollbar */
+  scrollbar-color: #805ad5 #1a1a1a; /* Thumb and track colors */
 }

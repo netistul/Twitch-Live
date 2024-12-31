@@ -305,6 +305,11 @@ function fetchStreamData(accessToken, followedList) {
         if (streamData && streamData.data && streamData.data.length > 0) {
           const stream = streamData.data[0];
 
+          // Extract the thumbnail URL
+          const thumbnailUrl = stream.thumbnail_url
+            .replace("{width}", "320") // Set width
+            .replace("{height}", "180"); // Set height
+
           // Fetch the category and user data (for avatar) for live streams
           const categoryUrl = `https://api.twitch.tv/helix/games?id=${stream.game_id}`;
           const userUrl = `https://api.twitch.tv/helix/users?login=${channel.broadcaster_login}`;
@@ -337,9 +342,11 @@ function fetchStreamData(accessToken, followedList) {
                 channelName: channel.broadcaster_name,
                 title: stream.title,
                 viewers: stream.viewer_count,
-                category: categoryName, // Add the category name
-                avatar: avatarUrl, // Add the avatar URL
+                category: categoryName,
+                avatar: avatarUrl,
+                thumbnail: thumbnailUrl,
                 live: true,
+                started_at: stream.started_at
               };
             }
             return null;
@@ -361,11 +368,17 @@ function fetchStreamData(accessToken, followedList) {
     const liveStreams = streamData.filter((data) => data !== null);
 
     chrome.storage.local.get(
-      { lastKnownLiveStreams: {}, startupTime: 0, enableNotifications: false },
+      {
+        lastKnownLiveStreams: {},
+        startupTime: 0,
+        enableNotifications: false,
+        selectedChannels: []
+      },
       (result) => {
         let lastKnownLiveStreams = result.lastKnownLiveStreams;
         const startupTime = result.startupTime;
         const enableNotifications = result.enableNotifications;
+        const selectedChannels = result.selectedChannels;
         const currentTime = Date.now();
 
         liveStreams.forEach((stream) => {
@@ -375,9 +388,10 @@ function fetchStreamData(accessToken, followedList) {
             stream.live &&
             !wasLive &&
             currentTime - startupTime > someThreshold &&
-            enableNotifications
+            enableNotifications &&
+            (selectedChannels.length === 0 || selectedChannels.includes(stream.channelName))
           ) {
-            // Channel just went live after the startup threshold and notifications are enabled, send notification
+            // Channel just went live, notifications are enabled, and channel is selected (or no filters)
             sendLiveNotification(stream);
           }
 
@@ -391,16 +405,13 @@ function fetchStreamData(accessToken, followedList) {
             liveStreams: liveStreams,
           },
           () => {
-            console.log(
-              "Live stream data and last known live streams updated in local storage"
-            );
+            console.log("Live stream data and last known live streams updated in local storage");
 
             // Cache the count of live streams
             const liveCount = liveStreams.length;
             chrome.storage.local.set({ liveStreamCount: liveCount }, () => {
-              // Update the badge with the live stream count
               chrome.action.setBadgeText({ text: liveCount.toString() });
-              chrome.action.setBadgeBackgroundColor({ color: "#6366f1" }); // Twitch purple color
+              chrome.action.setBadgeBackgroundColor({ color: "#6366f1" });
             });
           }
         );
@@ -410,12 +421,23 @@ function fetchStreamData(accessToken, followedList) {
 }
 
 function sendLiveNotification(channel) {
-  chrome.notifications.create("liveNotification_" + channel.channelName, {
-    type: "basic",
-    iconUrl: channel.avatar || "default_icon.png", // Default icon if no avatar
-    title: `${channel.channelName} is live!`,
-    message: `${channel.channelName} is streaming ${channel.category}.`,
-    priority: 2,
+  // Check if notifications are enabled and if the channel is selected
+  chrome.storage.local.get(['enableNotifications', 'selectedChannels'], function (data) {
+    const selectedChannels = data.selectedChannels || [];
+
+    // Only send notification if:
+    // 1. Notifications are enabled AND
+    // 2. Either no channels are selected (meaning notify for all) OR the channel is in the selected list
+    if (data.enableNotifications &&
+      (selectedChannels.length === 0 || selectedChannels.includes(channel.channelName))) {
+      chrome.notifications.create("liveNotification_" + channel.channelName, {
+        type: "basic",
+        iconUrl: channel.avatar || "default_icon.png",
+        title: `${channel.channelName} is live!`,
+        message: `${channel.channelName} is streaming ${channel.category}.`,
+        priority: 2,
+      });
+    }
   });
 }
 
