@@ -419,15 +419,11 @@ function updateLiveStreams() {
         // Add positioning for newline mode
         if (streamTitleDisplay === "newline") {
           viewersWrapper.style.position = "absolute";
-          viewersWrapper.style.top = "11px";  // Align with the top where channel name is
-          viewersWrapper.style.right = "5px"; // Keep some spacing from the right edge
+          viewersWrapper.style.top = "11px";
+          viewersWrapper.style.right = "5px";
         }
 
-        const viewersSpan = document.createElement("span");
-        viewersSpan.className = "viewers";
-        viewersSpan.textContent = stream.viewers;
-
-        const showStreamTime = result.showStreamTime === "on"; // Will be true only when explicitly "on"
+        const showStreamTime = result.showStreamTime === "on";
         console.log('showStreamTime setting:', result.showStreamTime);
         console.log('showStreamTime after parsing:', showStreamTime);
 
@@ -439,6 +435,7 @@ function updateLiveStreams() {
           timeSpan.style.color = "#9CA3AF";
           timeSpan.textContent = formatStreamTime(stream.started_at);
 
+          // Special handling for newline mode with thumbnail
           if (streamTitleDisplay === "newline" && stream.thumbnail) {
             timeSpan.classList.add("stream-time-overlay");
             const thumbnailContainer = document.createElement("div");
@@ -446,6 +443,9 @@ function updateLiveStreams() {
             thumbnailContainer.appendChild(avatarImg);
             thumbnailContainer.appendChild(timeSpan);
             channelLink.appendChild(thumbnailContainer);
+          } else {
+            // Add timeSpan to viewersWrapper before viewers count
+            viewersWrapper.appendChild(timeSpan);
           }
 
           // Update the stream time every second
@@ -467,7 +467,9 @@ function updateLiveStreams() {
           observer.observe(container, { childList: true, subtree: true });
         }
 
-
+        const viewersSpan = document.createElement("span");
+        viewersSpan.className = "viewers";
+        viewersSpan.textContent = stream.viewers;
         viewersWrapper.appendChild(viewersSpan);
 
         // Include signal icon if avatar is shown
@@ -478,11 +480,9 @@ function updateLiveStreams() {
           iconImg.alt = "Signal";
           iconImg.style.height = "13px";
           iconImg.style.width = "13px";
-          // Use -15px when stream time is shown, -1px (from CSS) when hidden
           iconImg.style.marginLeft = showStreamTime ? "-15px" : "-13px";
           viewersWrapper.appendChild(iconImg);
         }
-
 
         if (showAvatar && stream.avatar) {
           subWrapper.appendChild(viewersWrapper);
