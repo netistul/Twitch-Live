@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitch Live",
-  "version": "3.2",
+  "version": "3.3",
   "description": "Twitch Live is an extension that brings your followed Twitch streamers into a clean, modern, Twitch-styled interface.",
   "icons": {
     "48": "css/icon.png",
@@ -22,7 +22,6 @@
   },
   "oauth2": {
     "client_id": "z05n4woixewpyagrqrui76x28avd2g",
-    "scopes": ["user:read:follows"],
-    "redirect_uri": "https://paliecoepgcndapnogfehdoonjijapee.chromiumapp.org/"
+    "scopes": ["user:read:follows"]
   }
 }

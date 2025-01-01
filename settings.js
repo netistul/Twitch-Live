@@ -1049,6 +1049,43 @@ document.addEventListener("DOMContentLoaded", function () {
   const channelList = document.getElementById("channelList");
   const filterOption = document.getElementById("filterNotificationOption");
 
+  let checkInterval = null;
+
+  // Function to start checking for followed list
+  function startFollowedListCheck() {
+    // Clear any existing interval
+    if (checkInterval) {
+      clearInterval(checkInterval);
+    }
+
+    // If channelList is empty, start checking
+    if (!channelList.children.length) {
+      checkInterval = setInterval(() => {
+        chrome.storage.local.get(["selectedChannels"], function (data) {
+          const safeSelectedChannels = Array.isArray(data.selectedChannels) ? data.selectedChannels : [];
+          loadChannelList(safeSelectedChannels);
+        });
+      }, 2000); // Check every 2 seconds
+    }
+  }
+
+  // Function to stop checking
+  function stopFollowedListCheck() {
+    if (checkInterval) {
+      clearInterval(checkInterval);
+      checkInterval = null;
+    }
+  }
+
+  // Listen for navigation to notifications section
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+      startFollowedListCheck();
+    } else {
+      stopFollowedListCheck();
+    }
+  });
+
   // Load initial states
   chrome.storage.local.get(["enableNotifications", "enableFilter", "selectedChannels"], function (data) {
     const isNotificationsEnabled = data.enableNotifications || false;
@@ -1060,9 +1097,13 @@ document.addEventListener("DOMContentLoaded", function () {
     updateFilterControl(isNotificationsEnabled);
 
     // Always load the channel list, regardless of filter state
-    loadChannelList(data.selectedChannels || []);
+    const safeSelectedChannels = Array.isArray(data.selectedChannels) ? data.selectedChannels : [];
+    loadChannelList(safeSelectedChannels);
     updateChannelListState(isNotificationsEnabled && isFilterEnabled);
   });
+
+  // Start the check on initial load if needed
+  startFollowedListCheck();
 
   // Handle notification checkbox changes
   notificationCheckbox.addEventListener("change", function () {
@@ -1108,7 +1149,6 @@ document.addEventListener("DOMContentLoaded", function () {
       checkbox.disabled = !enabled;
       checkbox.style.cursor = enabled ? "pointer" : "not-allowed";
 
-      // Toggle the disabled class instead of setting inline styles
       if (!enabled) {
         container.classList.add("disabled");
       } else {
@@ -1117,7 +1157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function loadChannelList(selectedChannels) {
+  function loadChannelList(selectedChannels = []) {
     if (!channelList) {
       console.error("Channel list element not found!");
       return;
@@ -1125,10 +1165,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     getFollowedList()
       .then(followedList => {
-        console.log("Loading channels:", followedList);
+        if (!followedList || !Array.isArray(followedList) || followedList.length === 0) {
+          return;
+        }
+
+        // If we successfully got the list, stop checking
+        stopFollowedListCheck();
+
+        // Clear the list before loading new content
         channelList.innerHTML = "";
 
         followedList.forEach(channel => {
+          if (!channel || typeof channel.broadcaster_name !== 'string') {
+            return;
+          }
+
           const channelDiv = document.createElement("div");
           channelDiv.className = "channel-checkbox-container";
 
@@ -1153,10 +1204,13 @@ document.addEventListener("DOMContentLoaded", function () {
           channelList.appendChild(channelDiv);
         });
 
-        // Set initial state of the channel list
         updateChannelListState(notificationCheckbox.checked && filterCheckbox.checked);
       })
-      .catch(error => console.error("Error loading followed list:", error));
+      .catch(error => {
+        if (error && error.message && !error.message.includes("No followed list")) {
+          console.error("Unexpected error loading followed list:", error);
+        }
+      });
   }
 
   function updateSelectedChannels() {

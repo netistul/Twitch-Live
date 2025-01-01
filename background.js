@@ -54,36 +54,40 @@ function openSettingsPage() {
   chrome.tabs.create({ url: "settings.html" });
 }
 
+// Add a listener for messages sent to the extension
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Check if running in a Firefox environment
-  const isFirefox =
-    typeof browser !== "undefined" && browser.runtime && browser.runtime.id;
+  // Determine if the environment is Firefox
+  const isFirefox = typeof browser !== "undefined" && browser.runtime && browser.runtime.id;
 
+  // Handle the OAuth flow initiation message
   if (message.action === "startOAuth") {
     let redirectUri;
 
     if (isFirefox) {
-      // Firefox specific code
+      // Get the redirect URI for Firefox using browser.identity
       redirectUri = browser.identity.getRedirectURL();
     } else {
-      // Chrome specific code
-      redirectUri = "https://paliecoepgcndapnogfehdoonjijapee.chromiumapp.org/";
+      // Dynamically generate the redirect URI for Chrome using the extension's runtime ID
+      redirectUri = `https://${chrome.runtime.id}.chromiumapp.org/`;
     }
 
+    // Construct the Twitch OAuth URL with the appropriate parameters
     const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(
       redirectUri
     )}&scope=user:read:follows`;
 
-    // Launching the Web Auth Flow
+    // Launch the web authentication flow (browser-specific implementation)
     const launchWebAuthFlow = isFirefox
       ? browser.identity.launchWebAuthFlow
       : chrome.identity.launchWebAuthFlow;
+
     launchWebAuthFlow(
       {
-        url: authUrl,
-        interactive: true,
+        url: authUrl, // The constructed OAuth URL
+        interactive: true, // Make the flow interactive
       },
       (redirectUrl) => {
+        // Handle errors or the absence of a redirect URL
         if ((isFirefox && browser.runtime.lastError) || !redirectUrl) {
           console.error(
             "OAuth flow failed:",
@@ -92,27 +96,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return;
         }
 
+        // Extract the access token from the redirect URL
         const url = new URL(redirectUrl);
         const hash = url.hash.substring(1);
         const params = new URLSearchParams(hash);
         const accessToken = params.get("access_token");
         if (accessToken) {
-          const storage = isFirefox
-            ? browser.storage.local
-            : chrome.storage.local;
+          // Save the access token to local storage
+          const storage = isFirefox ? browser.storage.local : chrome.storage.local;
           storage.set({ twitchAccessToken: accessToken }, () => {
             console.log("Twitch Access Token saved");
-            fetchUserProfile(accessToken);
+            fetchUserProfile(accessToken); // Fetch and handle the user's profile
           });
         }
       }
     );
   }
 
-  // Handle the logout message
+  // Handle the message to disconnect the Twitch account
   if (message.action === "disconnectTwitch") {
     console.log("Disconnecting Twitch account via settings page");
 
+    // Clear all related data from local storage
     const storage = isFirefox ? browser.storage.local : chrome.storage.local;
     storage.remove(
       [
@@ -127,13 +132,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log(
           "Access token, followed list, live streams, and user information removed from storage."
         );
+        // Reset the badge text for the extension icon
         const action = isFirefox ? browser.action : chrome.action;
         action.setBadgeText({ text: "" });
-        sendResponse({ status: "success" });
+        sendResponse({ status: "success" }); // Send a success response to the sender
       }
     );
 
-    return true; // Indicates you wish to send a response asynchronously (important for Chrome v80+)
+    return true; // Indicate an asynchronous response (important for Chrome v80+)
   }
 });
 
