@@ -798,6 +798,16 @@ input[type="text"] {
   opacity: 1;
 }
 
+.tooltip-text.active-notifications {
+  color: #00b056; /* or any color that matches your theme */
+}
+
+/* If you want to add an icon, you can use this approach */
+.tooltip-text.active-notifications::before {
+  content: "✓";
+  margin-right: 4px;
+}
+
 /* */
 
 /* DISPLAY SETTINGS */

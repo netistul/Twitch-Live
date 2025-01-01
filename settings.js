@@ -1048,8 +1048,30 @@ document.addEventListener("DOMContentLoaded", function () {
   const filterCheckbox = document.getElementById("enableFilterCheckbox");
   const channelList = document.getElementById("channelList");
   const filterOption = document.getElementById("filterNotificationOption");
+  const labelText = document.querySelector("label[for='enableNotificationsCheckbox'] .label-text");
+  const tooltipText = document.querySelector("label[for='enableNotificationsCheckbox'] .tooltip-text");
 
   let checkInterval = null;
+
+  // Function to update notification text based on state
+  function updateNotificationText(isEnabled) {
+    if (!labelText || !tooltipText) {
+      console.error("Label or tooltip elements not found!");
+      return;
+    }
+
+    if (isEnabled) {
+      labelText.textContent = "Live Notifications Enabled";
+      tooltipText.textContent = "You will receive notifications when your followed Twitch channels go live. Click to disable.";
+      // For debugging
+      console.log("Tooltip updated to enabled state:", tooltipText.textContent);
+    } else {
+      labelText.textContent = "Enable Live Notifications";
+      tooltipText.textContent = "Activate to receive notifications when your followed Twitch channels go live.";
+      // For debugging
+      console.log("Tooltip updated to disabled state:", tooltipText.textContent);
+    }
+  }
 
   // Function to start checking for followed list
   function startFollowedListCheck() {
@@ -1094,13 +1116,18 @@ document.addEventListener("DOMContentLoaded", function () {
     notificationCheckbox.checked = isNotificationsEnabled;
     filterCheckbox.checked = isFilterEnabled;
 
+    // Add a small delay to ensure DOM is fully loaded
+    setTimeout(() => {
+      updateNotificationText(isNotificationsEnabled);
+    }, 0);
+
     updateFilterControl(isNotificationsEnabled);
 
-    // Always load the channel list, regardless of filter state
     const safeSelectedChannels = Array.isArray(data.selectedChannels) ? data.selectedChannels : [];
     loadChannelList(safeSelectedChannels);
     updateChannelListState(isNotificationsEnabled && isFilterEnabled);
   });
+
 
   // Start the check on initial load if needed
   startFollowedListCheck();
@@ -1112,6 +1139,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Enable Notifications preference updated:", isChecked);
     });
 
+    updateNotificationText(isChecked);
     updateFilterControl(isChecked);
     updateChannelListState(isChecked && filterCheckbox.checked);
   });
