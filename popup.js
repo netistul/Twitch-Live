@@ -188,6 +188,7 @@ function updateLiveStreams() {
       const streamTitleDisplay = result.streamTitleDisplay || "hover";
 
       const container = document.getElementById("buttonContainer");
+      container.classList.toggle('with-avatar', showAvatar);
       const currentScrollPosition = container.scrollTop;
       container.innerHTML = "";
 
@@ -522,6 +523,17 @@ function updateLiveStreams() {
           const groupNameHeader = document.createElement("h3");
           groupNameHeader.textContent = group.name.toUpperCase();
           groupNameHeader.classList.add("group-header");
+
+          // Add click handler
+          groupNameHeader.addEventListener('click', function () {
+            this.classList.toggle('collapsed');
+            let nextElement = this.nextElementSibling;
+            while (nextElement && !nextElement.classList.contains('group-header')) {
+              nextElement.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+              nextElement = nextElement.nextElementSibling;
+            }
+          });
+
           scrollContainer.appendChild(groupNameHeader);
 
           liveGroupStreams.forEach((stream) => {
@@ -559,6 +571,17 @@ function updateLiveStreams() {
           const gameHeader = document.createElement("h3");
           gameHeader.textContent = gameName.toUpperCase();
           gameHeader.classList.add("group-header");
+
+          // Add click handler
+          gameHeader.addEventListener('click', function () {
+            this.classList.toggle('collapsed');
+            let nextElement = this.nextElementSibling;
+            while (nextElement && !nextElement.classList.contains('group-header')) {
+              nextElement.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+              nextElement = nextElement.nextElementSibling;
+            }
+          });
+
           scrollContainer.appendChild(gameHeader);
 
           // Add all streams for this game
@@ -574,11 +597,22 @@ function updateLiveStreams() {
           });
         });
       } else {
-        // Original behavior remains the same
+        // Original behavior remains the same // For "MORE LIVE TWITCH CHANNELS"
         if (ungroupedStreams.length > 0 && isAnyFavoriteGroupLive) {
           const otherChannelsHeader = document.createElement("h3");
           otherChannelsHeader.textContent = "MORE LIVE TWITCH CHANNELS";
           otherChannelsHeader.classList.add("group-header");
+
+          // Add click handler
+          otherChannelsHeader.addEventListener('click', function () {
+            this.classList.toggle('collapsed');
+            let nextElement = this.nextElementSibling;
+            while (nextElement && !nextElement.classList.contains('group-header')) {
+              nextElement.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+              nextElement = nextElement.nextElementSibling;
+            }
+          });
+
           scrollContainer.appendChild(otherChannelsHeader);
         }
 
@@ -597,6 +631,7 @@ function updateLiveStreams() {
     }
   );
 }
+
 
 // Function to format time as HH:MM:SS
 function formatStreamTime(startTime) {

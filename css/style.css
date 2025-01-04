@@ -13,23 +13,51 @@ body {
   justify-content: space-between;
   align-items: center;
   font-size: 19px;
-  background-color: #6441a523; /* Twitch's purple color */
-  color: white; /* White text for contrast */
+  background-color: #6441a523;
+  color: white;
   margin-bottom: 0px;
   margin-top: 0px;
-  padding: 0px 0px; /* Add some padding */
-  border-radius: 1px; /* Rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.096); /* Subtle shadow for depth */
-  font-weight: bold; /* Make the font bold */
+  padding: 0px 0px;
+  border-radius: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.096);
+  font-weight: bold;
 }
 
 .group-header {
-  font-family: "Noto Sans Display", sans-serif; /* Example font */
-  font-size: 13px; /* Font size */
-  color: #6441a575; /* Text color */
-  margin-bottom: 1px; /* Spacing after the header */
-  text-transform: uppercase; /* Capitalize text */
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 13px;
+  color: #6441a575;
+  margin-bottom: 1px;
+  text-transform: uppercase;
   text-align: left;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+.group-header:hover {
+  color: #6441a5;
+}
+
+/* Only show the arrow when avatar mode is enabled */
+.with-avatar .group-header::before {
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  width: 13px;
+  height: 12px;
+  transition: transform 0.2s;
+}
+
+.with-avatar .group-header.collapsed::before {
+  transform: rotate(-90deg);
+}
+
+/* Add some padding to headers without avatars to maintain alignment */
+.group-header:not(.with-avatar) {
+  padding-left: 4px;
 }
 
 #loginButton {
