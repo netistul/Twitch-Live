@@ -36,6 +36,9 @@ function setupAlarm() {
 function fetchList() {
   chrome.storage.local.get(["twitchAccessToken", "userId"], (result) => {
     if (result.twitchAccessToken && result.userId) {
+      // First fetch user profile to check for avatar updates
+      fetchUserProfileUpdates(result.twitchAccessToken);
+      // Then continue with fetching follows
       fetchFollowList(result.twitchAccessToken, result.userId);
     } else {
       console.log("Access Token or User ID not found.");
@@ -168,22 +171,6 @@ function fetchUserProfile(accessToken) {
           console.log("User ID, Avatar, and Display Name saved");
           fetchFollowList(accessToken, userId, true); // Continue with your other operations
 
-          // Send a message to the popup to indicate the profile has been updated
-          chrome.runtime.sendMessage(
-            { action: "profileUpdated" },
-            function (response) {
-              if (chrome.runtime.lastError) {
-                // Handle any message send error
-                console.log(
-                  "Error sending message to popup:",
-                  chrome.runtime.lastError.message
-                );
-              } else {
-                // Confirm the message was sent successfully
-                console.log("Message sent successfully to popup");
-              }
-            }
-          );
         }
       );
     })
@@ -205,40 +192,29 @@ function fetchFollowList(
     url += `&after=${cursor}`;
   }
 
-  console.log("Fetching follow list with URL:", url); // Log the URL being accessed
+  console.log("Fetching follow list with URL:", url);
 
-  fetch(url, {
+  const options = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Client-ID": twitchClientId,
     },
-  })
-    .then((response) => {
-      if (response.status === 401) {
-        console.error(
-          "HTTP error 401: Unauthorized - Possible invalid or expired token"
-        );
-        chrome.storage.local.set({ tokenExpired: true }, () => {
-          console.log("Token expiration flag set in storage.");
-        });
-        chrome.storage.local.remove("twitchAccessToken", () => {
-          console.log(
-            "Access token removed from storage due to expiration or invalidity."
-          );
-          // Optionally, trigger re-authentication or notify the user to re-login
-          // chrome.runtime.sendMessage({ action: "reAuthenticate" });
-        });
-        throw new Error("Unauthorized access - Token invalidated");
-      }
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
+  };
+
+  // Use fetchWithRetry instead of direct fetch
+  fetchWithRetry(url, options)
     .then((data) => {
-      followedList = followedList.concat(data.data);
+      // Handle null response (auth token expired case from fetchWithRetry)
+      if (data === null) {
+        console.log("Auth token expired or invalid, handled by fetchWithRetry");
+        return;
+      }
+
+      // Process the data
+      followedList = followedList.concat(data.data || []);
+
+      // If there's pagination, fetch next page
       if (data.pagination && data.pagination.cursor) {
-        // If there's more data, keep fetching
         fetchFollowList(
           accessToken,
           userId,
@@ -247,30 +223,21 @@ function fetchFollowList(
           followedList
         );
       } else {
-        // Only now, when all data is fetched, call fetchStreamData
+        // All pages fetched, save to storage and proceed
         chrome.storage.local.set({ followedList: followedList }, () => {
           console.log("Followed Channels saved in local storage");
           fetchStreamData(accessToken, followedList);
+
           if (isOAuthComplete) {
-            chrome.runtime.sendMessage(
-              { action: "oauthComplete" },
-              function (response) {
-                if (chrome.runtime.lastError) {
-                  console.error(
-                    "Error sending message to popup:",
-                    chrome.runtime.lastError.message
-                  );
-                } else {
-                  console.log("Message sent successfully to popup");
-                }
-              }
-            );
+            // Send message without callback to avoid "port closed" error
+            chrome.runtime.sendMessage({ action: "oauthComplete" });
+            console.log("Notification sent to popup (if available)");
           }
         });
       }
     })
     .catch((error) => {
-      console.error("Error fetching follow list:", error);
+      console.error("Error fetching follow list after all retries:", error);
     });
 }
 
@@ -286,53 +253,38 @@ function fetchStreamData(accessToken, followedList) {
     }
     const streamUrl = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`;
 
-    return fetch(streamUrl, {
+    return fetchWithRetry(streamUrl, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Client-Id": twitchClientId,
       },
     })
-      .then((response) => {
-        if (response.status === 401) {
-          console.log(
-            "Access token expired. Deleting token and triggering re-authentication."
-          );
-          // Delete the expired token
-          chrome.storage.local.remove("twitchAccessToken", () => {
-            console.log("Expired token removed from storage.");
-            // You could also send a message to the popup to update the UI
-            // chrome.runtime.sendMessage({ action: "updateUIForLogin" });
-          });
-          return null;
-        }
-        return response.json();
-      })
       .then((streamData) => {
         if (streamData && streamData.data && streamData.data.length > 0) {
           const stream = streamData.data[0];
 
           // Extract the thumbnail URL
           const thumbnailUrl = stream.thumbnail_url
-            .replace("{width}", "320") // Set width
-            .replace("{height}", "180"); // Set height
+            .replace("{width}", "320")
+            .replace("{height}", "180");
 
           // Fetch the category and user data (for avatar) for live streams
           const categoryUrl = `https://api.twitch.tv/helix/games?id=${stream.game_id}`;
           const userUrl = `https://api.twitch.tv/helix/users?login=${channel.broadcaster_login}`;
 
           return Promise.all([
-            fetch(categoryUrl, {
+            fetchWithRetry(categoryUrl, {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Client-Id": twitchClientId,
               },
-            }).then((response) => response.json()),
-            fetch(userUrl, {
+            }),
+            fetchWithRetry(userUrl, {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Client-Id": twitchClientId,
               },
-            }).then((response) => response.json()),
+            }),
           ]).then(([categoryData, userData]) => {
             if (categoryData && userData) {
               const categoryName =
@@ -424,6 +376,154 @@ function fetchStreamData(accessToken, followedList) {
       }
     );
   });
+}
+
+// Utility function for handling retries with exponential backoff
+function fetchWithRetry(url, options, maxRetries = 3, initialDelay = 1000) {
+  return new Promise((resolve, reject) => {
+    const attemptFetch = (retriesLeft, delay) => {
+      fetch(url, options)
+        .then(response => {
+          if (response.status === 401) {
+            console.log("Access token expired. Deleting token and triggering re-authentication.");
+            chrome.storage.local.remove("twitchAccessToken", () => {
+              console.log("Expired token removed from storage.");
+            });
+
+            // Set the token expiration flag back
+            chrome.storage.local.set({ tokenExpired: true }, () => {
+              console.log("Token expiration flag set in storage.");
+            });
+
+            resolve(null); // Continue with retry logic or null response
+          }
+          else if (response.status === 429 && retriesLeft > 0) {
+            console.log(`Rate limited on ${url}, retrying in ${delay}ms. Retries left: ${retriesLeft}`);
+            setTimeout(() => {
+              attemptFetch(retriesLeft - 1, delay * 2);
+            }, delay);
+          } else if (response.status === 429) {
+            console.error(`RATE LIMIT EXCEEDED after all retries for ${url}`);
+
+            // Better endpoint detection
+            let endpoint = 'unknown';
+            if (url.includes('/channels/followed?')) {
+              endpoint = 'followed';
+            } else if (url.includes('/games?')) {
+              endpoint = 'category';
+            } else if (url.includes('/users?')) {
+              endpoint = 'user';
+            } else if (url.includes('/streams?')) {
+              endpoint = 'stream';
+            }
+
+            // Extract channel info from URL if possible
+            const channel = url.includes('login=') ? url.split('login=')[1].split('&')[0] : 'unknown';
+
+            console.log(`Setting rateLimitHit=true AFTER ALL RETRIES for ${endpoint}`);
+
+            // Only set the rate limit hit flag after all retries have failed
+            chrome.storage.local.get(['lastRateLimitNotification'], function (data) {
+              const now = Date.now();
+              const lastNotification = data.lastRateLimitNotification || 0;
+
+              // Only update the rate limit status and send notification if it's been at least 30 seconds
+              if (now - lastNotification > 30000) {
+                console.log(`Sending notification for ${endpoint} after all retries failed`);
+                chrome.storage.local.set({
+                  rateLimitHit: true,
+                  rateLimitTimestamp: now,
+                  lastRateLimitNotification: now,
+                  rateLimitDetails: {
+                    channel: channel,
+                    endpoint: endpoint
+                  }
+                });
+
+                chrome.runtime.sendMessage({
+                  action: "rateLimitHit",
+                  details: {
+                    channel: channel,
+                    endpoint: endpoint
+                  }
+                });
+              } else {
+                console.log(`Updating rateLimitHit but not sending notification (throttled)`);
+                // Just update the timestamp without triggering a new notification
+                chrome.storage.local.set({
+                  rateLimitHit: true,
+                  rateLimitTimestamp: now,
+                  rateLimitDetails: {
+                    channel: channel,
+                    endpoint: endpoint
+                  }
+                });
+              }
+            });
+
+            resolve({ data: [] });
+          } else if (!response.ok) {
+            console.error(`HTTP error: ${response.status} for ${url}`);
+            if (retriesLeft > 0) {
+              console.log(`Retrying in ${delay}ms due to HTTP error. Retries left: ${retriesLeft}`);
+              setTimeout(() => {
+                attemptFetch(retriesLeft - 1, delay * 2);
+              }, delay);
+            } else {
+              reject(new Error(`HTTP error! status: ${response.status}`));
+            }
+          } else {
+            resolve(response.json());
+          }
+        })
+        .catch(error => {
+          if (retriesLeft > 0) {
+            console.log(`Error fetching ${url}, retrying in ${delay}ms. Error: ${error.message}`);
+            setTimeout(() => {
+              attemptFetch(retriesLeft - 1, delay * 2);
+            }, delay);
+          } else {
+            console.error(`Failed to fetch ${url} after multiple retries: ${error.message}`);
+            reject(error);
+          }
+        });
+    };
+
+    attemptFetch(maxRetries, initialDelay);
+  });
+}
+
+function fetchUserProfileUpdates(accessToken) {
+  fetchWithRetry("https://api.twitch.tv/helix/users", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Client-Id": twitchClientId,
+    },
+  })
+    .then((data) => {
+      if (data === null) {
+        console.log("Auth token expired or invalid during profile update check");
+        return;
+      }
+
+      const userProfile = data.data[0];
+      const avatarUrl = userProfile.profile_image_url;
+      const displayName = userProfile.display_name;
+
+      // Update the avatar and display name in storage
+      chrome.storage.local.set(
+        {
+          userAvatar: avatarUrl,
+          userDisplayName: displayName,
+        },
+        () => {
+          console.log("User Avatar and Display Name updated");
+        }
+      );
+    })
+    .catch((error) => {
+      console.error("Error updating user profile:", error);
+    });
 }
 
 function sendLiveNotification(channel) {

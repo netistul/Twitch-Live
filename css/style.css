@@ -343,6 +343,7 @@ body {
   object-fit: cover;
   opacity: 0.5;
   transition: all 0.3s ease;
+  border-radius: 50%;
 }
 
 #settingsIcon:hover {
@@ -478,6 +479,9 @@ body::-webkit-scrollbar-thumb:hover {
   width: 300px;
   box-sizing: border-box;
   transition: box-shadow 0.3s ease;
+  margin: 3px; /* Added margin for better visibility */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Slightly enhanced shadow */
+  border: 1px solid #e0e0e0; /* Subtle border for definition */
 }
 
 .context-menu-item {
@@ -687,4 +691,91 @@ body::-webkit-scrollbar-thumb:hover {
 
 .delete-group-button {
   margin-left: 4px;
+}
+
+/* Rate limit notification styling (base styles) */
+.rate-limit-notification {
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 4px;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 14px;
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+  border-left: 4px solid #ed2c22;
+}
+
+/* Dark mode specific styles */
+.dark-mode .rate-limit-notification {
+  background-color: #2a2a2e;
+  color: #dedee3;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Light mode specific styles */
+body:not(.dark-mode) .rate-limit-notification {
+  background-color: #fff;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.notification-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.dark-mode .notification-title {
+  color: #f47373;
+}
+
+body:not(.dark-mode) .notification-title {
+  color: #d32f2f;
+}
+
+.notification-title:before {
+  content: "⚠️";
+  margin-right: 8px;
+}
+
+.notification-message {
+  line-height: 1.4;
+}
+
+.notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dark-mode .notification-close {
+  color: #9999993d;
+}
+
+.dark-mode .notification-close:hover {
+  color: #dedee3;
+}
+
+body:not(.dark-mode) .notification-close {
+  color: #9999997d;
+}
+
+body:not(.dark-mode) .notification-close:hover {
+  color: #333;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

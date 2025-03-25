@@ -104,14 +104,19 @@ body.dark-mode .custom-tooltip {
   font-weight: bold;
 }
 
-.dark-mode .custom-context-menu,
-.dark-mode .context-menu-item {
-  background-color: #333; /* Ensure all elements use the dark background */
+.dark-mode .custom-context-menu {
+  background-color: rgb(38, 38, 38, 1);
+  color: #da285a;
+  margin: 5px; /* Add margin to make it more visible */
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1); /* Slightly lighter shadow for contrast */
+  border: 1px solid #444; /* Add a subtle border for definition */
 }
 
-.dark-mode .custom-context-menu {
-  background-color: #363535;
-  color: #da285a;
+.dark-mode .context-menu-item {
+  background-color: rgb(38, 38, 38, 1);
+  color: #ccc;
+  font-weight: bold;
+  transition: background-color 0.2s ease; /* Smooth transition for hover effect */
 }
 
 .dark-mode .context-menu-header {
@@ -124,6 +129,7 @@ body.dark-mode .custom-tooltip {
 
 .dark-mode .context-menu-item:hover {
   background-color: #404040; /* Slightly darker on hover for visibility */
+  transition: background-color 0.2s ease;
 }
 
 .dark-mode .new-group-form {
@@ -193,4 +199,62 @@ body.dark-mode .custom-tooltip {
   padding: 2px 4px;
   outline: none;
   white-space: normal; /* Allow wrapping while editing */
+}
+
+/* Rate limit notification styling for dark mode */
+.dark-mode .rate-limit-notification {
+  background-color: #2a2a2e;
+  border-left: 4px solid #ed2c22;
+  color: #dedee3;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 4px;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+.dark-mode .rate-limit-notification .notification-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  color: #f47373;
+}
+
+.dark-mode .rate-limit-notification .notification-title:before {
+  content: "⚠️";
+  margin-right: 8px;
+}
+
+.dark-mode .rate-limit-notification .notification-message {
+  line-height: 1.4;
+}
+
+.dark-mode .rate-limit-notification .notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #9999993d;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dark-mode .rate-limit-notification .notification-close:hover {
+  color: #dedee3;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

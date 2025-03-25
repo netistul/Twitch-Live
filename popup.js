@@ -2,20 +2,20 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("DOMContentLoaded event triggered");
 
   applyDarkMode();
-  updateSettingsIcon();
 
   // Update live streams immediately for all users
   updateLiveStreams();
 
   // Delay checking login status to ensure smooth rendering
   setTimeout(checkLoginAndDisplayButton, 100);
-  updateSettingsIcon();
 
   // Set an interval to update live streams and check login status every 30 seconds
   setInterval(function () {
     updateLiveStreams();
     setTimeout(checkLoginAndDisplayButton, 100);
   }, 30000);
+
+  setTimeout(initRateLimitCheck, 1000);
 
   // Accessing buttonContainer & spinner element
   const buttonContainer = document.getElementById("buttonContainer");
@@ -655,32 +655,6 @@ function incrementChannelAccess(broadcasterLogin) {
   });
 }
 
-// Function to update the settings icon based on user login status
-function updateSettingsIcon() {
-  const settingsIcon = document.getElementById("settingsIcon");
-
-  chrome.storage.local.get(
-    ["userAvatar", "twitchAccessToken"],
-    function (result) {
-      if (result.userAvatar && result.twitchAccessToken) {
-        // User is logged in, update the settings icon to user's avatar
-        settingsIcon.src = result.userAvatar;
-      } else {
-        // User is not logged in, use the default settings icon
-        settingsIcon.src = "css/settings.png";
-      }
-    }
-  );
-}
-
-// In popup.js to update avatar .png
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  if (message.action === "profileUpdated") {
-    // Update the settings icon when the profile is updated
-    updateSettingsIcon();
-  }
-});
-
 // When the popup opens
 chrome.runtime.sendMessage({ popupOpen: true }, () => {
   if (chrome.runtime.lastError) {
@@ -1283,3 +1257,114 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+// Initializes the rate limit check and notification system
+function initRateLimitCheck() {
+  const delay = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+  // Check if we have a stored rate limit flag
+  chrome.storage.local.get(['rateLimitHit', 'rateLimitTimestamp', 'rateLimitDetails', 'rateLimitDismissedTimestamp'], function (data) {
+    const now = Date.now();
+    const dismissTime = data.rateLimitDismissedTimestamp || 0;
+
+    // If the user dismissed it recently (within 7 days), don't show it
+    if (now - dismissTime < delay) {
+      console.log("Skipping rate limit notification due to recent dismissal.");
+      return;
+    }
+
+    // If we hit a rate limit in the last 5 minutes, show notification
+    if (data.rateLimitHit && data.rateLimitTimestamp &&
+      (now - data.rateLimitTimestamp < 5 * 60 * 1000)) {
+      showRateLimitNotification(data.rateLimitDetails);
+    }
+  });
+
+  // Listen for real-time rate limit messages from background.js
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    if (message.action === "rateLimitHit") {
+      chrome.storage.local.get(['rateLimitDismissedTimestamp'], function (data) {
+        const now = Date.now();
+        const dismissTime = data.rateLimitDismissedTimestamp || 0;
+
+        // Prevent showing if dismissed recently (within 7 days)
+        if (now - dismissTime < delay) {
+          console.log("Skipping real-time rate limit notification due to recent dismissal.");
+          return;
+        }
+
+        showRateLimitNotification(message.details);
+        sendResponse({ received: true });
+      });
+    }
+  });
+
+  // Listen for changes to the rate limit in storage
+  chrome.storage.onChanged.addListener(function (changes, namespace) {
+    if (namespace === 'local' && changes.rateLimitHit &&
+      changes.rateLimitHit.newValue === true) {
+      chrome.storage.local.get(['rateLimitDetails', 'rateLimitDismissedTimestamp'], function (data) {
+        const now = Date.now();
+        const dismissTime = data.rateLimitDismissedTimestamp || 0;
+
+        // Skip notification if dismissed recently (within 7 days)
+        if (now - dismissTime < delay) {
+          console.log("Skipping storage change notification due to recent dismissal.");
+          return;
+        }
+
+        showRateLimitNotification(data.rateLimitDetails);
+      });
+    }
+  });
+}
+
+function showRateLimitNotification(details) {
+  // Check if a notification is already showing
+  if (document.querySelector('.rate-limit-notification')) {
+    return; // Don't show another notification if one is already visible
+  }
+
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = 'rate-limit-notification';
+
+  // Create title
+  const title = document.createElement('div');
+  title.className = 'notification-title';
+  title.textContent = 'API Rate Limit Reached';
+
+  // Create message
+  const message = document.createElement('div');
+  message.className = 'notification-message';
+  message.textContent = `You're reaching Twitch's API rate limit at times. This often happens when multiple Twitch extensions (like Gumbo or other Twitch tools) are active at once. To fix it, try disabling or uninstalling other Twitch extensions. Some streams may not update properly until you disable other Twitch extensions.`;
+
+  // Create close button
+  const closeButton = document.createElement('button');
+  closeButton.className = 'notification-close';
+  closeButton.textContent = '×';
+  closeButton.addEventListener('click', function () {
+    notification.remove();
+    // Store the dismissal timestamp to prevent re-showing for 24 hours
+    chrome.storage.local.set({
+      rateLimitHit: false,
+      rateLimitDismissedTimestamp: Date.now()
+    });
+  });
+
+  // Assemble notification
+  notification.appendChild(title);
+  notification.appendChild(message);
+  notification.appendChild(closeButton);
+
+  // Insert notification at the top of the popup
+  const container = document.getElementById('header');
+  container.parentNode.insertBefore(notification, container);
+
+  // Auto-dismiss after 1 minute
+  setTimeout(() => {
+    if (document.body.contains(notification)) {
+      notification.remove();
+    }
+  }, 60000);
+}

@@ -21,11 +21,12 @@ function displayGroups() {
             This is a list that will help you filter your favorite live streams from the popup into new category groups.
             <br><br>
             You can create a group and add any Twitch channel to it, organizing your streams.
-            <br><br><small>💡 You can do this directly from this page or from the popup by right-clicking on any stream channel to open the context menu. From the menu, you can select an existing group or create a new one to add the stream.</small>
-          </p>`;
-        favoriteListText.style.display = "none";
+          </p>
+          <div class="info-box">
+            💡 You can also do this from the popup by right-clicking on any stream channel and selecting an existing group or creating a new one.
+          </div>
+        `;
       } else {
-        favoriteListText.style.display = "block";
         var groupList = document.createElement("ul");
         groupList.id = "groupList";
 
@@ -160,7 +161,7 @@ function displayGroups() {
 
           var addStreamerBtn = document.createElement("button");
           addStreamerBtn.className = "add-streamer-btn";
-          addStreamerBtn.textContent = "Add a Twitch Channel";
+          addStreamerBtn.textContent = "➕ Add channel";
 
           if (isLoggedIn && hasFollowers) {
             addStreamerBtn.onclick = function () {
@@ -177,7 +178,7 @@ function displayGroups() {
 
           var deleteBtn = document.createElement("button");
           deleteBtn.className = "delete-group-btn";
-          deleteBtn.textContent = "Delete this list";
+          deleteBtn.textContent = "Delete list";
           deleteBtn.onclick = function () {
             deleteGroup(index);
             displayGroups();

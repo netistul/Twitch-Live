@@ -26,19 +26,19 @@ body.dark-mode {
 }
 /* Button Style */
 .dark-mode #addFavoriteGroupButton {
-  background-color: rgb(43, 43, 64); /* Twitch purple background */
-  color: white;
+  background-color: #333333;
+  color: #a16ce6;
 }
 
 .dark-mode #addFavoriteGroupButton:hover {
-  background-color: #503484; /* Slightly darker purple on hover */
+  background-color: #3a3a3a;
 }
 
 /* Group List Container Style */
 .dark-mode #groupListContainer {
   color: #c7c7c7;
   width: 100%;
-  margin-top: 1px;
+  margin-top: 20px;
 }
 
 /* Group List Style */
@@ -46,29 +46,24 @@ body.dark-mode {
   color: #c7c7c7;
   list-style-type: none;
   padding: 0;
+  max-width: 100%;
 }
 
 /* Group Item Style */
 .dark-mode .group-item {
-  background-color: #1b1b1d; /* Dark background */
   color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
+  background-color: #2a2a2a; /* Dark background for paper */
+  border: 1px solid #3d3d3d;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  background-image: linear-gradient(#333333 1px, transparent 1px);
+}
+
+.dark-mode .group-item::after {
+  border-color: #3d3d3d #222;
 }
 
 .dark-mode .group-name.editing {
   background-color: #6d2b2b;
-}
-
-.dark-mode .group-name-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  width: 100%;
-  padding: 10px 0;
 }
 
 .dark-mode .group-name:hover {
@@ -93,11 +88,11 @@ body.dark-mode {
 
 /* Streamers List Style */
 .dark-mode .streamers-list {
-  color: #ffffff;
-  flex-basis: calc(50% - 10px);
-  list-style-type: none;
-  padding: 0;
-  margin-right: 10px;
+  color: #d0d0d0;
+}
+
+.dark-mode .streamers-list li::before {
+  color: #a16ce6; /* Lighter purple in dark mode */
 }
 
 /* Button Container Style */
@@ -109,28 +104,6 @@ body.dark-mode {
 }
 
 /* List Item Style */
-.dark-mode #groupList > li {
-  background-color: #2d2d35; /* Twitch-like dark background */
-  color: #ffffff;
-  padding: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-}
-
-.dark-mode #groupList > li > ul {
-  padding: 0;
-}
-
-.dark-mode #groupList > li > ul > li {
-  background-color: #2d2d35; /* Slightly darker for nested items */
-  color: #efeff1; /* Slightly off-white for better eye comfort */
-  transition: background-color 0.2s ease;
-}
-
-/* Optional hover effect */
-.dark-mode #groupList > li > ul > li:hover {
-  background-color: #373740; /* Slightly lighter on hover */
-}
 
 /* Empty List Message Style */
 .dark-mode .empty-list-message {
@@ -218,10 +191,7 @@ body.dark-mode {
 
 /* Favorite List Text Style */
 .dark-mode #favoriteListText {
-  text-align: center;
-  font-size: 18px;
-  margin-bottom: 5px;
-  color: white;
+  color: #a16ce6;
 }
 
 /* Dropdown Overlay Style */
@@ -230,35 +200,48 @@ body.dark-mode {
 }
 
 /* Add Twitch Channel Button Style */
-.dark-mode .add-streamer-btn {
-  background-color: #6441a596;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.dark-mode .add-streamer-btn:hover {
-  background-color: #5a3b94;
-}
-
-/* Delete List Button Style */
+.dark-mode .add-streamer-btn,
 .dark-mode .delete-group-btn {
-  background-color: #be2633d0;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
+  background-color: #2d2d2d; /* Dark gray background */
+  color: #f0f0f0; /* Light text */
+  border: 1px solid #444; /* Darker border for depth */
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  background-image: linear-gradient(#44444400 1px, transparent 1px);
+}
+
+/* Sticky tape effect - Dark Mode */
+.dark-mode .add-streamer-btn::before,
+.dark-mode .delete-group-btn::before {
+  background-color: rgba(255, 255, 255, 0.2); /* Light gray tape */
+  backdrop-filter: blur(2px); /* Slight blur to mimic real tape */
+  width: 50%; /* Slightly wider for a more natural feel */
+  height: 10px; /* Slightly taller */
+  opacity: 0.6;
+}
+
+/* Optional: Make it look slightly wrinkled */
+.dark-mode .add-streamer-btn::before {
+  clip-path: polygon(5% 0, 95% 0, 100% 100%, 0% 100%); /* Slightly uneven */
+}
+
+.dark-mode .delete-group-btn::before {
+  clip-path: polygon(0% 0, 100% 0, 95% 100%, 5% 100%); /* Inverted unevenness */
+}
+
+/* Hover effect */
+.dark-mode .add-streamer-btn:hover {
+  background-color: #3a3a3a;
+}
+
+.dark-mode .delete-group-btn {
+  background-color: #502525; /* Dark red */
+  color: #ffbbbb;
+  border: 1px solid #aa4444;
 }
 
 .dark-mode .delete-group-btn:hover {
-  background-color: #ff4c4c;
+  background-color: #622f2f;
+  color: #ff8888;
 }
 
 /* Settings Container Style */
@@ -352,7 +335,7 @@ body.dark-mode {
 }
 
 .dark-mode #optionsMenu {
-  background-color: #1e1e22; /* Restored the original background color */
+  background-color: #1b1b1b;
   color: #fff;
 }
 
@@ -391,26 +374,10 @@ body.dark-mode {
   color: #e4e4e4;
 }
 
-/* Dark mode Scrollbar Styles */
-.dark-mode ::-webkit-scrollbar {
-  width: 10px; /* Width of the scrollbar */
-}
-
-.dark-mode ::-webkit-scrollbar-track {
-  background-color: #1a1a1a; /* Darker track for dark mode */
-}
-
-.dark-mode ::-webkit-scrollbar-thumb {
-  background-color: #805ad5; /* Slightly brighter purple for dark mode */
-  border-radius: 5px; /* Rounded corners for the thumb */
-}
-
-.dark-mode ::-webkit-scrollbar-thumb:hover {
-  background-color: #6441a5; /* Twitch purple on hover in dark mode */
-}
-
-/* For Firefox in dark mode */
-.dark-mode * {
-  scrollbar-width: thin; /* Width of the scrollbar */
-  scrollbar-color: #805ad5 #1a1a1a; /* Thumb and track colors */
+/* Dark mode styling */
+.dark-mode .info-box {
+  background-color: #222; /* Dark background */
+  border-left: 4px solid #4da3ff; /* Lighter blue */
+  color: #ddd;
+  box-shadow: 2px 2px 5px rgba(255, 255, 255, 0.1);
 }
