@@ -814,24 +814,26 @@ input[type="text"] {
 .tooltip-text {
   font-family: "Segoe UI", Tahoma, sans-serif;
   visibility: hidden;
-  width: 280px; /* Set a max width to prevent overflow */
-  max-width: 90vw; /* Limit to 90% of the viewport width */
-  background-color: #6441a5; /* Twitch purple */
+  width: 280px;
+  max-width: 90vw;
+  background-color: #6441a5;
   color: #fff;
   text-align: center;
   border-radius: 6px;
   padding: 5px 10px;
   position: absolute;
   z-index: 1;
-  bottom: 125%; /* Position above the label */
   left: 50%;
-  transform: translateX(-50%); /* Center the tooltip */
+  transform: translateX(-50%);
   opacity: 0;
   transition: opacity 0.3s;
-  white-space: normal; /* Allow wrapping */
+  white-space: normal;
+  /* Default: Position above (top) */
+  bottom: 125%;
+  top: auto;
 }
 
-/* Tooltip arrow */
+/* Arrow for default (top) position */
 .tooltip-text::after {
   content: "";
   position: absolute;
@@ -841,6 +843,31 @@ input[type="text"] {
   border-width: 5px;
   border-style: solid;
   border-color: #6441a5 transparent transparent transparent;
+}
+
+/* Tooltip position when forced to bottom */
+.tooltip-text.position-bottom {
+  top: 125%;
+  bottom: auto;
+}
+
+/* Default (top) tooltip arrow - points downward */
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* Arrow appears at the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #6441a5 transparent transparent transparent; /* Arrow points down */
+}
+
+/* Bottom-positioned tooltip arrow - points upward */
+.tooltip-text.position-bottom::after {
+  top: auto;
+  bottom: 100%; /* Arrow appears at the top of the tooltip */
+  border-color: transparent transparent #6441a5 transparent; /* Arrow points up */
 }
 
 .tooltip-lighter-text {

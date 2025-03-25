@@ -1509,11 +1509,35 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Menu navigation functionality
+// Menu navigation functionality and tooltip
 document.addEventListener('DOMContentLoaded', function () {
   const menuItems = document.querySelectorAll('.menu-item');
   const sections = document.querySelectorAll('.settings-section');
 
+  // Get all elements with tooltips
+  const labelsWithTooltips = document.querySelectorAll('.styled-label');
+
+  labelsWithTooltips.forEach(label => {
+    const tooltip = label.querySelector('.tooltip-text');
+
+    if (tooltip) {
+      label.addEventListener('mouseenter', function () {
+        // Reset to default (top) first
+        tooltip.classList.remove('position-bottom');
+
+        // Get positions
+        const labelRect = label.getBoundingClientRect();
+        const tooltipHeight = tooltip.offsetHeight;
+
+        // If not enough space above, move to bottom
+        if (labelRect.top < tooltipHeight) {
+          tooltip.classList.add('position-bottom');
+        }
+      });
+    }
+  });
+
+  // navigation functionality
   menuItems.forEach(item => {
     item.addEventListener('click', function () {
       // Remove active class from all items
