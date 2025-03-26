@@ -174,9 +174,6 @@ body {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
   padding: 10px 15px;
-  background-image: linear-gradient(#ececec 1px, transparent 1px);
-  background-size: 100% 25px;
-  background-position: 0 10px;
 
   /* This cuts off the top-right portion where the fold is */
   clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
@@ -199,7 +196,7 @@ body {
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 100%;
+
   padding: 1px 0 15px 0;
   margin-bottom: 5px;
 }
@@ -209,7 +206,7 @@ body {
   font-size: 1.3em;
   color: #333;
   text-align: center;
-  width: 100%;
+
   z-index: 1;
 }
 
@@ -287,7 +284,8 @@ body {
   list-style-type: none;
   padding: 0 2px 0 5px;
   margin: 10px 0;
-  font-family: "Comic Sans MS", "Marker Felt", cursive;
+  font-size: 17px;
+  font-family: "Patrick Hand", cursive;
   line-height: 1.8;
   overflow-x: hidden;
 }
@@ -422,12 +420,14 @@ body {
 
 /* Styled Input */
 input[type="text"] {
-  padding: 10px; /* Increased padding for a bigger input field */
-  border: 2px solid #ccc; /* Light border */
-  border-radius: 5px; /* Rounded corners */
-  width: 100%; /* Full width within the modal */
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box; /* Add this */
+  background-color: #fff; /* Explicit background */
+  transition: all 0.2s ease;
 }
-
 /* Styled Buttons */
 .button {
   background-color: #9147ff; /* Twitch-like purple color */
@@ -456,102 +456,141 @@ input[type="text"] {
   width: fit-content;
 }
 
+/* ======================================== */
+/* ===== Modernized Dropdown Styles ===== */
+/* ======================================== */
+
+/* Define base font for modern look */
+.dropdown-menu,
+.dropdown-menu input,
+.dropdown-menu button {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
 /* ===== Dropdown Container ===== */
 .dropdown-menu {
-  display: none;
+  display: none; /* Initially hidden */
   position: fixed;
+  z-index: 1001; /* Higher than modal */
+  border: none !important; /* Force no border */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 490px;
-  max-height: 80vh;
-  background-color: #f5f5f5;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  max-height: 80vh; /* Overall height limit */
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1001;
   padding: 0;
+  /* IMPORTANT: This container uses flex, limits height, but DOES NOT scroll itself */
   overflow: hidden;
+  display: flex;
+  flex-direction: column; /* Stack header and content */
 }
 
-/* Dropdown Header (fixed) */
+/* ===== Dropdown Header ===== */
 .dropdown-header {
-  padding: 3px;
-  border-bottom: 1px solid #ccc;
-  background-color: inherit;
-  position: sticky;
-  top: 0;
+  padding: 1px 2px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  flex-shrink: 0; /* Prevent header from shrinking */
   z-index: 2;
 }
 
+/* Combined Title Styling */
 .dropdown-title {
-  background-color: rgba(255, 255, 255, 0.9);
-  font-family: "Patrick Hand", cursive; /* Handwritten style */
-  font-size: 20px;
-  font-weight: bold;
-  color: #333; /* Slightly darker for readability */
-  text-decoration: underline;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* subtle shadow for paper effect */
-  background-color: rgba(255, 255, 255, 0.9); /* light background */
-  padding: 8px 12px;
-  margin: 5px 0;
-  border-radius: 4px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* subtle inset shadow for paper */
+  font-size: 18px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.list-title {
+  font-weight: 600;
+}
+
+.space-text {
+  display: inline-block;
+  margin: 0 4px;
 }
 
 .list-name {
-  font-family: "Patrick Hand", cursive;
-  font-size: 20px;
-  font-weight: normal;
-  text-decoration: none;
-  color: #555; /* Slightly faded color for the list name */
+  font-size: 18px;
+  font-weight: 400;
+  color: #616161;
+  text-decoration: none !important;
+  margin-left: 8px;
 }
 
-/* Dropdown Content Area */
+/* ===== Dropdown Content Area (Wrapper for Search + List) ===== */
 .dropdown-content {
   display: flex;
-  flex-direction: column;
-  height: calc(80vh - 60px);
+  flex-direction: column; /* Stack search and items */
+  flex-grow: 1; /* Takes up remaining vertical space in .dropdown-menu */
+  /* ** Crucial: Allows child (.dropdown-items-container) to scroll correctly ** */
+  overflow: hidden;
+  min-height: 0; /* Necessary for nested flexbox height calculation */
 }
 
-/* Search Input (fixed below header) */
+/* ===== Search Input Container ===== */
+.dropdown-search-container {
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0; /* Don't shrink, takes its natural height */
+  z-index: 1; /* Above items if they were to overlap somehow */
+}
+
 .dropdown-search {
-  width: calc(100% - 30px);
-  margin: 15px;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  position: sticky;
-  top: 60px;
-  background-color: inherit;
-  z-index: 1;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #bdbdbd;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Scrollable Channel List */
+.dropdown-search:focus {
+  outline: none;
+  border-color: #42a5f5;
+  box-shadow: 0 0 0 2px rgba(66, 165, 245, 0.2);
+}
+
+/* ===== Scrollable Channel List ===== */
 .dropdown-items-container {
+  height: calc(80vh - 120px);
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  padding: 0 4px 4px;
-  max-height: calc(80vh - 150px);
+  padding: 16px;
+  /* *** THIS IS THE ELEMENT THAT SCROLLS *** */
   overflow-y: auto;
+  /* It doesn't need flex-grow: 1 here because its parent (.dropdown-content)
+     is already managing the space distribution. It will naturally try to
+     fill the space left in .dropdown-content after the search bar. */
 }
 
-/* Dropdown Items */
+/* ===== Dropdown Items ===== */
 .dropdown-item {
   display: flex;
   align-items: center;
-  padding: 3px 5px;
+  padding: 8px 10px;
   margin: 0;
   border-radius: 6px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   cursor: pointer;
   min-width: 0;
-  background-color: inherit;
+  background-color: transparent;
 }
 
 .dropdown-item:hover {
-  background-color: #e0d4f7;
+  background-color: #f5f5f5;
 }
 
 .dropdown-channel-name {
@@ -560,94 +599,98 @@ input[type="text"] {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
-  font-family: "Patrick Hand", cursive; /* Handwritten style */
-  max-width: 100px; /* Adjust as needed */
+  color: #424242;
+  margin-left: 4px;
 }
 
-/* Icons */
-.dropdown-menu img {
-  width: 17px;
-  height: 17px;
+/* ===== Icons ===== */
+.dropdown-menu img.dropdown-twitch-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .dropdown-menu .fa-plus {
-  float: right;
-  margin-right: 10px;
+  /* If you add it back */
+  margin-left: auto;
+  padding-left: 8px;
+  color: #757575;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s ease;
 }
 
 .dropdown-item:hover .fa-plus {
   opacity: 1;
 }
 
-/* Overlay */
+/* ===== Overlay ===== */
 #dropdownOverlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.4);
   z-index: 1000;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
-/* Base style for the dropdown circle */
+/* ===== Check Circle ===== */
 .dropdowncircle {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: 2px solid #aaa;
+  border: 1px solid #bdbdbd;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.3s ease, border 0.3s ease; /* Smooth color transition */
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
   cursor: pointer;
-  font-size: 16px;
-  color: #fff;
-  background-color: transparent; /* Default background */
+  font-size: 12px;
+  color: #4caf50; /* Color of '✖' when not filled */
+  background-color: #ffffff;
+  margin-left: auto; /* Push to right */
+  margin-right: 4px;
+  flex-shrink: 0;
+  font-weight: bold;
 }
 
-/* Add smooth transition when the checkbox is checked */
-.dropdowncircle.checked {
-  background-color: #44b700; /* Green background when checked */
-  border-color: #44b700; /* Border also turns green */
-  animation: checkmarkEffect 0.3s ease-in-out forwards; /* Animation for checkmark */
+/* Style for when JS adds the '✖' text directly */
+.dropdown-item .dropdowncircle:not(:empty) {
+  /* Style it like the checked state if it has content */
+  background-color: #4caf50;
+  border-color: #4caf50;
+  color: #ffffff; /* White '✖' for contrast */
+}
+/* Style for when it's empty */
+.dropdown-item .dropdowncircle:empty {
+  background-color: #ffffff;
+  border-color: #bdbdbd;
+  color: transparent; /* Hide any potential accidental content */
 }
 
-/* Animation effect for the checkmark (X) */
-@keyframes checkmarkEffect {
-  0% {
-    transform: scale(0); /* Start small */
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1); /* End at full size */
-    opacity: 1;
-  }
-}
-
-/* Optional: hover effect for the check circle */
-.dropdowncircle:hover {
-  border-color: #666;
-}
+/* Optional: Explicit added class state */
 .dropdown-item.added .dropdowncircle {
-  border-color: green;
-  background-color: green;
-  color: white;
+  background-color: #4caf50;
+  border-color: #4caf50;
+  color: #ffffff;
 }
 
-.dropdowncircle:hover {
-  background: lightgray;
+/* Hover effect on the circle itself (when empty) */
+.dropdown-item .dropdowncircle:empty:hover {
+  border-color: #757575;
 }
 
-.dropdowncircle:empty {
-  color: transparent;
+/* Hover effect on item containing the empty circle */
+.dropdown-item:hover .dropdowncircle:empty {
+  border-color: #9e9e9e;
 }
 
-.dropdowncircle:not(:empty) {
-  color: black;
-}
+/* END OF DROPDOWN STYLE /*
+
 
 /* General button styling */
 .add-streamer-btn,
@@ -990,6 +1033,8 @@ input[type="text"] {
 }
 
 #userInfo {
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   position: relative;
   margin-left: 20px;
   text-align: center;

@@ -105,6 +105,7 @@ function displayGroups() {
           streamersList.style.listStyleType = "none";
           streamersList.style.padding = "0";
 
+
           group.streamers.forEach(function (streamer, streamerIndex) {
             var streamerItem = document.createElement("li");
             streamerItem.style.display = "flex";
@@ -271,14 +272,19 @@ function showAddStreamerDropdown(groupIndex) {
       const groupName = groups[groupIndex]?.name || "Unknown";
       const currentStreamers = groups[groupIndex]?.streamers || [];
 
+      // Create title part
       const titleText = document.createElement("span");
-      titleText.textContent = "Add to list: ";
+      titleText.className = "list-title";
+      titleText.textContent = "Add to list:";
+
+      const spaceText = document.createElement("span");
 
       const listNameSpan = document.createElement("span");
       listNameSpan.className = "list-name";
       listNameSpan.textContent = groupName;
 
       dropdownTitle.appendChild(titleText);
+      dropdownTitle.appendChild(spaceText);
       dropdownTitle.appendChild(listNameSpan);
 
       const searchContainer = document.createElement("div");
@@ -300,6 +306,7 @@ function showAddStreamerDropdown(groupIndex) {
 
         const item = document.createElement("div");
         item.className = `dropdown-item ${isAdded ? "added" : ""}`;
+        item.style.cursor = "pointer"; // Make entire item clickable
 
         const twitchLogo = document.createElement("img");
         twitchLogo.src = "css/twitch.png";
@@ -313,20 +320,23 @@ function showAddStreamerDropdown(groupIndex) {
         checkContainer.className = "dropdowncircle";
         checkContainer.innerHTML = isAdded ? "✖" : "";
         if (isAdded) {
-          checkContainer.style.backgroundColor = "#44b700";  // Green if already added
+          checkContainer.style.backgroundColor = "#44b700";
         }
 
-        // Event listener for checkbox click
-        checkContainer.addEventListener("click", () => {
+        // Add click handler to the entire item
+        item.addEventListener("click", (e) => {
+          // Prevent triggering when clicking directly on the checkbox
+          if (e.target !== checkContainer) {
+            toggleChannel(channel, checkContainer);
+          }
+        });
+
+        // Also keep the checkbox clickable
+        checkContainer.addEventListener("click", (e) => {
+          e.stopPropagation(); // Prevent item click from triggering
           toggleChannel(channel, checkContainer);
         });
 
-        // Add event listener to channel name to also toggle the checkbox
-        channelName.addEventListener("click", () => {
-          toggleChannel(channel, checkContainer);
-        });
-
-        // Function to toggle channel and update UI in real-time with animation
         function toggleChannel(channel, checkContainer) {
           chrome.storage.local.get("favoriteGroups", (data) => {
             const groups = data.favoriteGroups || [];
@@ -337,15 +347,16 @@ function showAddStreamerDropdown(groupIndex) {
 
               if (wasAdded) {
                 groups[groupIndex].streamers = streamers.filter(name => name !== channelName);
-                checkContainer.innerHTML = "";  // Clear the checkmark
-                checkContainer.style.backgroundColor = "transparent";  // Reset to non-checked state
+                checkContainer.innerHTML = "";
+                checkContainer.style.backgroundColor = "transparent";
+                item.classList.remove("added");
               } else {
                 groups[groupIndex].streamers.push(channelName);
-                checkContainer.innerHTML = "✖";  // Show the checkmark (or X)
-                checkContainer.style.backgroundColor = "#44b700";  // Green when checked
+                checkContainer.innerHTML = "✖";
+                checkContainer.style.backgroundColor = "#44b700";
+                item.classList.add("added");
               }
 
-              // Smooth transition (CSS animation handled by the transition)
               checkContainer.classList.add("checked");
 
               chrome.storage.local.set({ favoriteGroups: groups }, () => {
@@ -379,7 +390,6 @@ function showAddStreamerDropdown(groupIndex) {
     });
   }).catch(console.error);
 }
-
 
 // Global function to filter dropdown
 function filterDropdown(dropdownMenu, searchValue) {
