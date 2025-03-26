@@ -532,7 +532,7 @@ input[type="text"] {
   display: flex;
   flex-direction: column; /* Stack search and items */
   flex-grow: 1; /* Takes up remaining vertical space in .dropdown-menu */
-  /* ** Crucial: Allows child (.dropdown-items-container) to scroll correctly ** */
+  /* ** Crucial: Allows child (.dropd2own-items-container) to scroll correctly ** */
   overflow: hidden;
   min-height: 0; /* Necessary for nested flexbox height calculation */
 }
@@ -569,13 +569,9 @@ input[type="text"] {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   padding: 16px;
-  /* *** THIS IS THE ELEMENT THAT SCROLLS *** */
   overflow-y: auto;
-  /* It doesn't need flex-grow: 1 here because its parent (.dropdown-content)
-     is already managing the space distribution. It will naturally try to
-     fill the space left in .dropdown-content after the search bar. */
+  align-content: start;
 }
-
 /* ===== Dropdown Items ===== */
 .dropdown-item {
   display: flex;
