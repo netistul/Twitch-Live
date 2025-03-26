@@ -1694,6 +1694,60 @@ input:checked + .slider:before {
   max-width: 100%; /* Ensure it uses the full available space */
 }
 
+/* Disabled filter option styles */
+#filterNotificationOption.disabled {
+  position: relative;
+  cursor: not-allowed;
+}
+
+#filterNotificationOption.disabled .switch {
+  pointer-events: none;
+  position: relative; /* Needed for animation */
+}
+
+/* Shake animation */
+@keyframes shake-switch {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.shake-it {
+  animation: shake-switch 0.4s linear;
+}
+
+/* Error tooltip */
+#filterNotificationOption.disabled::after {
+  content: "⚠️ Enable Live Notifications first";
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+#filterNotificationOption.disabled:hover::after,
+#filterNotificationOption.disabled.shake-it::after {
+  opacity: 1;
+}
+
 .stream-info-text.channel-name-with-title {
   display: flex;
   flex-direction: column;

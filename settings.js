@@ -1102,7 +1102,20 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Handle filter checkbox changes
+  filterCheckbox.addEventListener("click", function (e) {
+    // Prevent toggling if notifications are disabled
+    if (!notificationCheckbox.checked) {
+      e.preventDefault();
+      return; // Exit early
+    }
+  });
+
   filterCheckbox.addEventListener("change", function () {
+    if (!notificationCheckbox.checked) {
+      this.checked = false;
+      return;
+    }
+
     const isChecked = this.checked;
     chrome.storage.local.set({ enableFilter: isChecked }, function () {
       console.log("Filter preference updated:", isChecked);
@@ -1111,18 +1124,22 @@ document.addEventListener("DOMContentLoaded", function () {
     updateChannelListState(isChecked && notificationCheckbox.checked);
 
     if (!isChecked) {
-      // Clear selected channels when filter is disabled
       chrome.storage.local.set({ selectedChannels: [] });
-      // Uncheck all checkboxes
       const checkboxes = channelList.querySelectorAll(".channel-checkbox");
       checkboxes.forEach(checkbox => checkbox.checked = false);
     }
   });
 
   function updateFilterControl(notificationsEnabled) {
-    filterOption.style.opacity = notificationsEnabled ? "1" : "0.5";
-    filterOption.style.pointerEvents = notificationsEnabled ? "auto" : "none";
-    filterCheckbox.disabled = !notificationsEnabled;
+    const filterOption = document.getElementById("filterNotificationOption");
+
+    if (notificationsEnabled) {
+      filterOption.classList.remove("disabled");
+      filterCheckbox.disabled = false;
+    } else {
+      filterOption.classList.add("disabled");
+      filterCheckbox.disabled = true;
+    }
   }
 
   function updateChannelListState(enabled) {
@@ -1463,6 +1480,30 @@ document.addEventListener("DOMContentLoaded", function () {
   } catch (error) {
     console.error('Error in dropdown initialization:', error);
   }
+
+  document.getElementById("filterNotificationOption").addEventListener("click", function (e) {
+    // Get checkbox fresh each click to avoid reference errors
+    const notificationCheckbox = document.getElementById('enableNotificationsCheckbox');
+
+    if (notificationCheckbox && !notificationCheckbox.checked) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Add shake class to whole container (more visible)
+      this.classList.add('shake-it');
+
+      // Remove after animation completes
+      setTimeout(() => {
+        this.classList.remove('shake-it');
+      }, 400);
+
+      // Show tooltip during interaction
+      this.classList.add('force-tooltip');
+      setTimeout(() => {
+        this.classList.remove('force-tooltip');
+      }, 1000);
+    }
+  });
 });
 
 // Menu navigation functionality and tooltip

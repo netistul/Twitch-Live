@@ -342,31 +342,29 @@ body {
   max-height: 35px;
   object-fit: cover;
   opacity: 0.5;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.2s ease;
   border-radius: 50%;
 }
 
 #settingsIcon:hover {
   cursor: pointer;
   opacity: 1;
+  animation: rotateHover 1s ease-out forwards; /* Rotate on hover and stay */
 }
 
-@keyframes rotateAvatar {
+@keyframes rotateHover {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
-  }
+  } /* Single full rotation */
 }
 
-.rotating {
-  animation: rotateAvatar 0.5s ease-in-out;
-}
-
-/* Add click (active) state */
+/* Click state */
 #settingsIcon:active {
-  transform: scale(0.75);
+  animation: none; /* Stop animation immediately */
+  transform: rotate(360deg) scale(0.85); /* Final rotation + scale */
 }
 
 .access-count {
