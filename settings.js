@@ -243,204 +243,143 @@ function getFollowedList() {
 
 // show the streamer dropdown
 function showAddStreamerDropdown(groupIndex) {
-  getFollowedList()
-    .then((followedList) => {
-      // Close any existing dropdown, overlay, and message
-      var existingDropdown = document.querySelector(".dropdown-menu");
-      var existingOverlay = document.getElementById("dropdownOverlay");
-      var existingMessage = document.getElementById("addChannelMessage");
-      if (existingDropdown) {
-        existingDropdown.remove();
-      }
-      if (existingOverlay) {
-        existingOverlay.remove();
-      }
-      if (existingMessage) {
-        existingMessage.remove();
-      }
+  getFollowedList().then((followedList) => {
+    document.querySelectorAll(".dropdown-menu, #dropdownOverlay").forEach(el => el.remove());
 
-      // Create overlay for the dropdown
-      var overlay = document.createElement("div");
-      overlay.id = "dropdownOverlay";
-      overlay.style.position = "fixed";
-      overlay.style.width = "100%";
-      overlay.style.height = "100%";
-      overlay.style.top = "0";
-      overlay.style.left = "0";
-      overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      overlay.style.zIndex = "2";
+    const overlay = document.createElement("div");
+    overlay.id = "dropdownOverlay";
+    document.body.appendChild(overlay);
 
-      // Create dropdown menu container
-      var dropdownMenu = document.createElement("div");
-      dropdownMenu.className = "dropdown-menu";
+    const dropdownMenu = document.createElement("div");
+    dropdownMenu.className = "dropdown-menu";
+    document.body.appendChild(dropdownMenu);
 
-      // Retrieve favorite groups and then build the dropdown
-      chrome.storage.local.get("favoriteGroups", function (data) {
-        var groups = data.favoriteGroups || [];
-        var groupName = groups[groupIndex]
-          ? groups[groupIndex].name
-          : "Unknown";
+    const dropdownHeader = document.createElement("div");
+    dropdownHeader.className = "dropdown-header";
+    dropdownMenu.appendChild(dropdownHeader);
 
-        // Append the overlay and dropdown to the body first to calculate their position
-        document.body.appendChild(overlay);
-        document.body.appendChild(dropdownMenu);
-        // Add event listener to the overlay to close the dropdown when clicking outside
-        overlay.addEventListener("click", function (event) {
-          if (!dropdownMenu.contains(event.target)) {
-            closeDropdown();
-          }
+    const dropdownTitle = document.createElement("h3");
+    dropdownTitle.className = "dropdown-title";
+    dropdownHeader.appendChild(dropdownTitle);
+
+    const dropdownContent = document.createElement("div");
+    dropdownContent.className = "dropdown-content";
+    dropdownMenu.appendChild(dropdownContent);
+
+    chrome.storage.local.get("favoriteGroups", (data) => {
+      const groups = data.favoriteGroups || [];
+      const groupName = groups[groupIndex]?.name || "Unknown";
+      const currentStreamers = groups[groupIndex]?.streamers || [];
+
+      const titleText = document.createElement("span");
+      titleText.textContent = "Add to list: ";
+
+      const listNameSpan = document.createElement("span");
+      listNameSpan.className = "list-name";
+      listNameSpan.textContent = groupName;
+
+      dropdownTitle.appendChild(titleText);
+      dropdownTitle.appendChild(listNameSpan);
+
+      const searchContainer = document.createElement("div");
+      searchContainer.className = "dropdown-search-container";
+      dropdownContent.appendChild(searchContainer);
+
+      const searchInput = document.createElement("input");
+      searchInput.type = "text";
+      searchInput.className = "dropdown-search";
+      searchInput.placeholder = "Search streamer...";
+      searchContainer.appendChild(searchInput);
+
+      const itemsContainer = document.createElement("div");
+      itemsContainer.className = "dropdown-items-container";
+      dropdownContent.appendChild(itemsContainer);
+
+      followedList.forEach(channel => {
+        const isAdded = currentStreamers.includes(channel.broadcaster_name);
+
+        const item = document.createElement("div");
+        item.className = `dropdown-item ${isAdded ? "added" : ""}`;
+
+        const twitchLogo = document.createElement("img");
+        twitchLogo.src = "css/twitch.png";
+        twitchLogo.className = "dropdown-twitch-logo";
+
+        const channelName = document.createElement("span");
+        channelName.className = "dropdown-channel-name";
+        channelName.textContent = channel.broadcaster_name;
+
+        const checkContainer = document.createElement("div");
+        checkContainer.className = "dropdowncircle";
+        checkContainer.innerHTML = isAdded ? "✖" : "";
+        if (isAdded) {
+          checkContainer.style.backgroundColor = "#44b700";  // Green if already added
+        }
+
+        // Event listener for checkbox click
+        checkContainer.addEventListener("click", () => {
+          toggleChannel(channel, checkContainer);
         });
-        dropdownMenu.style.display = "block";
 
-        // Set width, position, and height of dropdown
-        dropdownMenu.style.width = "300px";
-        dropdownMenu.style.position = "fixed";
-        dropdownMenu.style.overflowY = "auto";
-        dropdownMenu.style.maxHeight = "400px";
+        // Add event listener to channel name to also toggle the checkbox
+        channelName.addEventListener("click", () => {
+          toggleChannel(channel, checkContainer);
+        });
 
-        var screenWidth = window.innerWidth;
-        var dropdownWidth = dropdownMenu.offsetWidth;
-        var leftPosition = (screenWidth - dropdownWidth) / 2;
-        dropdownMenu.style.left = `${leftPosition}px`;
-        dropdownMenu.style.top = "50px";
-        dropdownMenu.style.zIndex = "3";
+        // Function to toggle channel and update UI in real-time with animation
+        function toggleChannel(channel, checkContainer) {
+          chrome.storage.local.get("favoriteGroups", (data) => {
+            const groups = data.favoriteGroups || [];
+            if (groups[groupIndex]) {
+              const streamers = groups[groupIndex].streamers;
+              const channelName = channel.broadcaster_name;
+              const wasAdded = streamers.includes(channelName);
 
-        // Create and append the message element outside the dropdown
-        var message = document.createElement("div");
-        message.id = "addChannelMessage";
-        message.textContent = "Add a channel for list " + groupName;
-        message.style.padding = "10px";
-        message.style.fontSize = "140%";
-        message.style.fontWeight = "bold";
-        message.style.color = "#efeff1";
-        message.style.backgroundColor = "rgba(98, 80, 123, 0.8)";
-        message.style.borderRadius = "8px";
-        message.style.textAlign = "center";
-        message.style.position = "fixed";
-        message.style.width = "300px";
-        var leftAdjustment = 20;
-        message.style.left = `${leftPosition + leftAdjustment}px`;
-        message.style.top = "20px";
-        message.style.zIndex = "4";
-        document.body.appendChild(message);
-
-        // Adjust the message position based on the actual position of the dropdown
-        var dropdownRect = dropdownMenu.getBoundingClientRect();
-        var gapBetweenMessageAndDropdown = 13;
-        message.style.top =
-          dropdownRect.top -
-          message.offsetHeight +
-          gapBetweenMessageAndDropdown +
-          "px";
-
-        // Create search input
-        var searchInput = document.createElement("input");
-        searchInput.type = "text";
-        searchInput.placeholder = "Search streamer...";
-        searchInput.style.width = "91%";
-        searchInput.onkeyup = function () {
-          var searchValue = this.value.toLowerCase();
-          filterDropdown(dropdownMenu, searchValue);
-        };
-        dropdownMenu.appendChild(searchInput);
-
-        // Create dropdown items
-        followedList.forEach(function (channel) {
-          var dropdownItem = document.createElement("a");
-          dropdownItem.className = "dropdown-item";
-          dropdownItem.style.display = "flex";
-          dropdownItem.style.alignItems = "center";
-          dropdownItem.style.justifyContent = "space-between";
-
-          // Create an image element for the Twitch logo
-          var twitchLogo = document.createElement("img");
-          twitchLogo.src = "css/twitch.png";
-          twitchLogo.alt = "Twitch Logo";
-          twitchLogo.style.width = "13px";
-
-          // Append the Twitch logo to the dropdown item
-          dropdownItem.appendChild(twitchLogo);
-
-          // Create a span element for the channel name with increased font size
-          var channelNameSpan = document.createElement("span");
-          channelNameSpan.className = "dropdown-channel-name";
-          channelNameSpan.textContent = " " + channel.broadcaster_name;
-
-          // Append the channel name span to the dropdown item
-          dropdownItem.appendChild(channelNameSpan);
-
-          // Create a Font Awesome plus icon and append it to the dropdown item
-          var plusIcon = document.createElement("i");
-          plusIcon.className = "fas fa-plus";
-          plusIcon.style.float = "right";
-          plusIcon.style.marginRight = "10px";
-          plusIcon.style.opacity = "0";
-          dropdownItem.appendChild(plusIcon);
-
-          dropdownItem.onmouseenter = function () {
-            plusIcon.style.opacity = "1";
-          };
-          dropdownItem.onmouseleave = function () {
-            plusIcon.style.opacity = "0";
-          };
-
-          dropdownItem.onclick = function () {
-            // Add Streamer to the group
-            chrome.storage.local.get("favoriteGroups", function (data) {
-              var groups = data.favoriteGroups || [];
-              if (groups[groupIndex]) {
-                groups[groupIndex].streamers.push(channel.broadcaster_name);
-
-                chrome.storage.local.set(
-                  { favoriteGroups: groups },
-                  function () {
-                    console.log(
-                      "Streamer added:",
-                      channel.broadcaster_name,
-                      "to group",
-                      groups[groupIndex].name
-                    );
-                    displayGroups(); // Refresh the displayed groups
-                    showTemporaryInfo("Channel added successfully!");
-                    chrome.runtime.sendMessage({ action: "oauthComplete" });
-                  }
-                );
+              if (wasAdded) {
+                groups[groupIndex].streamers = streamers.filter(name => name !== channelName);
+                checkContainer.innerHTML = "";  // Clear the checkmark
+                checkContainer.style.backgroundColor = "transparent";  // Reset to non-checked state
+              } else {
+                groups[groupIndex].streamers.push(channelName);
+                checkContainer.innerHTML = "✖";  // Show the checkmark (or X)
+                checkContainer.style.backgroundColor = "#44b700";  // Green when checked
               }
-            });
-            // Close the dropdown after selecting a channel
-            closeDropdown();
-          };
-          dropdownMenu.appendChild(dropdownItem);
-        });
 
-        // Function to close dropdown and overlay, also remove the message
-        function closeDropdown() {
-          dropdownMenu.style.display = "none";
-          overlay.style.display = "none";
-          var messageToRemove = document.getElementById("addChannelMessage");
-          if (messageToRemove) {
-            messageToRemove.remove();
-          }
-          document.removeEventListener("click", closeDropdownEvent);
+              // Smooth transition (CSS animation handled by the transition)
+              checkContainer.classList.add("checked");
+
+              chrome.storage.local.set({ favoriteGroups: groups }, () => {
+                displayGroups();
+                showTemporaryInfo(`${wasAdded ? 'Removed' : 'Added'} ${channelName} ${wasAdded ? 'from' : 'to'} list ${groupName}`);
+              });
+            }
+          });
         }
 
-        // Event to close dropdown when clicking outside
-        function closeDropdownEvent(event) {
-          if (!dropdownMenu.contains(event.target)) {
-            closeDropdown();
-          }
-        }
-
-        // Close dropdown and overlay when clicking outside
-        setTimeout(() => {
-          document.addEventListener("click", closeDropdownEvent);
-        }, 0);
+        item.append(twitchLogo, channelName, checkContainer);
+        itemsContainer.appendChild(item);
       });
-    })
-    .catch((error) => {
-      console.error(error);
+
+      searchInput.addEventListener("input", (e) => {
+        const searchValue = e.target.value.toLowerCase();
+        Array.from(itemsContainer.getElementsByClassName("dropdown-item"))
+          .forEach(item => {
+            const name = item.querySelector(".dropdown-channel-name").textContent.toLowerCase();
+            item.style.display = name.includes(searchValue) ? "flex" : "none";
+          });
+      });
+
+      dropdownMenu.style.display = "block";
+      overlay.style.display = "block";
+
+      overlay.addEventListener("click", () => {
+        dropdownMenu.remove();
+        overlay.remove();
+      });
     });
+  }).catch(console.error);
 }
+
 
 // Global function to filter dropdown
 function filterDropdown(dropdownMenu, searchValue) {
@@ -493,6 +432,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var btn = document.getElementById("addFavoriteGroupButton");
   var span = document.getElementsByClassName("close")[0];
   var saveButton = document.getElementById("saveGroup");
+  var groupNameInput = document.getElementById("groupName");
 
   btn.onclick = function () {
     modal.style.display = "block";
@@ -539,6 +479,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     updatePreview(); // Update preview on page load
+  });
+
+  // Disable button by default and set up input listener
+  saveButton.disabled = true;
+  groupNameInput.addEventListener("input", function () {
+    saveButton.disabled = this.value.trim() === "";
   });
 
   // Save the "Show Avatar" preference when changed
@@ -621,7 +567,7 @@ function updatePreview() {
         thumbnailImg.style.objectFit = "cover";
         thumbnailImg.style.borderRadius = "4px";
 
-        thumbnailImg.src = "css/dark-thumbnail-placeholder.svg";
+        thumbnailImg.src = "css/icon.png";
         thumbnailImg.style.backgroundColor = "#18181b";
 
         const actualImage = new Image();

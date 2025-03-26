@@ -49,7 +49,7 @@
                 <div class="stream-preview">
                   <div class="user-avatar-container">
                     <img
-                      src="/api/placeholder/30/30"
+                      src="/css/twitch.png"
                       alt="Stream Avatar"
                       class="stream-avatar"
                     />
@@ -121,7 +121,7 @@
                   <span class="tooltip-text">
                     Automatically categorizes your followed Twitch streams by
                     the games they're currently playing.
-                    <br /><br /><span class="tooltip-lighter-text"
+                    <br /><br /><span class="info-box"
                       >Streamers added to your favorite groups will stay in
                       those groups.</span
                     >
@@ -156,8 +156,8 @@
                 <p class="setting-description">
                   Show Stream Time❔
                   <span class="tooltip-text">
-                    Display how long each stream has been live.
-                    <span class="tooltip-lighter-text"
+                    Display how long each stream has been live.<br /><br />
+                    <span class="info-box"
                       >Shows in HH:MM:SS format next to viewer count.</span
                     >
                   </span>
@@ -312,7 +312,7 @@
                     channels first in each category. This helps you quickly find
                     the channels you watch most often.
                     <br /><br />
-                    <span class="tooltip-lighter-text">
+                    <span class="info-box">
                       💡 The more you click on a channel, the higher it will
                       appear in its category group.
                     </span>
@@ -331,6 +331,10 @@
         <span class="close">&times;</span>
         <h3>➕ Add Favorite Group</h3>
         <input type="text" id="groupName" placeholder="Group Name" />
+        <p class="input-hint">
+          e.g., <em>My Fav Streamers</em>, <em>Gaming Crew</em>
+        </p>
+        <!-- Added hint -->
         <button id="saveGroup">Save Group</button>
         <div id="streamerDropdown" class="dropdown-menu">
           <div id="dropdownOverlay" class="dropdown-overlay"></div>
