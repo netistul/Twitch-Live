@@ -294,7 +294,7 @@ function showAddStreamerDropdown(groupIndex) {
       const searchInput = document.createElement("input");
       searchInput.type = "text";
       searchInput.className = "dropdown-search";
-      searchInput.placeholder = "Search streamer...";
+      searchInput.placeholder = `Search streamer... (${followedList.length})`;
       searchContainer.appendChild(searchInput);
 
       const itemsContainer = document.createElement("div");

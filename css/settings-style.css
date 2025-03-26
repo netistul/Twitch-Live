@@ -168,7 +168,7 @@ body {
 .group-item {
   position: relative;
   overflow: visible;
-  background-color: #fffdf5; /* Light cream color like paper */
+  background-color: #fffdf5;
   border: 1px solid #e0e0e0;
   border-radius: 3px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
@@ -284,8 +284,8 @@ body {
   list-style-type: none;
   padding: 0 2px 0 5px;
   margin: 10px 0;
-  font-size: 17px;
-  font-family: "Patrick Hand", cursive;
+  font-size: 18px;
+  font-family: "Comic Sans MS", "Marker Felt", cursive;
   line-height: 1.8;
   overflow-x: hidden;
 }
