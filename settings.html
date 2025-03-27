@@ -5,6 +5,7 @@
     <title>Extension Settings</title>
     <link rel="stylesheet" type="text/css" href="css/settings-dark.css" />
     <link rel="stylesheet" type="text/css" href="css/settings-style.css" />
+    <link rel="stylesheet" type="text/css" href="css/modal.css" />
   </head>
   <body>
     <header class="twitch-header">
@@ -328,16 +329,33 @@
     <!-- Modal for adding new favorite group -->
     <div id="myModal" class="modal">
       <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>➕ Add Favorite Group</h3>
-        <input type="text" id="groupName" placeholder="Group Name" />
-        <p class="input-hint">
-          e.g., <em>My Fav Streamers</em>, <em>Gaming Crew</em>
-        </p>
-        <!-- Added hint -->
-        <button id="saveGroup">Save Group</button>
-        <div id="streamerDropdown" class="dropdown-menu">
-          <div id="dropdownOverlay" class="dropdown-overlay"></div>
+        <div class="modal-header">
+          <div>
+            <h3 class="modal-title">Create a new list</h3>
+            <p class="modal-subtitle">Organize your Twitch streamers</p>
+          </div>
+          <span class="badge">My favorite list</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="groupName">Favorite list name</label>
+            <!-- Added label -->
+            <input
+              type="text"
+              id="groupName"
+              class="form-input"
+              placeholder="e.g. My fav streamers, Playing LOL..."
+              autofocus
+            />
+            <p class="form-help">
+              Create a <strong>descriptive name</strong> for easy access from
+              the popup
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel">Cancel</button>
+          <button id="saveGroup" class="btn-primary">Save Group</button>
         </div>
       </div>
     </div>

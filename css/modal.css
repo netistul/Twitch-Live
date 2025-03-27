@@ -1,0 +1,328 @@
+/* Modern Modal Styles - Matched to your HTML structure */
+:root {
+  /* Base colors */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* Accent colors */
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+
+  /* Default (light) mode colors */
+  --modal-bg: #ffffff;
+  --modal-border: #e5e7eb;
+  --input-bg: #f9fafb;
+  --input-border: #d1d5db;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --modal-overlay: rgba(0, 0, 0, 0.4);
+
+  --text-placeholder: var(--color-gray-400);
+  --text-tertiary: var(--color-gray-500);
+  --text-accent: var(--color-indigo-500);
+
+  --color-indigo-400: #818cf8;
+  --text-accent: var(--color-indigo-400);
+  --text-tertiary: var(--color-gray-500);
+}
+
+/* Modal Base Styles - Matched to your structure */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--modal-overlay);
+  overflow: auto;
+  /* Center the modal content */
+  display: none; /* Changed from flex to none */
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+/* Title/subtitle container */
+.modal-header > div {
+  flex: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .badge {
+    align-self: flex-end;
+  }
+}
+
+.modal-title {
+  font-family: "Inter", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0 0;
+  margin-top: 0.25rem;
+}
+
+/* Badge styling */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: rgba(145, 71, 255, 0.1); /* Twitch purple tint */
+  color: #9147ff; /* Twitch purple */
+}
+
+.modal-content {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--modal-bg);
+  width: 400px;
+  max-width: 90%;
+  box-sizing: border-box;
+  margin: 0; /* Changed from 5% auto */
+  padding: 0;
+  border: 1px solid var(--modal-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+/* Input Styling */
+/* Form Group Container */
+.form-group {
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Input Styling */
+#groupName {
+  box-sizing: border-box; /* Add this */
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin: 0 0 0.25rem 0;
+  border: 1px solid var(--input-border);
+  border-radius: 0.5rem;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 0.875rem; /* Match example size */
+  transition: all 0.15s ease;
+}
+
+#groupName::placeholder {
+  color: var(--text-placeholder);
+  opacity: 0.7;
+}
+
+#groupName:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.form-help strong {
+  color: var(--text-accent); /* This makes "descriptive name" colored */
+  font-weight: 500; /* Medium weight */
+}
+
+/* Modal Footer & Buttons */
+.modal-footer {
+  padding: 1rem 1.5rem 1.5rem; /* Match example's exact padding */
+  margin-top: 0; /* Remove extra margin */
+  border-top: 1px solid rgba(0, 0, 0, 0.08); /* Add divider like example */
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.btn-cancel {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #e5e7eb;
+}
+
+#saveGroup {
+  background-color: var(--color-indigo-600);
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#saveGroup:hover {
+  background-color: var(--color-indigo-500);
+}
+
+#saveGroup:disabled {
+  background-color: var(--color-gray-300);
+  cursor: not-allowed;
+  color: var(--color-gray-500);
+}
+
+/* Dark Mode Styles */
+.dark-mode {
+  --modal-bg: #1a1b26;
+  --modal-border: none;
+  --input-bg: #2a2b36;
+  --input-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --text-placeholder: var(--color-gray-500);
+  --text-tertiary: var(--color-gray-500);
+  --text-accent: var(--color-indigo-400);
+}
+
+.dark-mode .modal {
+  background-color: var(--modal-overlay);
+}
+
+/* Dark mode header border */
+.dark-mode .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .modal-title {
+  color: var(--text-primary);
+}
+
+.dark-mode .modal-subtitle {
+  color: var(--text-secondary);
+}
+
+/* Dark mode badge */
+.dark-mode .badge {
+  background-color: rgba(145, 71, 255, 0.2);
+  color: #a970ff; /* Lighter Twitch purple */
+}
+
+.dark-mode .modal-content {
+  background-color: var(--modal-bg);
+  border: var(--modal-border);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode #groupName {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+
+.dark-mode .form-label {
+  color: var(--text-secondary);
+}
+
+.dark-mode #groupName:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.dark-mode .form-help {
+  color: var(--text-tertiary);
+}
+
+.dark-mode .form-help strong {
+  color: var(--color-indigo-400); /* Same color in dark mode */
+}
+
+.dark-mode .modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .btn-cancel {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.dark-mode .btn-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode #saveGroup {
+  background-color: var(--color-indigo-600);
+}
+
+.dark-mode #saveGroup:hover {
+  background-color: var(--color-indigo-500);
+}
+
+.dark-mode #saveGroup:disabled {
+  background-color: #374151;
+  color: var(--text-secondary);
+}
+
+.dark-mode .dropdown-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}

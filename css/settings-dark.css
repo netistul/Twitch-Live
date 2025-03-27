@@ -153,59 +153,6 @@ body.dark-mode {
 .dark-mode .streamer-remove-btn {
   color: #ffffff;
 }
-/* Modal Styles */
-.dark-mode .modal {
-  background-color: rgba(0, 0, 0, 0.8); /* Dark background with opacity */
-}
-
-/* Modal Content */
-.dark-mode .modal-content {
-  background-color: #2c2f33; /* Dark gray background */
-  color: #ffffff; /* Light text color */
-  border: 2px solid #444; /* Dark border */
-}
-
-/* Close Button */
-.dark-mode .close {
-  color: #aaaaaa;
-}
-
-.dark-mode .close:hover,
-.dark-mode .close:focus {
-  color: #ffffff;
-}
-
-/* Styled Input */
-.dark-mode input[type="text"] {
-  background-color: #2c2f33;
-  color: #ffffff;
-  border: 2px solid #444; /* Match border width with light mode */
-}
-input[type="text"]:hover,
-input[type="text"]:focus {
-  border-color: #999;
-  outline: none;
-}
-
-.dark-mode input[type="text"]:hover,
-.dark-mode input[type="text"]:focus {
-  border-color: #666;
-}
-/* Styled Buttons */
-.dark-mode .button,
-.dark-mode #saveGroup {
-  background-color: #7d5bbe;
-}
-
-.dark-mode .button:hover,
-.dark-mode #saveGroup:hover {
-  background-color: #9a7fd1;
-}
-
-.dark-mode #saveGroup:disabled {
-  background-color: #3a3a3a !important;
-  color: #888 !important;
-}
 
 /* ===== Dark Mode Dropdown Channel Twitch ===== */
 .dark-mode .dropdown-header {

@@ -489,45 +489,48 @@ function filterDropdown(dropdownMenu, searchValue) {
   }
 }
 
-// DOMContentLoaded event listener
+// DOMContentLoaded event listener for add new fav group
 document.addEventListener("DOMContentLoaded", function () {
-  var modal = document.getElementById("myModal");
-  var btn = document.getElementById("addFavoriteGroupButton");
-  var span = document.getElementsByClassName("close")[0];
-  var saveButton = document.getElementById("saveGroup");
-  var groupNameInput = document.getElementById("groupName");
+  const modal = document.getElementById("myModal");
+  const btn = document.getElementById("addFavoriteGroupButton");
+  const saveButton = document.getElementById("saveGroup");
+  const groupNameInput = document.getElementById("groupName");
 
-  btn.onclick = function () {
-    modal.style.display = "block";
-  };
+  // Modal control functions
+  btn.onclick = () => modal.style.display = "flex"; // Changed to "flex" to match CSS
 
-  span.onclick = function () {
+  document.querySelector('.btn-cancel')?.addEventListener('click', () => {
     modal.style.display = "none";
+  });
+
+  window.onclick = (event) => {
+    if (event.target === modal) modal.style.display = "none";
   };
 
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
-
+  // Save group functionality
   saveButton.addEventListener("click", function () {
-    var groupName = document.getElementById("groupName").value;
-    if (groupName) {
-      chrome.storage.local.get("favoriteGroups", function (data) {
-        var groups = data.favoriteGroups || [];
-        var newGroup = { name: groupName, streamers: [] };
-        groups.push(newGroup);
-
-        chrome.storage.local.set({ favoriteGroups: groups }, function () {
-          console.log("Group saved:", groupName);
-          modal.style.display = "none";
-          displayGroups();
-        });
-      });
-    } else {
+    const groupName = groupNameInput.value.trim();
+    if (!groupName) {
       console.log("No group name entered");
+      return;
     }
+
+    chrome.storage.local.get("favoriteGroups", (data) => {
+      const groups = data.favoriteGroups || [];
+      groups.push({ name: groupName, streamers: [] });
+
+      chrome.storage.local.set({ favoriteGroups: groups }, () => {
+        console.log("Group saved:", groupName);
+        modal.style.display = "none";
+        displayGroups();
+      });
+    });
+  });
+
+  // Input validation
+  saveButton.disabled = true;
+  groupNameInput.addEventListener("input", function () {
+    saveButton.disabled = this.value.trim() === "";
   });
 
   // Load and set the "Show Avatar" preference
