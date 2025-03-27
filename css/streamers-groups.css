@@ -2,9 +2,39 @@
 /* Matches your modal design system */
 
 /* ================= CONTAINERS ================= */
+#favorites-section.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 #groupListContainer {
   width: 100%;
   margin-top: 16px;
+  max-height: 500px; /* Set maximum height before scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: var(--color-indigo-400) var(--color-gray-100); /* For Firefox */
+  padding-right: 28px; /* Space between content and scrollbar */
+  margin-right: 7px; /* Additional outer spacing */
+}
+
+/* Custom scrollbar for WebKit browsers */
+#groupListContainer::-webkit-scrollbar {
+  width: 10px;
+}
+
+#groupListContainer::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+#groupListContainer::-webkit-scrollbar-thumb {
+  background-color: var(--color-indigo-400);
+  border-radius: 4px;
+  border: 2px solid transparent; /* Creates invisible border that expands click area */
+  background-clip: content-box; /* Ensures color doesn't cover the border */
 }
 
 #groupList {
@@ -13,6 +43,20 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-right: 8px; /* Content padding */
+}
+
+/* Dark mode scrollbar styles */
+.dark-mode #groupListContainer {
+  scrollbar-color: var(--color-indigo-600) var(--color-gray-800); /* For Firefox */
+}
+
+.dark-mode #groupListContainer::-webkit-scrollbar-track {
+  background: var(--color-gray-800);
+}
+
+.dark-mode #groupListContainer::-webkit-scrollbar-thumb {
+  background-color: var(--color-indigo-600);
 }
 
 /* ================= GROUP ITEMS ================= */
