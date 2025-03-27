@@ -299,6 +299,7 @@ function showAddStreamerDropdown(groupIndex) {
 
       const itemsContainer = document.createElement("div");
       itemsContainer.className = "dropdown-items-container";
+      itemsContainer.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))"; // Force 2 columns
       dropdownContent.appendChild(itemsContainer);
 
       // Group streamers by first letter
