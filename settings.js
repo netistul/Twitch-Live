@@ -345,25 +345,21 @@ function showAddStreamerDropdown(groupIndex) {
           channelName.className = "dropdown-channel-name";
           channelName.textContent = channel.broadcaster_name;
 
-          const checkContainer = document.createElement("div");
-          checkContainer.className = "dropdowncircle";
-          checkContainer.innerHTML = isAdded ? "✖" : "";
-          if (isAdded) {
-            checkContainer.style.backgroundColor = "#44b700";
-          }
+          const heart = document.createElement("div");
+          heart.className = `dropdown-heart ${isAdded ? "added" : ""}`;
 
           item.addEventListener("click", (e) => {
-            if (e.target !== checkContainer) {
-              toggleChannel(channel, checkContainer);
+            if (!heart.contains(e.target)) {  // Only trigger if not clicking the heart itself
+              toggleChannel(channel, heart);
             }
           });
 
-          checkContainer.addEventListener("click", (e) => {
+          heart.addEventListener("click", (e) => {
             e.stopPropagation();
-            toggleChannel(channel, checkContainer);
+            toggleChannel(channel, heart);
           });
 
-          function toggleChannel(channel, checkContainer) {
+          function toggleChannel(channel, heartElement) {
             chrome.storage.local.get("favoriteGroups", (data) => {
               const groups = data.favoriteGroups || [];
               if (groups[groupIndex]) {
@@ -373,17 +369,13 @@ function showAddStreamerDropdown(groupIndex) {
 
                 if (wasAdded) {
                   groups[groupIndex].streamers = streamers.filter(name => name !== channelName);
-                  checkContainer.innerHTML = "";
-                  checkContainer.style.backgroundColor = "transparent";
+                  heartElement.classList.remove("added");
                   item.classList.remove("added");
                 } else {
                   groups[groupIndex].streamers.push(channelName);
-                  checkContainer.innerHTML = "✖";
-                  checkContainer.style.backgroundColor = "#44b700";
+                  heartElement.classList.add("added");
                   item.classList.add("added");
                 }
-
-                checkContainer.classList.add("checked");
 
                 chrome.storage.local.set({ favoriteGroups: groups }, () => {
                   displayGroups();
@@ -393,7 +385,7 @@ function showAddStreamerDropdown(groupIndex) {
             });
           }
 
-          item.append(twitchLogo, channelName, checkContainer);
+          item.append(twitchLogo, channelName, heart);
           itemsContainer.appendChild(item);
         });
       });
