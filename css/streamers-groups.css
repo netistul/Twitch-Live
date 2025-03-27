@@ -1,0 +1,315 @@
+/* streamers-groups.css */
+/* Matches your modal design system */
+
+/* ================= CONTAINERS ================= */
+#groupListContainer {
+  width: 100%;
+  margin-top: 16px;
+}
+
+#groupList {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ================= GROUP ITEMS ================= */
+.group-item {
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.group-item:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ================= GROUP HEADER ================= */
+.group-name-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.group-name {
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-grow: 1;
+  padding-right: 40px; /* Space for actions */
+}
+
+.group-name.editing {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  width: 100%;
+}
+
+/* ================= STREAMERS LIST ================= */
+.streamers-list {
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0;
+  margin: 8px 0;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+}
+
+.streamers-list li {
+  padding: 6px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.streamers-list li:hover {
+  background-color: var(--color-gray-100);
+}
+
+.streamers-list li::before {
+  content: "•";
+  color: var(--color-indigo-400);
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+/* ================= BUTTONS ================= */
+.actions-container {
+  display: flex;
+  gap: 8px;
+  position: absolute;
+  right: 0;
+}
+
+.edit-group-btn-settings,
+.delete-group-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.edit-group-btn-settings:hover {
+  color: var(--color-indigo-400);
+}
+
+.edit-group-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+}
+
+.edit-group-btn:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-indigo-500);
+}
+
+.edit-group-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.delete-group-button:hover {
+  color: #ef4444;
+}
+
+/* ================= GROUP ACTION BUTTONS ================= */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.add-streamer-btn,
+.delete-group-btn {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Add Streamer Button */
+.add-streamer-btn {
+  background-color: var(--color-indigo-600);
+  color: white;
+}
+
+.add-streamer-btn:hover {
+  background-color: var(--color-indigo-500);
+}
+
+/* Delete Group Button */
+.delete-group-btn {
+  background-color: var(--color-gray-100);
+  color: var(--text-primary);
+  border-color: var(--color-gray-300);
+}
+
+.delete-group-btn:hover {
+  background-color: var(--color-gray-200);
+}
+
+/* ================= PROPERLY CONTAINED BUTTON ================= */
+#addFavoriteGroupButton {
+  /* Structure */
+  padding: 10px 24px;
+  margin: 16px auto;
+  display: block;
+  position: relative; /* Essential for containing absolute children */
+  overflow: hidden; /* Clips the glow effect */
+
+  /* Typography */
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+
+  /* Light Mode */
+  background-color: transparent;
+  border: 1px solid var(--color-indigo-400);
+  color: var(--color-indigo-600);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* ================= DARK MODE ================= */
+
+.dark-mode .group-name {
+  color: #f0f0f0; /* Crisp white */
+}
+.dark-mode .group-item {
+  background-color: #24252e; /* Slightly lighter than modal bg */
+  border: 1px solid #3a3b45; /* Subtle border */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05); /* Inner glow */
+}
+
+.dark-mode .group-item::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-indigo-400) 50%,
+    transparent 100%
+  );
+  opacity: 0.3;
+}
+
+.dark-mode .streamers-list {
+  scrollbar-color: #4f46e5 #2a2b36; /* Indigo scrollbar */
+}
+
+.dark-mode .streamers-list li {
+  color: #e0e0e0; /* Brighter text */
+}
+
+.dark-mode .streamers-list li:hover {
+  background-color: #2e2f3a; /* Subtle hover */
+}
+
+.dark-mode .streamers-list li::before {
+  color: var(--color-indigo-400); /* Vibrant bullet */
+}
+
+.dark-mode .edit-group-btn-settings:hover {
+  color: var(--color-indigo-400);
+}
+
+.dark-mode .delete-group-button:hover {
+  color: #f87171;
+}
+
+/* Buttons refinement */
+.dark-mode .add-streamer-btn {
+  background-color: rgba(99, 102, 241, 0.15); /* Indigo with 15% opacity */
+  border: 1px solid rgba(99, 102, 241, 0.3); /* Semi-transparent border */
+  color: var(--color-indigo-400); /* Light indigo text */
+  box-shadow: none; /* Remove shadow for flat design */
+}
+
+.dark-mode .add-streamer-btn:hover {
+  background-color: rgba(99, 102, 241, 0.25); /* Slightly more opaque */
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: none; /* Remove translateY effect */
+}
+
+.dark-mode .delete-group-btn {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.dark-mode .delete-group-btn:hover {
+  background-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Dark Mode - Modern Grey */
+.dark-mode #addFavoriteGroupButton {
+  background-color: #2a2b36;
+  border: 1px solid #3a3b45;
+  color: var(--color-indigo-300);
+}
+
+/* Glow Effect - Now properly contained */
+.dark-mode #addFavoriteGroupButton::after {
+  content: "";
+  position: absolute;
+  top: -50%; /* Start position outside button */
+  left: -50%;
+  width: 200%; /* Larger than button to ensure full coverage */
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(99, 102, 241, 0.15) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0; /* Behind button content */
+}
+
+.dark-mode #addFavoriteGroupButton:hover::after {
+  opacity: 1;
+}
+
+/* Text/content needs to be above the glow */
+.dark-mode #addFavoriteGroupButton span {
+  position: relative;
+  z-index: 1;
+}
+
+.dark-mode .edit-group-btn:hover {
+  background-color: var(--color-gray-700);
+  color: var(--color-indigo-400);
+}
