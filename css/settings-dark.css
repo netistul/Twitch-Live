@@ -90,10 +90,43 @@ body.dark-mode {
 /* Streamers List Style */
 .dark-mode .streamers-list {
   color: #d0d0d0;
+  background: linear-gradient(#212121 30%, rgba(33, 33, 33, 0)),
+    linear-gradient(rgba(33, 33, 33, 0), #212121 70%) 0 100%,
+    radial-gradient(
+      farthest-side at 50% 0,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0)
+    ),
+    radial-gradient(
+        farthest-side at 50% 100%,
+        rgba(255, 255, 255, 0.093),
+        rgba(255, 255, 255, 0)
+      )
+      0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+  background-attachment: local, local, scroll, scroll;
+  border-left: 1px solid #3d3d3d00;
+  border-right: 1px solid #3d3d3d;
 }
 
 .dark-mode .streamers-list li::before {
   color: #a16ce6; /* Lighter purple in dark mode */
+}
+.dark-mode .streamers-list::-webkit-scrollbar-track {
+  background: rgba(50, 50, 50, 0.2);
+}
+
+.dark-mode .streamers-list::-webkit-scrollbar-thumb {
+  background: rgba(161, 108, 230, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .streamers-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 108, 230, 0.7);
+}
+.dark-mode .group-item::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23aaaaaa'%3E%3Cpath d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z'/%3E%3C/svg%3E");
 }
 
 /* Button Container Style */

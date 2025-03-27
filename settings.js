@@ -1278,6 +1278,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Selected channels updated:", selectedChannels);
     });
   }
+
 });
 
 // Dropdowns - Stream grouping
