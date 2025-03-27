@@ -317,6 +317,10 @@ body {
   margin-right: 10px;
 }
 
+.viewers.rerun {
+  color: #9ca3af;
+}
+
 .stream-info:link,
 .stream-info:visited {
   color: inherit;

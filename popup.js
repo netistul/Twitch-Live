@@ -201,6 +201,10 @@ function updateLiveStreams() {
         const channelItem = document.createElement("div");
         channelItem.className = "stream-item";
 
+        const isRerun = ["rerun", "rebroadcast", "VOD", "encore"].some(keyword =>
+          stream.title.toLowerCase().includes(keyword)
+        );
+
         const channelLink = document.createElement("a");
         channelLink.href = `https://www.twitch.tv/${stream.broadcasterLogin}`;
         channelLink.className = "stream-info";
@@ -469,14 +473,14 @@ function updateLiveStreams() {
         }
 
         const viewersSpan = document.createElement("span");
-        viewersSpan.className = "viewers";
+        viewersSpan.className = isRerun ? "viewers rerun" : "viewers";
         viewersSpan.textContent = stream.viewers;
         viewersWrapper.appendChild(viewersSpan);
 
         // Include signal icon if avatar is shown
         if (showAvatar && stream.avatar) {
           const iconImg = document.createElement("img");
-          iconImg.src = "css/signal.svg";
+          iconImg.src = isRerun ? "css/signal-rerun.svg" : "css/signal.svg";
           iconImg.className = "signal-icon";
           iconImg.alt = "Signal";
           iconImg.style.height = "13px";

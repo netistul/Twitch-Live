@@ -304,7 +304,8 @@ function fetchStreamData(accessToken, followedList) {
                 avatar: avatarUrl,
                 thumbnail: thumbnailUrl,
                 live: true,
-                started_at: stream.started_at
+                started_at: stream.started_at,
+                type: stream.type
               };
             }
             return null;

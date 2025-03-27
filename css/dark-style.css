@@ -65,6 +65,10 @@
   color: #e76763;
 }
 
+.dark-mode .viewers.rerun {
+  color: #9ca3af;
+}
+
 .dark-mode .access-count {
   color: #9999993d; /* Lighter color for a subtle appearance */
 }
