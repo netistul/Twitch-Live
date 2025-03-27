@@ -467,23 +467,42 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .custom-context-menu {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: none;
-  background-color: #f4f4f8;
-  color: #da285a;
-  padding: 1px 0;
+  /* Layout & Positioning */
   position: fixed;
-  z-index: 1000;
-  cursor: default;
-  border-radius: 8px;
-  font-family: "Open Sans", Arial, sans-serif;
-  font-size: 13px;
+  z-index: 10000; /* Increased from 1000 for better overlay */
   width: 300px;
   box-sizing: border-box;
-  transition: box-shadow 0.3s ease;
-  margin: 3px; /* Added margin for better visibility */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Slightly enhanced shadow */
-  border: 1px solid #e0e0e0; /* Subtle border for definition */
+
+  /* Visual Styling */
+  background-color: #ffffff; /* Changed from #f4f4f8 for better contrast */
+  border: 1px solid #e1e1e8; /* More subtle border color */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12),
+    /* Enhanced shadow */ 0 2px 4px rgba(0, 0, 0, 0.08); /* Added secondary shadow for depth */
+
+  /* Typography */
+  font-family: "Inter", "Open Sans", Arial, sans-serif; /* Added modern font stack */
+  font-size: 13px;
+  color: #333333; /* More readable than #da285a for content */
+  line-height: 1.4;
+
+  /* Spacing */
+  padding: 6px 0; /* Increased vertical padding */
+  margin: 4px; /* Slightly increased margin */
+
+  /* Interactions */
+  cursor: default;
+  user-select: none;
+
+  /* Animations */
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out,
+    box-shadow 0.3s ease;
+
+  /* Overflow handling */
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d4 transparent;
 }
 
 .context-menu-item {

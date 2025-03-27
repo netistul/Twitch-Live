@@ -714,9 +714,8 @@ function showContextMenu(stream, x, y) {
 
   const contextMenu = document.createElement("div");
   contextMenu.className = "custom-context-menu";
-  contextMenu.style.left = `${x}px`;
-  contextMenu.style.top = `${y}px`;
 
+  // Create menu content first to calculate dimensions
   const menuHeader = document.createElement("div");
   menuHeader.className = "context-menu-header";
 
@@ -934,25 +933,37 @@ function showContextMenu(stream, x, y) {
     contextMenu.appendChild(addNewGroupItem);
     document.body.appendChild(contextMenu);
 
-    const menuRect = contextMenu.getBoundingClientRect();
-    if (menuRect.right > window.innerWidth) {
-      contextMenu.style.left = `${window.innerWidth - menuRect.width}px`;
-    }
-    if (menuRect.bottom > window.innerHeight) {
-      contextMenu.style.top = `${window.innerHeight - menuRect.height}px`;
-    }
-  });
+    // Calculate menu dimensions
+    const menuWidth = contextMenu.offsetWidth;
+    const menuHeight = contextMenu.offsetHeight;
 
-  document.addEventListener(
-    "click",
-    function closeMenu(event) {
-      if (!contextMenu.contains(event.target)) {
-        contextMenu.remove();
-        document.removeEventListener("click", closeMenu);
-      }
-    },
-    { capture: true }
-  );
+    // Calculate safe position with margins
+    const margin = 10; // Minimum margin from edges
+    const safeX = Math.min(
+      x,
+      window.innerWidth - menuWidth - margin
+    );
+    const safeY = Math.min(
+      y,
+      window.innerHeight - menuHeight - margin
+    );
+
+    // Apply safe position
+    contextMenu.style.left = `${Math.max(margin, safeX)}px`;
+    contextMenu.style.top = `${Math.max(margin, safeY)}px`;
+
+    // Add click-away listener
+    document.addEventListener(
+      "click",
+      function closeMenu(event) {
+        if (!contextMenu.contains(event.target)) {
+          contextMenu.remove();
+          document.removeEventListener("click", closeMenu);
+        }
+      },
+      { capture: true }
+    );
+  });
 }
 
 function addToGroup(stream, groupName) {
