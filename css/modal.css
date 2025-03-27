@@ -230,97 +230,100 @@
   color: var(--color-gray-500);
 }
 
-/* Dark Mode Styles */
-.dark-mode {
-  --modal-bg: #1a1b26;
-  --modal-border: none;
-  --input-bg: #2a2b36;
-  --input-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --modal-overlay: rgba(0, 0, 0, 0.7);
-  --text-placeholder: var(--color-gray-500);
-  --text-tertiary: var(--color-gray-500);
-  --text-accent: var(--color-indigo-400);
-}
+/* ======================== */
+/* TEMPORARY INFO POPUP - MATCHING MODAL STYLE
+/* ======================== */
+.temporary-info-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100; /* Above dropdown and modal */
 
-.dark-mode .modal {
-  background-color: var(--modal-overlay);
-}
-
-/* Dark mode header border */
-.dark-mode .modal-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.dark-mode .modal-title {
-  color: var(--text-primary);
-}
-
-.dark-mode .modal-subtitle {
-  color: var(--text-secondary);
-}
-
-/* Dark mode badge */
-.dark-mode .badge {
-  background-color: rgba(145, 71, 255, 0.2);
-  color: #a970ff; /* Lighter Twitch purple */
-}
-
-.dark-mode .modal-content {
   background-color: var(--modal-bg);
-  border: var(--modal-border);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-.dark-mode #groupName {
-  background-color: var(--input-bg);
-  border: 1px solid var(--input-border);
   color: var(--text-primary);
+  border: 1px solid var(--modal-border);
+  border-radius: 8px;
+  padding: 12px 24px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: row-reverse;
 }
 
-.dark-mode .form-label {
-  color: var(--text-secondary);
+.temporary-info-popup.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  padding: 12px 16px;
 }
 
-.dark-mode #groupName:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.dark-mode .form-help {
-  color: var(--text-tertiary);
+.notification-popup-channel {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
 }
 
-.dark-mode .form-help strong {
-  color: var(--color-indigo-400); /* Same color in dark mode */
+/* Color variations */
+.notification-popup-channel--added {
+  color: var(--color-indigo-500);
 }
 
-.dark-mode .modal-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+.notification-popup-channel--removed {
+  color: #ef4444;
 }
 
-.dark-mode .btn-cancel {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+/* Twitch icon in notification */
+.notification-popup-twitch-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
 }
 
-.dark-mode .btn-cancel:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+/* Notification content container */
+.notification-popup-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.dark-mode #saveGroup {
-  background-color: var(--color-indigo-600);
+/* Channel display wrapper */
+.notification-popup-channel-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.dark-mode #saveGroup:hover {
-  background-color: var(--color-indigo-500);
+.temporary-info-icon {
+  width: 16px;
+  height: 16px;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  flex-shrink: 0;
+  background-color: var(--color-indigo-500); /* Default color */
 }
 
-.dark-mode #saveGroup:disabled {
-  background-color: #374151;
-  color: var(--text-secondary);
+.temporary-info-icon.added {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 11.08V12a10 10 0 1 1-5.93-9.14'%3E%3C/path%3E%3Cpolyline points='22 4 12 14.01 9 11.01'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.temporary-info-icon.removed {
+  background-color: #ef4444; /* Red color */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='15' y1='9' x2='9' y2='15'%3E%3C/line%3E%3Cline x1='9' y1='9' x2='15' y2='15'%3E%3C/line%3E%3C/svg%3E");
 }
 
 /* =========================================== */
@@ -587,6 +590,98 @@
 /* ======================== */
 /* DARK MODE STYLES
 /* ======================== */
+.dark-mode {
+  --modal-bg: #1a1b26;
+  --modal-border: none;
+  --input-bg: #2a2b36;
+  --input-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --text-placeholder: var(--color-gray-500);
+  --text-tertiary: var(--color-gray-500);
+  --text-accent: var(--color-indigo-400);
+}
+
+.dark-mode .modal {
+  background-color: var(--modal-overlay);
+}
+
+/* Dark mode header border */
+.dark-mode .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .modal-title {
+  color: var(--text-primary);
+}
+
+.dark-mode .modal-subtitle {
+  color: var(--text-secondary);
+}
+
+/* Dark mode badge */
+.dark-mode .badge {
+  background-color: rgba(145, 71, 255, 0.2);
+  color: #a970ff; /* Lighter Twitch purple */
+}
+
+.dark-mode .modal-content {
+  background-color: var(--modal-bg);
+  border: var(--modal-border);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode #groupName {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+
+.dark-mode .form-label {
+  color: var(--text-secondary);
+}
+
+.dark-mode #groupName:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.dark-mode .form-help {
+  color: var(--text-tertiary);
+}
+
+.dark-mode .form-help strong {
+  color: var(--color-indigo-400); /* Same color in dark mode */
+}
+
+.dark-mode .modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .btn-cancel {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.dark-mode .btn-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode #saveGroup {
+  background-color: var(--color-indigo-600);
+}
+
+.dark-mode #saveGroup:hover {
+  background-color: var(--color-indigo-500);
+}
+
+.dark-mode #saveGroup:disabled {
+  background-color: #374151;
+  color: var(--text-secondary);
+}
+
 .dark-mode .dropdown-menu {
   background-color: var(--modal-bg);
   border: 1px solid var(--modal-border);
@@ -654,4 +749,31 @@
 
 .dark-mode #dropdownOverlay {
   background-color: var(--modal-overlay);
+}
+
+.dark-mode .temporary-info-popup {
+  background-color: var(--modal-bg);
+  border: 1px solid var(--input-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dark-mode .temporary-info-popup::before {
+  background-color: var(--color-indigo-400);
+}
+
+.dark-mode .temporary-info-icon.added {
+  background-color: var(--color-indigo-400);
+}
+
+.dark-mode .temporary-info-icon.removed {
+  background-color: #f87171; /* Lighter red */
+}
+
+/* Dark mode adjustments */
+.dark-mode .notification-popup-channel--added {
+  color: var(--color-indigo-400);
+}
+
+.dark-mode .notification-popup-channel--removed {
+  color: #f87171;
 }

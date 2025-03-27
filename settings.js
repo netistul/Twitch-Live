@@ -244,6 +244,9 @@ function getFollowedList() {
 
 // show the streamer dropdown
 function showAddStreamerDropdown(groupIndex) {
+  // Remove any existing notifications properly
+  clearAllNotifications();
+
   getFollowedList().then((followedList) => {
     document.querySelectorAll(".dropdown-menu, #dropdownOverlay").forEach(el => el.remove());
 
@@ -299,7 +302,7 @@ function showAddStreamerDropdown(groupIndex) {
 
       const itemsContainer = document.createElement("div");
       itemsContainer.className = "dropdown-items-container";
-      itemsContainer.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))"; // Force 2 columns
+      itemsContainer.style.gridTemplateColumns = "repeat(2, minmax(0, 1fr))";
       dropdownContent.appendChild(itemsContainer);
 
       // Group streamers by first letter
@@ -350,7 +353,7 @@ function showAddStreamerDropdown(groupIndex) {
           heart.className = `dropdown-heart ${isAdded ? "added" : ""}`;
 
           item.addEventListener("click", (e) => {
-            if (!heart.contains(e.target)) {  // Only trigger if not clicking the heart itself
+            if (!heart.contains(e.target)) {
               toggleChannel(channel, heart);
             }
           });
@@ -380,7 +383,12 @@ function showAddStreamerDropdown(groupIndex) {
 
                 chrome.storage.local.set({ favoriteGroups: groups }, () => {
                   displayGroups();
-                  showTemporaryInfo(`${wasAdded ? 'Removed' : 'Added'} ${channelName} ${wasAdded ? 'from' : 'to'} list ${groupName}`);
+                  showTemporaryNotification(
+                    wasAdded ? 'removed from' : 'added to',
+                    wasAdded ? 'removed' : 'added',
+                    channel.broadcaster_name,  // channelName
+                    groupName  // list name
+                  );
                 });
               }
             });
@@ -393,21 +401,15 @@ function showAddStreamerDropdown(groupIndex) {
 
       searchInput.addEventListener("input", (e) => {
         const searchValue = e.target.value.toLowerCase();
-        let hasVisibleItems = false;
-
-        // Hide all items and headers first
         Array.from(itemsContainer.children).forEach(child => {
           child.style.display = "none";
         });
 
-        // Show matching items and their headers
         Array.from(itemsContainer.getElementsByClassName("dropdown-item"))
           .forEach(item => {
             const name = item.querySelector(".dropdown-channel-name").textContent.toLowerCase();
             if (name.includes(searchValue)) {
               item.style.display = "flex";
-              hasVisibleItems = true;
-              // Show the letter header for this item
               let prev = item.previousElementSibling;
               while (prev && !prev.classList.contains("dropdown-letter-header")) {
                 prev = prev.previousElementSibling;
@@ -418,7 +420,6 @@ function showAddStreamerDropdown(groupIndex) {
             }
           });
 
-        // If search is empty, show all items and headers
         if (!searchValue) {
           Array.from(itemsContainer.children).forEach(child => {
             child.style.display = child.classList.contains("dropdown-letter-header") ? "block" : "flex";
@@ -430,12 +431,89 @@ function showAddStreamerDropdown(groupIndex) {
       overlay.style.display = "block";
 
       overlay.addEventListener("click", () => {
+        clearAllNotifications();
         dropdownMenu.remove();
         overlay.remove();
       });
     });
   }).catch(console.error);
 }
+
+let currentNotification = null;
+let notificationTimer = null;
+
+function showTemporaryNotification(actionText, action = 'added', channelName = '', groupName = '') {
+  // Clear any existing notification
+  if (currentNotification) {
+    clearTimeout(notificationTimer);
+    currentNotification.remove();
+    currentNotification = null;
+  }
+
+  // Create new notification
+  const popup = document.createElement('div');
+  popup.className = 'temporary-info-popup';
+
+  const icon = document.createElement('div');
+  icon.className = `temporary-info-icon ${action}`;
+
+  const content = document.createElement('div');
+  content.className = 'notification-popup-content';
+
+  if (channelName) {
+    // Channel display with Twitch icon
+    const channelDisplay = document.createElement('div');
+    channelDisplay.className = 'notification-popup-channel-display';
+
+    const twitchIcon = document.createElement('img');
+    twitchIcon.className = 'notification-popup-twitch-icon';
+    twitchIcon.src = 'css/twitch.png';
+
+    const nameElement = document.createElement('span');
+    nameElement.className = `notification-popup-channel notification-popup-channel--${action}`;
+    nameElement.textContent = channelName;
+
+    channelDisplay.append(twitchIcon, nameElement);
+    content.append(channelDisplay);
+
+    // Action text with list name
+    const fullText = document.createElement('span');
+    fullText.textContent = ` ${actionText} list ${groupName}`.toLowerCase();
+    content.append(fullText);
+  } else {
+    // Fallback for notifications without channel names
+    const fallbackText = document.createElement('span');
+    fallbackText.textContent = actionText.toLowerCase();
+    content.append(fallbackText);
+  }
+
+  popup.append(icon, content);
+  document.body.appendChild(popup);
+  currentNotification = popup;
+
+  // Trigger animation
+  setTimeout(() => popup.classList.add('show'), 10);
+
+  // Auto-hide after delay
+  notificationTimer = setTimeout(() => {
+    popup.classList.remove('show');
+    setTimeout(() => {
+      if (popup.parentNode && currentNotification === popup) {
+        popup.remove();
+        currentNotification = null;
+      }
+    }, 200);
+  }, 3200);
+}
+
+function clearAllNotifications() {
+  if (currentNotification) {
+    clearTimeout(notificationTimer);
+    currentNotification.remove();
+    currentNotification = null;
+  }
+}
+
 
 // Global function to filter dropdown
 function filterDropdown(dropdownMenu, searchValue) {
