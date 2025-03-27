@@ -350,7 +350,11 @@ input[type="text"]:focus {
   background-color: #622f2f;
   color: #ff8888;
 }
-
+.dark-mode .dropdown-letter-header {
+  color: #a16ce6;
+  background-color: #2a2a2a;
+  border-bottom-color: #444;
+}
 /* Settings Container Style */
 .dark-mode #settingsContainer {
   display: flex;

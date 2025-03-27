@@ -162,7 +162,7 @@ function displayGroups() {
 
           var addStreamerBtn = document.createElement("button");
           addStreamerBtn.className = "add-streamer-btn";
-          addStreamerBtn.textContent = "➕ Add channel";
+          addStreamerBtn.textContent = "➕ Add twitch channel";
 
           if (isLoggedIn && hasFollowers) {
             addStreamerBtn.onclick = function () {
@@ -301,83 +301,136 @@ function showAddStreamerDropdown(groupIndex) {
       itemsContainer.className = "dropdown-items-container";
       dropdownContent.appendChild(itemsContainer);
 
+      // Group streamers by first letter
+      const groupedStreamers = {};
       followedList.forEach(channel => {
-        const isAdded = currentStreamers.includes(channel.broadcaster_name);
-
-        const item = document.createElement("div");
-        item.className = `dropdown-item ${isAdded ? "added" : ""}`;
-        item.style.cursor = "pointer"; // Make entire item clickable
-
-        const twitchLogo = document.createElement("img");
-        twitchLogo.src = "css/twitch.png";
-        twitchLogo.className = "dropdown-twitch-logo";
-
-        const channelName = document.createElement("span");
-        channelName.className = "dropdown-channel-name";
-        channelName.textContent = channel.broadcaster_name;
-
-        const checkContainer = document.createElement("div");
-        checkContainer.className = "dropdowncircle";
-        checkContainer.innerHTML = isAdded ? "✖" : "";
-        if (isAdded) {
-          checkContainer.style.backgroundColor = "#44b700";
+        const firstLetter = channel.broadcaster_name.charAt(0).toUpperCase();
+        if (!groupedStreamers[firstLetter]) {
+          groupedStreamers[firstLetter] = [];
         }
+        groupedStreamers[firstLetter].push(channel);
+      });
 
-        // Add click handler to the entire item
-        item.addEventListener("click", (e) => {
-          // Prevent triggering when clicking directly on the checkbox
-          if (e.target !== checkContainer) {
-            toggleChannel(channel, checkContainer);
+      // Sort letters alphabetically
+      const sortedLetters = Object.keys(groupedStreamers).sort();
+
+      // Create sections for each letter
+      sortedLetters.forEach((letter, index) => {
+        const letterHeader = document.createElement("div");
+        letterHeader.className = "dropdown-letter-header";
+        if (index === 0) {
+          letterHeader.classList.add("first-letter-header");
+        }
+        letterHeader.textContent = letter;
+        itemsContainer.appendChild(letterHeader);
+
+        // Sort streamers in this letter group alphabetically
+        groupedStreamers[letter].sort((a, b) =>
+          a.broadcaster_name.localeCompare(b.broadcaster_name)
+        );
+
+        // Add streamers for this letter
+        groupedStreamers[letter].forEach(channel => {
+          const isAdded = currentStreamers.includes(channel.broadcaster_name);
+
+          const item = document.createElement("div");
+          item.className = `dropdown-item ${isAdded ? "added" : ""}`;
+          item.style.cursor = "pointer";
+
+          const twitchLogo = document.createElement("img");
+          twitchLogo.src = "css/twitch.png";
+          twitchLogo.className = "dropdown-twitch-logo";
+
+          const channelName = document.createElement("span");
+          channelName.className = "dropdown-channel-name";
+          channelName.textContent = channel.broadcaster_name;
+
+          const checkContainer = document.createElement("div");
+          checkContainer.className = "dropdowncircle";
+          checkContainer.innerHTML = isAdded ? "✖" : "";
+          if (isAdded) {
+            checkContainer.style.backgroundColor = "#44b700";
           }
-        });
 
-        // Also keep the checkbox clickable
-        checkContainer.addEventListener("click", (e) => {
-          e.stopPropagation(); // Prevent item click from triggering
-          toggleChannel(channel, checkContainer);
-        });
-
-        function toggleChannel(channel, checkContainer) {
-          chrome.storage.local.get("favoriteGroups", (data) => {
-            const groups = data.favoriteGroups || [];
-            if (groups[groupIndex]) {
-              const streamers = groups[groupIndex].streamers;
-              const channelName = channel.broadcaster_name;
-              const wasAdded = streamers.includes(channelName);
-
-              if (wasAdded) {
-                groups[groupIndex].streamers = streamers.filter(name => name !== channelName);
-                checkContainer.innerHTML = "";
-                checkContainer.style.backgroundColor = "transparent";
-                item.classList.remove("added");
-              } else {
-                groups[groupIndex].streamers.push(channelName);
-                checkContainer.innerHTML = "✖";
-                checkContainer.style.backgroundColor = "#44b700";
-                item.classList.add("added");
-              }
-
-              checkContainer.classList.add("checked");
-
-              chrome.storage.local.set({ favoriteGroups: groups }, () => {
-                displayGroups();
-                showTemporaryInfo(`${wasAdded ? 'Removed' : 'Added'} ${channelName} ${wasAdded ? 'from' : 'to'} list ${groupName}`);
-              });
+          item.addEventListener("click", (e) => {
+            if (e.target !== checkContainer) {
+              toggleChannel(channel, checkContainer);
             }
           });
-        }
 
-        item.append(twitchLogo, channelName, checkContainer);
-        itemsContainer.appendChild(item);
+          checkContainer.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleChannel(channel, checkContainer);
+          });
+
+          function toggleChannel(channel, checkContainer) {
+            chrome.storage.local.get("favoriteGroups", (data) => {
+              const groups = data.favoriteGroups || [];
+              if (groups[groupIndex]) {
+                const streamers = groups[groupIndex].streamers;
+                const channelName = channel.broadcaster_name;
+                const wasAdded = streamers.includes(channelName);
+
+                if (wasAdded) {
+                  groups[groupIndex].streamers = streamers.filter(name => name !== channelName);
+                  checkContainer.innerHTML = "";
+                  checkContainer.style.backgroundColor = "transparent";
+                  item.classList.remove("added");
+                } else {
+                  groups[groupIndex].streamers.push(channelName);
+                  checkContainer.innerHTML = "✖";
+                  checkContainer.style.backgroundColor = "#44b700";
+                  item.classList.add("added");
+                }
+
+                checkContainer.classList.add("checked");
+
+                chrome.storage.local.set({ favoriteGroups: groups }, () => {
+                  displayGroups();
+                  showTemporaryInfo(`${wasAdded ? 'Removed' : 'Added'} ${channelName} ${wasAdded ? 'from' : 'to'} list ${groupName}`);
+                });
+              }
+            });
+          }
+
+          item.append(twitchLogo, channelName, checkContainer);
+          itemsContainer.appendChild(item);
+        });
       });
 
       searchInput.addEventListener("input", (e) => {
         const searchValue = e.target.value.toLowerCase();
+        let hasVisibleItems = false;
+
+        // Hide all items and headers first
+        Array.from(itemsContainer.children).forEach(child => {
+          child.style.display = "none";
+        });
+
+        // Show matching items and their headers
         Array.from(itemsContainer.getElementsByClassName("dropdown-item"))
           .forEach(item => {
             const name = item.querySelector(".dropdown-channel-name").textContent.toLowerCase();
-            item.style.display = name.includes(searchValue) ? "flex" : "none";
+            if (name.includes(searchValue)) {
+              item.style.display = "flex";
+              hasVisibleItems = true;
+              // Show the letter header for this item
+              let prev = item.previousElementSibling;
+              while (prev && !prev.classList.contains("dropdown-letter-header")) {
+                prev = prev.previousElementSibling;
+              }
+              if (prev && prev.classList.contains("dropdown-letter-header")) {
+                prev.style.display = "block";
+              }
+            }
           });
+
+        // If search is empty, show all items and headers
+        if (!searchValue) {
+          Array.from(itemsContainer.children).forEach(child => {
+            child.style.display = child.classList.contains("dropdown-letter-header") ? "block" : "flex";
+          });
+        }
       });
 
       dropdownMenu.style.display = "block";
