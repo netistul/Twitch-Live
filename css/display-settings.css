@@ -1,0 +1,531 @@
+/* ======================== */
+/* DISPLAY TOGGLE SWITCHES */
+/* ======================== */
+#showAvatarOption {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  margin-left: 10px;
+  width: calc(100% - 10px);
+}
+
+.showAvatarLabel {
+  font-family: Verdana, sans-serif;
+  font-size: 14px;
+  flex: 1;
+}
+
+/* ======================== */
+/* DARK MODE SETTINGS */
+/* ======================== */
+#darkModeToggle {
+  display: none;
+}
+
+#darkModeOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.darkModeLabel {
+  margin-right: 10px;
+  font-family: Verdana, sans-serif;
+  color: #6441a5;
+  font-size: 13px;
+}
+
+.dark-mode-switch {
+  margin-bottom: 14px;
+}
+
+.btn-color-mode-switch {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-color-mode-switch-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 4px;
+  padding: 0;
+  width: 190px;
+  height: 50px;
+  background: #e0e0e0;
+  border-radius: 26px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* ======================== */
+/* SETTING DESCRIPTIONS */
+/* ======================== */
+.setting-description {
+  position: relative;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #252424;
+  font-family: "Arial", sans-serif;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: visible;
+  max-width: 100%;
+}
+
+.setting-description:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ======================== */
+/* CUSTOM DROPDOWNS */
+/* ======================== */
+.custom-select-container {
+  position: relative;
+  margin-left: 10px;
+  width: 330px;
+  margin-top: 30px;
+}
+
+.custom-select-header {
+  padding: 12px 16px;
+  border: 2px solid #3a3a3d;
+  border-radius: 0.25rem;
+  background-color: #bcbaba;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-select-header:hover {
+  border-color: #464649;
+  background-color: #cbcbcb;
+}
+
+.custom-select-header:focus {
+  border-color: #9147ff;
+  box-shadow: 0 0 0 1px #9147ff;
+  outline: none;
+}
+
+.custom-select-options {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  white-space: nowrap;
+  padding: 0;
+  border: 1px solid #3a3a3d;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border-radius: 0.25rem;
+  display: none;
+  z-index: 1000;
+}
+
+.custom-select-container.open .custom-select-options {
+  display: block;
+}
+
+.custom-option {
+  padding: 12px 16px 12px 12px;
+  cursor: pointer;
+  color: #2c2c2c;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.option-dot {
+  margin-right: 8px; /* Match avatar spacing */
+}
+.custom-option:hover {
+  background-color: #d3d3d3;
+}
+
+.dropdown-arrow {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #3a3a3d;
+  border-bottom: 2px solid #3a3a3d;
+  transform: rotate(45deg);
+  margin-top: -4px;
+  transition: transform 0.2s ease;
+}
+
+.custom-select-container.open .dropdown-arrow {
+  transform: rotate(-135deg);
+  margin-top: 4px;
+}
+
+/* ======================== */
+/* STREAM GROUPING */
+/* ======================== */
+.streamGroupingTitle {
+  text-align: center;
+  margin-bottom: 10px;
+  width: 100%;
+  font-size: 14px;
+  font-family: Verdana, sans-serif;
+  position: relative;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.streamGroupingTitle:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+#streamGroupingSelect {
+  display: block;
+  margin: 0 auto;
+  width: 200px;
+}
+
+#streamGroupingOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+/* ======================== */
+/* UTILITY STYLES */
+/* ======================== */
+.separator {
+  height: 1px;
+  background-color: #ccc;
+  margin: 20px 0;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  position: relative;
+}
+
+/* ======================== */
+/* PREVIEW CONTAINER STYLES */
+/* ======================== */
+.preview-container {
+  margin-top: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #efeff1;
+  width: 330px;
+  margin-left: 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ======================== */
+/* STREAM PREVIEW COMPONENTS */
+/* ======================== */
+.stream-preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-family: Verdana, sans-serif;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px 0;
+  min-width: unset;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: flex-start;
+}
+
+.stream-preview.newline-mode {
+  align-items: flex-start;
+}
+
+.thumbnail-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  width: 80px;
+  height: 45px;
+  margin-right: 5px;
+}
+
+.stream-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: #18181b;
+}
+.stream-avatar {
+  align-self: center;
+  margin-right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+}
+
+.stream-info-text {
+  font-size: 14px;
+  margin-left: 5px; /* Match dropdown item spacing */
+  flex: 1; /* Take remaining space */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.info-wrapper.newline-mode {
+  flex: 1;
+}
+.stream-title {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.stream-category {
+  display: inline-block;
+  color: #88888885;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  font-size: 13px;
+  color: #a0acb6;
+  font-family: "Verdana", sans-serif;
+  max-width: 150px;
+  display: inline-block;
+  color: #88888885;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 2px;
+}
+.stream-preview > div:nth-child(2) > div:last-child {
+  font-size: 13px;
+  color: #a0acb6;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "Verdana", sans-serif;
+  max-width: 150px;
+}
+.stream-category-newline {
+  font-size: 11px !important;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* When stream-time is visible (more spacing) */
+.stream-category.with-time {
+  margin-left: 10px;
+}
+
+/* When stream-time is hidden (less spacing) */
+.stream-category.without-time {
+  margin-right: -4px;
+}
+
+/* ======================== */
+/* CHANNEL NAME STYLES */
+/* ======================== */
+.channel-name-with-avatar {
+  color: #2e232f;
+  font-weight: bold;
+  font-family: "Noto Sans", Arial, sans-serif;
+  font-size: 14px;
+  margin-top: 0;
+  padding-right: 118px;
+}
+
+.channel-name.newline-mode {
+  margin-top: -4px;
+}
+
+/* ======================== */
+/* VIEWERS COUNT & SIGNAL ICON */
+/* ======================== */
+.viewers-count {
+  color: #e76763;
+}
+
+.viewers-wrapper {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 8px;
+}
+
+.viewers-wrapper.newline-mode {
+  top: auto;
+  margin-top: 2px;
+  transform: none;
+}
+
+.viewers-wrapper.default-mode {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.signal-icon {
+  display: inline-block;
+  margin-left: -1px;
+  margin-right: 1px;
+  transform: translateY(1.9px);
+}
+
+.signal-icon img {
+  height: 13px;
+  width: 13px;
+  margin-left: 1px;
+}
+
+/* ======================== */
+/* STREAM TIME OVERLAY */
+/* ======================== */
+.stream-time-overlay {
+  font-family: "Noto Sans Display", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  position: absolute;
+  bottom: -0px;
+  left: 31px;
+  background-color: rgba(0, 0, 0, 0.797);
+  border-radius: 2px;
+  padding: 2px 4px 4px 3px;
+  z-index: 1;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 500;
+  color: #dedee3;
+  min-width: 40px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.stream-time {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* ======================== */
+/* AVATAR HOVER EFFECTS */
+/* ======================== */
+.user-avatar-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-avatar-container img:hover {
+  box-shadow: 0 0 5px 2px #6441a5;
+  border-radius: 20px;
+}
+
+/* ======================== */
+/* DARK MODE STYLES */
+/* ======================== */
+.dark-mode .preview-container {
+  border: 1px solid #444;
+  background-color: #1e1e22;
+}
+
+.dark-mode .stream-preview {
+  color: #fff;
+}
+
+.dark-mode .stream-preview .channel-name {
+  color: #ffffff;
+}
+
+.dark-mode .stream-preview .viewers-count {
+  color: #e76763;
+}
+
+/* ======================== */
+/* HIDDEN ELEMENTS */
+/* ======================== */
+#showAvatarCheckbox {
+  display: none;
+}
+
+/* ======================== */
+/* DARK MODE - CUSTOM DROPDOWNS */
+/* ======================== */
+.dark-mode .custom-select-header {
+  border: 2px solid #3a3a3d;
+  background-color: #2b2b2c;
+}
+
+.dark-mode .custom-select-header:hover {
+  border-color: #464649;
+  background-color: #323234;
+}
+
+.dark-mode .custom-select-header:focus {
+  border-color: #9147ff;
+  box-shadow: 0 0 0 1px #9147ff;
+  outline: none;
+}
+
+.dark-mode .custom-select-options {
+  background-color: #1e1e20;
+  border: 1px solid #3a3a3d;
+}
+
+.dark-mode .custom-option {
+  color: #cfcfcf;
+}
+
+.dark-mode .custom-option:hover {
+  background-color: #242425;
+}
+
+/* ======================== */
+/* DARK MODE - LABELS & TEXT */
+/* ======================== */
+.dark-mode .showAvatarLabel {
+  color: #e4e4e4 !important;
+}
+
+.dark-mode .channel-checkbox-container label {
+  color: #e4e4e4;
+}
+
+.dark-mode .label-text {
+  color: #e4e4e4;
+}
+
+/* ======================== */
+/* DISABLED STATES (LIGHT & DARK) */
+/* ======================== */
+.channel-checkbox-container.disabled label {
+  color: #666666;
+}

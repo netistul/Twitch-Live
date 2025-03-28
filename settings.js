@@ -681,32 +681,17 @@ function updatePreview() {
       var showAvatar = document.getElementById("showAvatarCheckbox").checked;
 
       var previewDiv = document.createElement("div");
-      previewDiv.className = "stream-preview";
-      previewDiv.style.position = "relative";
-
-      if (streamTitleDisplay === "newline") {
-        previewDiv.style.display = "flex";
-        previewDiv.style.alignItems = "flex-start";
-      }
+      previewDiv.className = "stream-preview " +
+        (streamTitleDisplay === "newline" ? "newline-mode" : "");
 
       // Handle the newline case with thumbnail
       if (showAvatar && streamTitleDisplay === "newline" && previewStream.thumbnail) {
         var thumbnailWrapper = document.createElement("div");
-        thumbnailWrapper.style.position = "relative"; // This is important for absolute positioning of overlay
-        thumbnailWrapper.style.flexShrink = "0";
-        thumbnailWrapper.style.width = "80px"; // Match thumbnail width
-        thumbnailWrapper.style.height = "45px"; // Match thumbnail height
-        thumbnailWrapper.style.marginRight = "5px";
+        thumbnailWrapper.className = "thumbnail-wrapper";
 
         var thumbnailImg = document.createElement("img");
         thumbnailImg.className = "stream-thumbnail";
-        thumbnailImg.style.width = "100%";
-        thumbnailImg.style.height = "100%";
-        thumbnailImg.style.objectFit = "cover";
-        thumbnailImg.style.borderRadius = "4px";
-
         thumbnailImg.src = "css/icon.png";
-        thumbnailImg.style.backgroundColor = "#18181b";
 
         const actualImage = new Image();
         actualImage.onload = () => {
@@ -714,20 +699,17 @@ function updatePreview() {
         };
         actualImage.src = previewStream.thumbnail.replace('{width}', '80').replace('{height}', '45');
 
-        // Add stream time overlay for newline mode
         if (showStreamTime) {
           var timeOverlay = document.createElement("div");
           timeOverlay.className = "stream-time-overlay";
           timeOverlay.textContent = formatStreamTime(previewStream.started_at);
 
-          // Update time every second
           const timeInterval = setInterval(() => {
             if (timeOverlay) {
               timeOverlay.textContent = formatStreamTime(previewStream.started_at);
             }
           }, 1000);
 
-          // Clear interval when element is removed
           const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
               mutation.removedNodes.forEach((node) => {
@@ -754,95 +736,56 @@ function updatePreview() {
         previewDiv.appendChild(avatarImg);
       }
 
-      // Rest of the info wrapper code remains the same...
       const infoWrapper = document.createElement("div");
-      if (streamTitleDisplay === "newline") {
-        infoWrapper.style.display = "flex";
-        infoWrapper.style.flexDirection = "column";
-        infoWrapper.style.minWidth = "0";
-        infoWrapper.style.flex = "1";
-      } else {
-        infoWrapper.style.display = "flex";
-        infoWrapper.style.flexDirection = "column";
-      }
+      infoWrapper.className = "info-wrapper " +
+        (streamTitleDisplay === "newline" ? "newline-mode" : "");
 
       // Channel name
       var channelNameSpan = document.createElement("span");
       channelNameSpan.textContent = previewStream.channelName;
-      channelNameSpan.className = "channel-name";
-      channelNameSpan.style.marginTop = streamTitleDisplay === "newline" ? "-4px" : "0";
-      channelNameSpan.style.paddingRight = "118px";
-
-      if (showAvatar) {
-        channelNameSpan.classList.add("channel-name-with-avatar");
-      }
+      channelNameSpan.className = "channel-name " +
+        (streamTitleDisplay === "newline" ? "newline-mode" : "") +
+        (showAvatar ? " channel-name-with-avatar" : "");
 
       infoWrapper.appendChild(channelNameSpan);
 
       // Add title and category for newline mode
       if (streamTitleDisplay === "newline" && previewStream.title) {
         const titleDiv = document.createElement("div");
-        titleDiv.style.marginTop = "2px";
-        titleDiv.style.fontSize = "12px";
-        titleDiv.style.color = "#9CA3AF";
-        titleDiv.style.whiteSpace = "nowrap";
-        titleDiv.style.overflow = "hidden";
-        titleDiv.style.textOverflow = "ellipsis";
-        titleDiv.style.maxWidth = "250px";
+        titleDiv.className = "stream-title";
         titleDiv.textContent = previewStream.title;
         infoWrapper.appendChild(titleDiv);
 
         const categoryDiv = document.createElement("div");
-        categoryDiv.style.fontSize = "11px";
-        categoryDiv.style.color = "#9CA3AF";
-        categoryDiv.style.marginTop = "2px";
-        categoryDiv.style.whiteSpace = "nowrap";
-        categoryDiv.style.overflow = "hidden";
-        categoryDiv.style.textOverflow = "ellipsis";
+        categoryDiv.className = "stream-category-newline";
         categoryDiv.textContent = previewStream.category;
         infoWrapper.appendChild(categoryDiv);
       } else if (showAvatar && previewStream.category) {
         const categoryDiv = document.createElement("div");
-        categoryDiv.style.fontSize = "13px";
-        categoryDiv.style.color = "#a0acb6";
-        categoryDiv.style.marginTop = "2px";
-        categoryDiv.style.whiteSpace = "nowrap";
-        categoryDiv.style.overflow = "hidden";
-        categoryDiv.style.textOverflow = "ellipsis";
-        categoryDiv.style.fontFamily = '"Verdana", sans-serif';
-        categoryDiv.style.maxWidth = "150px";
+        categoryDiv.className = "stream-category";
         categoryDiv.textContent = previewStream.category;
         infoWrapper.appendChild(categoryDiv);
       }
 
       previewDiv.appendChild(infoWrapper);
 
-      // Viewers count and time (for non-newline mode)
+      // Viewers count and time
       var viewersSpan = document.createElement("span");
       viewersSpan.className = "viewers-count";
 
       if (showStreamTime && streamTitleDisplay !== "newline") {
-        // For non-newline mode, show time with viewers
-        const timeText = formatStreamTime(previewStream.started_at);
-
-        // Create separate span for time to style it differently
         const timeSpan = document.createElement("span");
-        timeSpan.style.color = "#9CA3AF";
-        timeSpan.style.fontSize = "12px";
-        timeSpan.textContent = timeText;
-
-        // Add time span and viewers count
+        timeSpan.className = "stream-time";
+        timeSpan.textContent = formatStreamTime(previewStream.started_at);
         viewersSpan.appendChild(timeSpan);
         viewersSpan.appendChild(document.createTextNode(` ${previewStream.viewers} `));
 
-        // Update time every second
         const timeInterval = setInterval(() => {
           if (timeSpan) {
             timeSpan.textContent = formatStreamTime(previewStream.started_at);
           }
         }, 1000);
 
-        // Clear interval when element is removed
         const observer = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
             mutation.removedNodes.forEach((node) => {
@@ -855,7 +798,6 @@ function updatePreview() {
         });
         observer.observe(previewContainer, { childList: true, subtree: true });
       } else {
-        // Just show viewers count if no time or newline mode
         viewersSpan.textContent = `\u00A0 ${previewStream.viewers} `;
       }
 
@@ -864,35 +806,19 @@ function updatePreview() {
         signalIconSpan.className = "signal-icon";
         var signalIconImg = document.createElement("img");
         signalIconImg.src = "css/signal.svg";
-        signalIconImg.style.height = "13px";
-        signalIconImg.style.width = "13px";
-        signalIconImg.style.marginLeft = "1px";
         signalIconSpan.appendChild(signalIconImg);
         viewersSpan.appendChild(signalIconSpan);
       }
 
       const viewersWrapper = document.createElement("div");
-      viewersWrapper.style.display = "flex";
-      viewersWrapper.style.alignItems = "center";
+      viewersWrapper.className = "viewers-wrapper " +
+        (streamTitleDisplay === "newline" ? "newline-mode" : "default-mode");
 
-      // Add category inside viewersWrapper
       if (!showAvatar && streamTitleDisplay !== "newline" && previewStream.category) {
         const categoryDiv = document.createElement("div");
-        categoryDiv.className = "stream-category";
+        categoryDiv.className = `stream-category ${showStreamTime ? 'with-time' : 'without-time'}`;
         categoryDiv.textContent = previewStream.category;
         viewersWrapper.appendChild(categoryDiv);
-      }
-
-      if (streamTitleDisplay === "newline") {
-        viewersWrapper.style.position = "absolute";
-        viewersWrapper.style.right = "8px";
-        viewersWrapper.style.marginTop = "2px";
-        viewersWrapper.style.flexShrink = "0";
-      } else {
-        viewersWrapper.style.position = "absolute";
-        viewersWrapper.style.right = "8px";
-        viewersWrapper.style.top = "50%";
-        viewersWrapper.style.transform = "translateY(-50%)";
       }
 
       viewersWrapper.appendChild(viewersSpan);

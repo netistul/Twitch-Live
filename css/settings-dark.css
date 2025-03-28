@@ -33,27 +33,6 @@ body.dark-mode {
   margin-top: 20px;
 }
 
-/* Preview container */
-.dark-mode .preview-container {
-  border: 1px solid #444; /* Dark border */
-  background-color: #1e1e22; /* Dark background */
-}
-
-/* Stream preview */
-.dark-mode .stream-preview {
-  color: #fff; /* Light text color */
-}
-
-.dark-mode .stream-preview .channel-name {
-  color: #ffffff; /* White color for channel name */
-  /* Other styles for channel name */
-}
-
-.dark-mode .stream-preview .viewers-count {
-  color: #e76763; /* Light grey color for viewers count */
-  /* Other styles for viewers count */
-}
-
 .dark-mode .setting-description {
   color: #e4e4e4;
 }
@@ -83,68 +62,6 @@ body.dark-mode {
 /* Change text color for dark mode */
 #darkModeToggle:checked + .btn-color-mode-switch-inner .slider-text {
   color: #fff;
-}
-
-/* DISPLAY SETTINGS */
-.dark-mode .custom-select-header {
-  border: 2px solid #3a3a3d;
-  background-color: #2b2b2c;
-}
-
-.dark-mode .custom-select-header:hover {
-  border-color: #464649;
-  background-color: #323234;
-}
-
-.dark-mode .custom-select-header:focus {
-  border-color: #9147ff;
-  box-shadow: 0 0 0 1px #9147ff;
-  outline: none;
-}
-
-.dark-mode .custom-select-options {
-  background-color: #1e1e20;
-  border: 1px solid #3a3a3d;
-}
-
-.dark-mode .custom-option {
-  color: #cfcfcf;
-}
-
-.dark-mode .custom-option:hover {
-  background-color: #242425;
-}
-
-.dark-mode #optionsMenu {
-  background-color: #1b1b1b;
-  color: #fff;
-}
-
-.dark-mode .settings-group-title {
-  color: #6441a5;
-  border-bottom: 2px solid #252525;
-}
-
-.dark-mode .settings-group {
-  color: #fff;
-}
-
-.dark-mode .showAvatarLabel {
-  color: #e4e4e4 !important;
-}
-
-/* Dark mode styles */
-.dark-mode .channel-checkbox-container label {
-  color: #e4e4e4;
-}
-
-/* Disabled state styles - will work for both light and dark modes */
-.channel-checkbox-container.disabled label {
-  color: #666666;
-}
-
-.dark-mode .label-text {
-  color: #e4e4e4;
 }
 
 .dark-mode #hideAccessedCountCheckbox + .styled-label {

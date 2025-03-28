@@ -188,25 +188,6 @@ body {
   background-color: #ff3333; /* Darker red on hover */
 }
 
-.user-avatar-container {
-  position: relative;
-  cursor: pointer;
-}
-
-.channel-name-with-avatar {
-  color: #2e232f; /* Change text color */
-  font-weight: bold; /* Apply bold font weight */
-  font-family: "Noto Sans", Arial, sans-serif; /* Use Open Sans font */
-  font-size: 14px;
-}
-
-.signal-icon {
-  display: inline-block; /* Ensures transform property applies correctly */
-  margin-left: -1px;
-  margin-right: 1px;
-  transform: translateY(1.9px);
-}
-
 @font-face {
   font-family: "Open Sans";
   src: url("../fonts/OpenSans-Regular.ttf") format("truetype");
@@ -254,48 +235,6 @@ body {
   src: url("../fonts/Inter_18pt-SemiBold.ttf") format("truetype");
   font-weight: 600; /* SemiBold */
   font-style: normal;
-}
-
-#showAvatarCheckbox {
-  display: none;
-}
-.stream-avatar {
-  margin-right: 5px; /* Space after avatar */
-  width: 30px;
-  height: 30px;
-  border-radius: 15px;
-}
-
-.stream-info-text {
-  font-size: 14px; /* Initial font size */
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-avatar-container img:hover {
-  box-shadow: 0 0 5px 2px #6441a5; /* Twitch purple color for hover effect */
-  border-radius: 20px; /* Keep the avatar round */
-}
-
-.stream-time-overlay {
-  font-family: "Noto Sans Display", ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-    "Noto Color Emoji";
-  position: absolute;
-  bottom: -0px;
-  left: 31px;
-  background-color: rgba(0, 0, 0, 0.797);
-  border-radius: 2px;
-  padding: 2px 4px 4px 3px;
-  z-index: 1;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 500;
-  color: #dedee3;
-  min-width: 40px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 /* Dropdown container */
@@ -542,160 +481,6 @@ body {
 
 /* */
 
-/* DISPLAY SETTINGS */
-#showAvatarOption {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.showAvatarLabel {
-  font-family: Verdana, sans-serif;
-  font-size: 14px;
-  margin-right: 27px;
-}
-
-/* Style for the switch */
-.switch {
-  font-size: 17px;
-  position: relative;
-  display: inline-block;
-  width: 3.5em;
-  height: 2em;
-}
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* The slider (turn off / on light theme) */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  border: 2px solid #414141;
-  border-radius: 50px;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 1.4em;
-  width: 1.4em;
-  left: 0.2em;
-  bottom: 0.2em;
-  background-color: white;
-  border-radius: inherit;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-input:checked + .slider {
-  box-shadow: 0 0 15px rgba(145, 71, 255, 0.693); /* Twitch purple glow */
-  border: 2px solid #9147ffd5; /* Twitch purple border */
-}
-
-input:checked + .slider:before {
-  transform: translateX(1.5em);
-}
-
-/* Rounded sliders (Click it for light theme button) */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-/* Text inside the switch */
-.slider-text {
-  position: absolute;
-  font-size: 14px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
-  text-align: center;
-  pointer-events: none;
-  color: #0e0d0d;
-  z-index: 1; /* Ensure text is visible, but below the checkbox */
-}
-
-#darkModeToggle {
-  display: none;
-}
-
-#darkModeOption {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-
-.darkModeLabel {
-  margin-right: 10px; /* Spacing between label and switch */
-  font-family: Verdana, sans-serif; /* Example font */
-  color: #6441a5; /* Twitch-like purple color */
-  font-size: 13px; /* Font size */
-}
-
-.separator {
-  height: 1px;
-  background-color: #ccc; /* Light gray color for the separator */
-  margin: 20px 0; /* Space above and below the separator */
-}
-
-/* Container for the switch */
-.btn-color-mode-switch {
-  position: relative;
-  display: inline-block;
-}
-
-/* Visible part of the switch */
-.btn-color-mode-switch-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  border-radius: 4px;
-  padding: 0;
-  width: 190px;
-  height: 50px;
-  background: #e0e0e0;
-  border-radius: 26px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.preview-container {
-  margin-top: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #efeff1;
-  width: auto; /* Changed from 100% to auto */
-  max-width: 100%; /* Ensures it doesn't overflow */
-  box-sizing: border-box; /* Include padding and border in width calculation */
-}
-
-.stream-preview {
-  display: flex;
-  align-items: center;
-  font-family: Verdana, sans-serif;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 5px;
-  min-width: 300px;
-  width: 100%;
-  box-sizing: border-box; /* Include padding in width calculation */
-}
-
 .setting-description {
   position: relative;
   margin-bottom: 8px;
@@ -711,16 +496,6 @@ input:checked + .slider:before {
 .setting-description:hover .tooltip-text {
   visibility: visible;
   opacity: 1;
-}
-
-.stream-category {
-  color: #88888885;
-  font-size: 0.9em;
-  margin-right: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100px;
 }
 
 /* dropdown */
@@ -1161,27 +936,6 @@ input:checked + .slider:before {
   opacity: 1;
 }
 
-.stream-info-text.channel-name-with-title {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.stream-info-text.channel-name-with-title .stream-title {
-  font-size: 0.9em;
-  color: #999;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.small-text {
-  font-size: 0.8em;
-  color: #666;
-  margin-top: 4px;
-}
-
 /* Update existing styles */
 .optionItem {
   margin-bottom: 15px;
@@ -1258,4 +1012,23 @@ input:checked + .slider:before {
 .input-hint em {
   color: #6441a5; /* Twitch purple for examples */
   font-style: normal;
+}
+
+/* ======================== */
+/* DARK MODE - SETTINGS CONTAINERS */
+/* ======================== */
+
+/* settings background */
+.dark-mode #optionsMenu {
+  background-color: #1b1b1b;
+  color: #fff;
+}
+
+.dark-mode .settings-group-title {
+  color: #6441a5;
+  border-bottom: 2px solid #252525;
+}
+
+.dark-mode .settings-group {
+  color: #fff;
 }
