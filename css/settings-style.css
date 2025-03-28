@@ -558,47 +558,47 @@ body {
 
 /* Style for the switch */
 .switch {
+  font-size: 17px;
   position: relative;
   display: inline-block;
-  width: 44px; /* Reduced from 60px */
-  height: 26px; /* Reduced from 34px */
-  margin-left: 20px;
+  width: 3.5em;
+  height: 2em;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 /* The slider (turn off / on light theme) */
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #dedee3;
-  transition: 0.3s;
+  inset: 0;
+  border: 2px solid #414141;
+  border-radius: 50px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
+  height: 1.4em;
+  width: 1.4em;
+  left: 0.2em;
+  bottom: 0.2em;
   background-color: white;
-  transition: 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-radius: inherit;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 input:checked + .slider {
-  background-color: #9147ff;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #9147ff;
+  box-shadow: 0 0 15px rgba(145, 71, 255, 0.693); /* Twitch purple glow */
+  border: 2px solid #9147ffd5; /* Twitch purple border */
 }
 
 input:checked + .slider:before {
-  transform: translateX(18px);
+  transform: translateX(1.5em);
 }
 
 /* Rounded sliders (Click it for light theme button) */

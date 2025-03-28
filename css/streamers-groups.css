@@ -46,19 +46,6 @@
   padding-right: 8px; /* Content padding */
 }
 
-/* Dark mode scrollbar styles */
-.dark-mode #groupListContainer {
-  scrollbar-color: var(--color-indigo-600) var(--color-gray-800); /* For Firefox */
-}
-
-.dark-mode #groupListContainer::-webkit-scrollbar-track {
-  background: var(--color-gray-800);
-}
-
-.dark-mode #groupListContainer::-webkit-scrollbar-thumb {
-  background-color: var(--color-indigo-600);
-}
-
 /* ================= GROUP ITEMS ================= */
 .group-item {
   background-color: var(--modal-bg);
@@ -356,4 +343,17 @@
 .dark-mode .edit-group-btn:hover {
   background-color: var(--color-gray-700);
   color: var(--color-indigo-400);
+}
+
+/* Dark mode scrollbar styles */
+.dark-mode #groupListContainer {
+  scrollbar-color: var(--color-indigo-600) var(--color-gray-800); /* For Firefox */
+}
+
+.dark-mode #groupListContainer::-webkit-scrollbar-track {
+  background: var(--color-gray-800);
+}
+
+.dark-mode #groupListContainer::-webkit-scrollbar-thumb {
+  background-color: var(--color-indigo-600);
 }
