@@ -9,7 +9,6 @@
 }
 
 #groupListContainer {
-  width: 100%;
   margin-top: 16px;
   max-height: 500px; /* Set maximum height before scrolling */
   overflow-y: auto; /* Enable vertical scrolling */
@@ -17,6 +16,7 @@
   scrollbar-color: var(--color-indigo-400) var(--color-gray-100); /* For Firefox */
   padding-right: 28px; /* Space between content and scrollbar */
   margin-right: 7px; /* Additional outer spacing */
+  padding-left: 25px; /* Space for the left border, the diff of 3px comes from optionsMenu padding 3px */
 }
 
 /* Custom scrollbar for WebKit browsers */

@@ -25,42 +25,120 @@ body {
   letter-spacing: 1px;
 }
 
-.settings-layout.settings-layout {
-  position: relative;
+#settingsTable.settings-menu {
+  background-color: #d7cfcf;
+  margin: 1px 0 1px 1px;
   display: flex;
-  margin-top: 5px;
+  flex-direction: column;
+  align-items: flex-start; /* Changed from center to left-align */
+  flex-shrink: 1; /* Allows shrinking */
+
+  position: relative;
+  overflow: hidden; /* Changed from overflow-x */
+  /* Dynamic Width */
+  width: 250px; /* Default */
+  min-width: 120px; /* Absolute minimum */
+
+  /* Height Control (Keep your existing setup) */
+  min-height: 100%;
+  height: auto;
+  align-self: stretch;
+
+  /* Visual Style */
+  padding: 8px 0;
+  background: #d7cfcf;
+  position: relative;
+
+  /* Super-Responsive Behavior */
+  transition: width 0.2s ease !important; /* Faster response */
+  will-change: width;
 }
 
-.settings-menu {
-  width: 250px; /* Changed from 100% to fixed width */
-  min-width: 180px; /* Minimum shrink width */
-  height: fit-content;
-  padding: 8px 0;
-  transition: width 0.3s ease; /* Smooth resizing */
-  flex-shrink: 1; /* Allows shrinking */
+/* Aggressive Scaling - Moved outside the selector */
+@media (max-width: 1400px) {
+  #settingsTable.settings-menu {
+    width: 240px;
+  }
+}
+
+@media (max-width: 1300px) {
+  #settingsTable.settings-menu {
+    width: 230px;
+  }
+}
+
+@media (max-width: 1200px) {
+  #settingsTable.settings-menu {
+    width: 220px;
+  }
+}
+
+@media (max-width: 1100px) {
+  #settingsTable.settings-menu {
+    width: 210px;
+  }
+}
+
+@media (max-width: 1000px) {
+  #settingsTable.settings-menu {
+    width: 200px;
+  }
+}
+
+@media (max-width: 900px) {
+  #settingsTable.settings-menu {
+    width: 190px;
+  }
+}
+
+@media (max-width: 800px) {
+  #settingsTable.settings-menu {
+    width: 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  #settingsTable.settings-menu {
+    width: 150px; /* Minimum width */
+  }
+}
+
+@media (max-width: 400px) {
+  #settingsTable.settings-menu {
+    width: 100px; /* Minimum width */
+  }
+}
+
+.settings-layout {
+  display: flex;
+  align-items: stretch; /* Key: Makes children equal height */
+}
+
+#optionsMenu.settings-content {
+  flex: 1;
+  min-height: 100%; /* Ensure it pushes parent height */
 }
 
 .menu-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  width: 100%; /* Ensure full menu width */
+  width: 100%;
+  box-sizing: border-box; /* Add this to ensure padding is included in width */
 }
 
 .menu-item {
   display: block;
-  padding: 12px 20px;
+  padding: 12px 15px; /* Simplified padding */
   cursor: pointer;
   transition: background-color 0.3s ease;
   color: #333;
   font-family: Verdana, sans-serif;
-  margin: 0 -15px;
-  padding-left: calc(15px + 15px);
-  white-space: nowrap; /* Prevent text wrapping */
+  margin: 0; /* Remove the negative margins */
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Show ... if text too long */
+  text-overflow: ellipsis;
 }
-
 .menu-item:hover {
   background-color: rgba(100, 65, 165, 0.1);
 }
@@ -90,44 +168,7 @@ body {
   display: block;
 }
 
-#settingsTable {
-  width: 100px; /* Increased from 200px for better proportions */
-  height: auto;
-  background-color: #d7cfcf;
-  margin: 1px 0 1px 1px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Changed from center to left-align */
-  flex-shrink: 1; /* Allows shrinking */
-}
-
-#settingsTable.settings-menu {
-  position: relative;
-  overflow: hidden; /* Changed from overflow-x */
-}
-
 /* Auto-shrink behavior */
-@media (max-width: 1000px) {
-  #settingsTable,
-  .settings-menu {
-    width: 100px;
-  }
-}
-
-@media (max-width: 800px) {
-  #settingsTable,
-  .settings-menu {
-    width: 100px;
-  }
-}
-
-@media (max-width: 600px) {
-  #settingsTable,
-  .settings-menu {
-    width: 120px;
-  }
-}
 
 #settingsContainer {
   display: flex;
@@ -645,7 +686,11 @@ body {
   visibility: visible;
   opacity: 1;
 }
-
+#groupList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 /* Add margin to the bottom of the dark mode switch container */
 .dark-mode-switch {
   margin-bottom: 14px; /* Adjust the value as needed */
@@ -943,16 +988,17 @@ body {
 
 /* Light mode info box */
 .info-box {
-  background-color: #f9f9f9; /* Light gray background */
-  border-left: 4px solid #007bff; /* Blue left border */
+  background-color: #f9f9f9;
+  border-left: 4px solid #007bff;
   color: #333;
   padding: 10px;
   margin-top: 10px;
   border-radius: 5px;
   font-size: 14px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  display: inline-block; /* Makes it look like a tooltip */
-  margin-top: 0;
+  display: block; /* Change to block instead of inline-block */
+  width: 100%; /* Ensure it takes full width of parent */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Global Scrollbar Styles */

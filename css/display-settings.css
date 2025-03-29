@@ -10,7 +10,7 @@
 }
 
 .showAvatarLabel {
-  font-family: Verdana, sans-serif;
+  font-family: "Arial", sans-serif;
   font-size: 14px;
   flex: 1;
 }
@@ -31,7 +31,6 @@
 
 .darkModeLabel {
   margin-right: 10px;
-  font-family: Verdana, sans-serif;
   color: #6441a5;
   font-size: 13px;
 }
