@@ -6,12 +6,17 @@
   color: #efeff1;
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
-  padding: 6px 0;
   position: fixed;
   width: 300px;
   z-index: 1000;
   border: 1px solid #2a2a2d;
   transition: all 0.2s ease;
+
+  /* Add flex display and direction */
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh; /* Limit the maximum height to 80% of viewport height */
+  padding: 0; /* Remove padding, we'll add it to child elements */
 }
 
 /* Context Menu Header - Modified to include position for close button */
@@ -20,13 +25,13 @@
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.2px;
-  margin-bottom: 8px;
   padding: 8px 16px;
   border-bottom: 1px solid #2d2d35;
-  position: relative; /* Added for absolute positioning of close button */
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 /* Close button in the header */
@@ -73,8 +78,8 @@
 
 /* Context Menu Item - Last Child with separator */
 .context-menu-item:last-child {
-  border-top: 1px solid #2d2d35;
-  margin-top: 4px;
+  border-top: none;
+  margin-top: 0;
   padding-top: 10px;
 }
 
@@ -114,6 +119,18 @@
 .context-menu-item input[type="checkbox"]:hover {
   border-color: #9147ff;
   box-shadow: 0 0 0 1px rgba(145, 71, 255, 0.2);
+}
+
+.context-menu-items-container {
+  overflow-y: auto;
+  flex-grow: 1; /* Take available space */
+  padding: 6px 0; /* Add padding here */
+}
+
+.context-menu-footer {
+  padding: 6px 0;
+  border-top: 1px solid #2d2d35;
+  flex-shrink: 0; /* Prevent footer from shrinking */
 }
 
 /* Group Name Container */
