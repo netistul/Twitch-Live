@@ -317,10 +317,6 @@ body {
   margin-right: 10px;
 }
 
-.viewers.rerun {
-  color: #9ca3af;
-}
-
 .stream-info:link,
 .stream-info:visited {
   color: inherit;
@@ -346,29 +342,30 @@ body {
   max-height: 35px;
   object-fit: cover;
   opacity: 0.5;
-  transition: opacity 0.3s ease, transform 0.2s ease;
-  border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
 #settingsIcon:hover {
   cursor: pointer;
   opacity: 1;
-  animation: rotateHover 1s ease-out forwards; /* Rotate on hover and stay */
 }
 
-@keyframes rotateHover {
+@keyframes rotateAvatar {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
-  } /* Single full rotation */
+  }
 }
 
-/* Click state */
+.rotating {
+  animation: rotateAvatar 0.5s ease-in-out;
+}
+
+/* Add click (active) state */
 #settingsIcon:active {
-  animation: none; /* Stop animation immediately */
-  transform: rotate(360deg) scale(0.85); /* Final rotation + scale */
+  transform: scale(0.75);
 }
 
 .access-count {
@@ -464,339 +461,4 @@ body::-webkit-scrollbar-thumb {
 
 body::-webkit-scrollbar-thumb:hover {
   background-color: #503484; /* Darker purple on hover */
-}
-
-.custom-context-menu {
-  /* Layout & Positioning */
-  position: fixed;
-  z-index: 10000; /* Increased from 1000 for better overlay */
-  width: 300px;
-  box-sizing: border-box;
-
-  /* Visual Styling */
-  background-color: #ffffff; /* Changed from #f4f4f8 for better contrast */
-  border: 1px solid #e1e1e8; /* More subtle border color */
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12),
-    /* Enhanced shadow */ 0 2px 4px rgba(0, 0, 0, 0.08); /* Added secondary shadow for depth */
-
-  /* Typography */
-  font-family: "Inter", "Open Sans", Arial, sans-serif; /* Added modern font stack */
-  font-size: 13px;
-  color: #333333; /* More readable than #da285a for content */
-  line-height: 1.4;
-
-  /* Spacing */
-  padding: 6px 0; /* Increased vertical padding */
-  margin: 4px; /* Slightly increased margin */
-
-  /* Interactions */
-  cursor: default;
-  user-select: none;
-
-  /* Animations */
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out,
-    box-shadow 0.3s ease;
-
-  /* Overflow handling */
-  max-height: 70vh;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #d4d4d4 transparent;
-}
-
-.context-menu-item {
-  padding: 4px 10px; /* Control left alignment by adjusting left-right padding */
-  display: block;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  text-align: left; /* Ensure text is aligned to the left */
-  width: 100%; /* Ensures the items stretch to the full width of the menu */
-  font-weight: bold;
-  color: #383838;
-}
-
-.context-menu-item input[type="checkbox"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  margin-right: 5px;
-  font-size: 14px; /* Adjust size as needed */
-  width: 20px;
-  height: 20px;
-  border: 2px solid #6441a5; /* Twitch purple */
-  border-radius: 4px; /* Rounded borders for the checkbox */
-  position: relative;
-  vertical-align: middle;
-  cursor: pointer;
-}
-
-.context-menu-item input[type="checkbox"]:checked::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 8px;
-  height: 14px;
-  border: solid rgb(92, 142, 85);
-  border-width: 0 3px 3px 0;
-  transform: rotate(45deg);
-}
-
-.context-menu-item input[type="checkbox"]:hover {
-  background-color: #eee; /* Light grey background on hover */
-}
-
-.context-menu-item:hover {
-  background-color: #d3d5f6; /* Slightly darker on hover for visibility */
-}
-
-.context-menu-header {
-  font-weight: bold;
-  margin-bottom: 5px;
-  padding: 5px 10px; /* Consistent padding with other items */
-  border-bottom: 1px solid #ccc;
-  text-align: left; /* Ensures header text is aligned left */
-}
-.custom-context-menu,
-.context-menu-item {
-  box-sizing: border-box; /* This ensures padding and borders are included within the width/height */
-}
-
-.new-group-form {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px;
-  background-color: #f4f4f8; /* Light mode background */
-  border-radius: 4px;
-}
-
-.context-menu-item:last-child {
-  border-top: 1px solid #ccc; /* Add a subtle line as a separator */
-  padding-top: 5px; /* Add more padding to the top to create space */
-  margin-top: 5px; /* Extra space from the previous items */
-}
-
-.group-name-input {
-  flex-grow: 1;
-  margin-right: 5px;
-  padding: 8px;
-  border: 1px solid #ccc; /* Light border for more definition */
-  border-radius: 4px;
-}
-
-.submit-new-group {
-  padding: 6px 10px;
-  background-color: #6441a5; /* Twitch's brand color */
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s; /* Smooth transition for hover effect */
-}
-
-.submit-new-group:hover {
-  background-color: #472c81; /* Darker purple on hover */
-}
-
-.delete-group-button {
-  float: right;
-  margin-left: 10px;
-  background-color: #ed2c2263;
-  color: rgb(226, 224, 224);
-  border: none;
-  border-radius: 4px;
-  padding: 2px 5px;
-  cursor: pointer;
-  transition: opacity 0.3s ease; /* Smooth transition for opacity */
-  cursor: pointer;
-}
-
-.delete-group-button:hover {
-  color: rgb(255, 253, 253);
-  background-color: #ce3838;
-}
-
-.group-name {
-  font-size: 14px; /* Increase the font size as needed */
-  font-weight: bold; /* Optional: Make the text bold */
-  color: #333333eb; /* Optional: Change text color */
-}
-
-/* Default light theme styles */
-.context-menu-item.add-new-group-button {
-  color: black; /* Text color for light theme */
-  background-color: #ffffff; /* Light background for light theme */
-  padding: 10px;
-  margin: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s; /* Smooth transition for background color */
-}
-
-.context-menu-item.add-new-group-button:hover {
-  background-color: #e0e0e0; /* Hover color for light theme */
-}
-.context-menu-item {
-  position: relative;
-  padding: 6px 8px;
-  display: flex;
-  align-items: center;
-  transition: background-color 0.2s;
-}
-
-.context-menu-item:hover {
-  background-color: #f0f0f0;
-}
-
-.group-name-container {
-  position: relative;
-  flex: 1;
-  min-width: 0; /* Important for text truncation */
-  margin-right: 60px; /* Space for buttons */
-}
-
-.group-name {
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 2px 4px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.group-name.editing {
-  background-color: #f0f0f0;
-  width: 100%;
-  outline: none;
-  border: 1px solid #ddd;
-}
-.editing {
-  outline: none; /* Removes the default outline */
-  border-bottom: 1px solid currentColor; /* Adds an underline */
-  caret-color: currentColor; /* Makes the cursor visible */
-}
-.actions-container {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: none;
-  background: white;
-  padding: 2px;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.context-menu-item:hover .actions-container {
-  display: flex;
-  align-items: center;
-}
-
-.edit-group-btn,
-.delete-group-button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 2px;
-  font-size: 12px;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.edit-group-btn:hover,
-.delete-group-button:hover {
-  opacity: 1;
-}
-
-.delete-group-button {
-  margin-left: 4px;
-}
-
-/* Rate limit notification styling (base styles) */
-.rate-limit-notification {
-  padding: 12px 16px;
-  margin: 8px 0;
-  border-radius: 4px;
-  font-family: "Open Sans", Arial, sans-serif;
-  font-size: 14px;
-  position: relative;
-  animation: slideIn 0.3s ease-out;
-  border-left: 4px solid #ed2c22;
-}
-
-/* Dark mode specific styles */
-.dark-mode .rate-limit-notification {
-  background-color: #2a2a2e;
-  color: #dedee3;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Light mode specific styles */
-body:not(.dark-mode) .rate-limit-notification {
-  background-color: #fff;
-  color: #333;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.notification-title {
-  font-weight: bold;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-}
-
-.dark-mode .notification-title {
-  color: #f47373;
-}
-
-body:not(.dark-mode) .notification-title {
-  color: #d32f2f;
-}
-
-.notification-title:before {
-  content: "⚠️";
-  margin-right: 8px;
-}
-
-.notification-message {
-  line-height: 1.4;
-}
-
-.notification-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.dark-mode .notification-close {
-  color: #9999993d;
-}
-
-.dark-mode .notification-close:hover {
-  color: #dedee3;
-}
-
-body:not(.dark-mode) .notification-close {
-  color: #9999997d;
-}
-
-body:not(.dark-mode) .notification-close:hover {
-  color: #333;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
 }
