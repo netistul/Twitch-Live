@@ -708,54 +708,77 @@ if (navigator.userAgent.includes("Firefox")) {
 /* add to favorite list */
 
 function showContextMenu(stream, x, y) {
+  // Debounce utility function
+  const debounce = (func, delay) => {
+    let timeoutId;
+    let waiting = false;
+
+    const debounced = (...args) => {
+      clearTimeout(timeoutId);
+      waiting = true;
+      timeoutId = setTimeout(() => {
+        func(...args);
+        waiting = false;
+      }, delay);
+    };
+
+    debounced.cancel = () => {
+      clearTimeout(timeoutId);
+      waiting = false;
+    };
+
+    debounced.isWaiting = () => waiting;
+
+    return debounced;
+  };
+
   const existingMenu = document.querySelector(".custom-context-menu");
-  if (existingMenu) {
-    existingMenu.remove();
-  }
+  if (existingMenu) existingMenu.remove();
 
   const contextMenu = document.createElement("div");
   contextMenu.className = "custom-context-menu";
 
-  // --- Menu Header Creation (same as before) ---
+  // Menu Header Creation
   const menuHeader = document.createElement("div");
   menuHeader.className = "context-menu-header";
-  const addActionText = document.createElement("span");
-  addActionText.textContent = "Add ";
-  addActionText.style.marginRight = "2px";
-  addActionText.style.verticalAlign = "middle";
+
+  const firstPart = document.createElement("span");
+  firstPart.textContent = "Add";
+  firstPart.classList.add("context-menu-header-text");
+
+  const twitchCombo = document.createElement("span");
+  twitchCombo.className = "twitch-combo";
+
   const twitchIcon = document.createElement("img");
   twitchIcon.src = "css/twitch.png";
   twitchIcon.alt = "Twitch";
-  twitchIcon.style.width = "15px";
-  twitchIcon.style.marginRight = "2px";
-  twitchIcon.style.verticalAlign = "middle";
+  twitchIcon.classList.add("context-menu-twitch-icon");
+
   const channelNameSpan = document.createElement("span");
-  channelNameSpan.textContent = `${stream.channelName}`;
-  channelNameSpan.style.marginRight = "5px";
-  channelNameSpan.style.verticalAlign = "middle";
-  channelNameSpan.style.color = "#9182c1";
+  channelNameSpan.textContent = stream.channelName;
+  channelNameSpan.classList.add("context-menu-stream-name");
+
   const toFavoriteGroupText = document.createElement("span");
-  toFavoriteGroupText.textContent = "to favorite list:";
-  toFavoriteGroupText.style.verticalAlign = "middle";
-  menuHeader.appendChild(addActionText);
-  menuHeader.appendChild(twitchIcon);
-  menuHeader.appendChild(channelNameSpan);
+  toFavoriteGroupText.classList.add("context-menu-header-text");
+
+  twitchCombo.appendChild(twitchIcon);
+  twitchCombo.appendChild(channelNameSpan);
+  menuHeader.appendChild(firstPart);
+  menuHeader.appendChild(twitchCombo);
   menuHeader.appendChild(toFavoriteGroupText);
   contextMenu.appendChild(menuHeader);
-  // --- End Menu Header Creation ---
 
-  // Create scrollable container for menu items
   const itemsContainer = document.createElement("div");
   itemsContainer.className = "context-menu-items-container";
   contextMenu.appendChild(itemsContainer);
 
-  // Create footer container for the "Add new" button
   const footerContainer = document.createElement("div");
   footerContainer.className = "context-menu-footer";
   contextMenu.appendChild(footerContainer);
 
   chrome.storage.local.get("favoriteGroups", function (data) {
     const groups = data.favoriteGroups || [];
+
     if (groups.length > 0) {
       groups.forEach((group, index) => {
         const menuItem = document.createElement("div");
@@ -776,13 +799,19 @@ function showContextMenu(stream, x, y) {
         actionsContainer.className = "actions-container";
 
         const editButton = document.createElement("button");
-        editButton.textContent = "✏️";
         editButton.className = "edit-group-btn";
+        editButton.title = "Edit";
+        editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
+          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+        </svg>`;
 
         const deleteButton = document.createElement("button");
-        deleteButton.textContent = "🗑️";
         deleteButton.className = "delete-group-button";
         deleteButton.title = "Delete";
+        deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="delete-icon">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>`;
 
         actionsContainer.appendChild(editButton);
         actionsContainer.appendChild(deleteButton);
@@ -791,12 +820,28 @@ function showContextMenu(stream, x, y) {
         menuItem.appendChild(checkBox);
         menuItem.appendChild(groupContainer);
 
-        // --- Edit/Delete/Toggle Logic (condensed for brevity, same as before) ---
+        // THIS SECTION IS THE KEY FIX
+        let editingActive = false;
+        let debouncedSaveFunction;
+        let originalName;
+
         const enterEditMode = () => {
-          // Save original styling properties
+          if (editingActive) return;
+
+          editingActive = true;
           const originalWhiteSpace = groupNameSpan.style.whiteSpace || "nowrap";
           const originalOverflow = groupNameSpan.style.overflow || "hidden";
           const originalTextOverflow = groupNameSpan.style.textOverflow || "ellipsis";
+
+          // Get the current name from the span
+          originalName = groupNameSpan.textContent.trim();
+
+          // Change to save icon
+          editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="save-icon">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>`;
+          editButton.title = "Save";
+          editButton.classList.add("editing-active");
 
           groupNameSpan.style.whiteSpace = "normal";
           groupNameSpan.style.overflow = "visible";
@@ -804,66 +849,105 @@ function showContextMenu(stream, x, y) {
           groupNameSpan.contentEditable = true;
           groupNameSpan.classList.add("editing");
           groupNameSpan.focus();
+
           const range = document.createRange();
           const selection = window.getSelection();
           range.selectNodeContents(groupNameSpan);
           range.collapse(false);
           selection.removeAllRanges();
           selection.addRange(range);
-          const originalName = groupNameSpan.textContent;
 
           const saveEdit = () => {
             const newName = groupNameSpan.textContent.trim();
             if (newName && newName !== originalName) {
-              chrome.storage.local.get("favoriteGroups", function (data) {
-                const currentGroups = data.favoriteGroups || []; // Use currentGroups to avoid confusion with outer scope 'groups'
-                // Find the group by original name or index reliably
-                const groupIndexToUpdate = currentGroups.findIndex(g => g.name === originalName); // More robust find
-                if (groupIndexToUpdate !== -1) {
-                  // Check if new name already exists (optional but good practice)
-                  if (currentGroups.some((g, i) => g.name === newName && i !== groupIndexToUpdate)) {
+              chrome.storage.local.get("favoriteGroups", (data) => {
+                const currentGroups = data.favoriteGroups || [];
+                // Find the group by matching the original name from the span
+                const groupIndex = currentGroups.findIndex(g => g.name === originalName);
+                if (groupIndex !== -1) {
+                  if (currentGroups.some((g, i) => g.name === newName && i !== groupIndex)) {
                     alert("A group with this name already exists.");
-                    groupNameSpan.textContent = originalName; // Revert
+                    groupNameSpan.textContent = originalName;
                   } else {
-                    currentGroups[groupIndexToUpdate].name = newName;
-                    chrome.storage.local.set({ favoriteGroups: currentGroups }, function () {
+                    // Update the group name in storage
+                    currentGroups[groupIndex].name = newName;
+                    chrome.storage.local.set({ favoriteGroups: currentGroups }, () => {
                       console.log("Group name updated:", newName);
+                      // Update the group object in the current context as well
+                      group.name = newName;
+                      originalName = newName; // Update our reference
                       if (typeof updateLiveStreams === 'function') updateLiveStreams();
-                      // Update the displayed name immediately without full refresh if needed
-                      // groupNameSpan.textContent = newName; // Already done by editing
                     });
                   }
                 } else {
-                  console.error("Could not find group to update:", originalName);
-                  groupNameSpan.textContent = originalName; // Revert
+                  console.error("Group not found for editing:", originalName);
                 }
               });
             } else if (!newName) {
-              groupNameSpan.textContent = originalName; // Revert if empty
+              groupNameSpan.textContent = originalName;
             }
+          };
+
+          const exitEditMode = () => {
+            if (!editingActive) return;
+
+            editingActive = false;
+
+            // Reset UI
+            editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+            </svg>`;
+            editButton.title = "Edit";
+            editButton.classList.remove("editing-active");
+
             groupNameSpan.contentEditable = false;
             groupNameSpan.classList.remove("editing");
             groupNameSpan.style.whiteSpace = originalWhiteSpace;
             groupNameSpan.style.overflow = originalOverflow;
             groupNameSpan.style.textOverflow = originalTextOverflow;
+
+            // Clean up input handlers
+            groupNameSpan.oninput = null;
+            groupNameSpan.onkeydown = null;
+            groupNameSpan.onblur = null;
+
+            if (debouncedSaveFunction) {
+              debouncedSaveFunction.cancel();
+              debouncedSaveFunction = null;
+            }
           };
 
-          groupNameSpan.onkeydown = function (e) {
+          // Create a new debounced save function each time
+          debouncedSaveFunction = debounce(saveEdit, 500);
+
+          // Input handler triggers debounced save
+          groupNameSpan.oninput = () => {
+            debouncedSaveFunction();
+          };
+
+          // Handle special keys
+          groupNameSpan.onkeydown = (e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
+              if (debouncedSaveFunction) debouncedSaveFunction.cancel();
               saveEdit();
+              exitEditMode();
               groupNameSpan.blur();
             } else if (e.key === 'Escape') {
-              groupNameSpan.textContent = originalName; // Revert on escape
-              groupNameSpan.contentEditable = false;
-              groupNameSpan.classList.remove("editing");
-              groupNameSpan.style.whiteSpace = originalWhiteSpace;
-              groupNameSpan.style.overflow = originalOverflow;
-              groupNameSpan.style.textOverflow = originalTextOverflow;
+              e.preventDefault();
+              if (debouncedSaveFunction) debouncedSaveFunction.cancel();
+              groupNameSpan.textContent = originalName;
+              exitEditMode();
               groupNameSpan.blur();
             }
           };
-          groupNameSpan.onblur = saveEdit; // Save on blur too
+
+          // Handle blur event
+          groupNameSpan.onblur = () => {
+            if (debouncedSaveFunction) debouncedSaveFunction.cancel();
+            saveEdit();
+            exitEditMode();
+          };
         };
 
         editButton.onclick = (e) => {
@@ -871,36 +955,28 @@ function showContextMenu(stream, x, y) {
           enterEditMode();
         };
 
-        deleteButton.onclick = function (event) {
+        deleteButton.onclick = (event) => {
           event.stopPropagation();
-          // Make sure deleteGroup function exists and handles UI update
-          if (typeof deleteGroup === 'function') {
-            deleteGroup(index, contextMenu); // Assuming deleteGroup removes the item and updates storage
-          } else {
-            console.error("deleteGroup function is not defined");
-          }
+          deleteGroup(index, group.name, contextMenu);
         };
 
-        menuItem.addEventListener("click", function (event) {
-          // Ensure click is not on buttons or checkbox itself
+        menuItem.addEventListener("click", (event) => {
           if (!editButton.contains(event.target) &&
             !deleteButton.contains(event.target) &&
             event.target !== checkBox &&
-            !groupNameSpan.isContentEditable // Don't toggle checkbox when clicking to edit
-          ) {
+            !groupNameSpan.isContentEditable) {
             checkBox.checked = !checkBox.checked;
-            checkBox.dispatchEvent(new Event("change")); // Trigger change event
+            checkBox.dispatchEvent(new Event("change"));
           }
         });
 
-        checkBox.addEventListener("change", function () {
+        checkBox.addEventListener("change", () => {
           if (checkBox.checked) {
             addToGroup(stream, group.name);
           } else {
             removeFromGroup(stream, group.name);
           }
         });
-        // --- End Edit/Delete/Toggle Logic ---
 
         itemsContainer.appendChild(menuItem);
       });
@@ -911,7 +987,7 @@ function showContextMenu(stream, x, y) {
       itemsContainer.appendChild(noGroupItem);
     }
 
-    // --- "Add new favorite list" Button ---
+    // Add new group button
     const addNewGroupButtonElement = document.createElement("div");
     addNewGroupButtonElement.textContent = "Add new favorite list";
     addNewGroupButtonElement.className = "context-menu-item add-new-group-button";
@@ -919,26 +995,38 @@ function showContextMenu(stream, x, y) {
 
     addNewGroupButtonElement.onclick = function () {
       addNewGroupButtonElement.style.display = 'none';
-      // Pass the footer container instead of context menu
       openAddGroupForm(footerContainer, stream, addNewGroupButtonElement);
     };
-    // --- End "Add new favorite list" Button ---
 
-    // Add the button to the footer container
     footerContainer.appendChild(addNewGroupButtonElement);
     document.body.appendChild(contextMenu);
 
-    // --- Position Calculation (same as before) ---
-    const menuWidth = contextMenu.offsetWidth;
-    const menuHeight = contextMenu.offsetHeight;
-    const margin = 10;
-    const safeX = Math.min(x, window.innerWidth - menuWidth - margin);
-    const safeY = Math.min(y, window.innerHeight - menuHeight - margin);
-    contextMenu.style.left = `${Math.max(margin, safeX)}px`;
-    contextMenu.style.top = `${Math.max(margin, safeY)}px`;
-    // --- End Position Calculation ---
+    // Position calculation
+    setTimeout(() => {
+      const headerWidth = menuHeader.offsetWidth;
+      const headerRect = menuHeader.getBoundingClientRect();
+      const firstPartRect = firstPart.getBoundingClientRect();
+      const twitchComboRect = twitchCombo.getBoundingClientRect();
+      const menuWidth = contextMenu.offsetWidth;
 
-    // --- Click-away Listener (same as before) ---
+      const usedWidth = (twitchComboRect.right - headerRect.left) + 10;
+      const availableWidth = menuWidth - usedWidth - 40;
+
+      if (availableWidth >= 90) {
+        toFavoriteGroupText.textContent = "to favorite list:";
+      } else {
+        toFavoriteGroupText.textContent = "to list:";
+      }
+
+      const menuHeight = contextMenu.offsetHeight;
+      const margin = 10;
+      const safeX = Math.min(x, window.innerWidth - menuWidth - margin);
+      const safeY = Math.min(y, window.innerHeight - menuHeight - margin);
+      contextMenu.style.left = `${Math.max(margin, safeX)}px`;
+      contextMenu.style.top = `${Math.max(margin, safeY)}px`;
+    }, 0);
+
+    // Click-away listener
     document.addEventListener(
       "click",
       function closeMenu(event) {
@@ -949,7 +1037,6 @@ function showContextMenu(stream, x, y) {
       },
       { capture: true }
     );
-    // --- End Click-away Listener ---
   });
 }
 
@@ -1005,13 +1092,13 @@ function createNewGroup(groupName, stream, contextMenu) {
           console.log(`New group '${groupName}' created and added ${stream.channelName}`);
           if (typeof updateLiveStreams === 'function') updateLiveStreams();
 
-          // --- Create and add the new group item visually ---
+          // Create and add the new group item visually
           const menuItem = document.createElement("div");
           menuItem.className = "context-menu-item";
 
           const checkBox = document.createElement("input");
           checkBox.type = "checkbox";
-          checkBox.checked = true; // Checked because we just added the stream
+          checkBox.checked = true;
 
           const groupContainer = document.createElement("div");
           groupContainer.className = "group-name-container";
@@ -1024,13 +1111,19 @@ function createNewGroup(groupName, stream, contextMenu) {
           actionsContainer.className = "actions-container";
 
           const editButton = document.createElement("button");
-          editButton.textContent = "✏️";
           editButton.className = "edit-group-btn";
+          editButton.title = "Edit";
+          editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
+  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+</svg>`;
 
           const deleteButton = document.createElement("button");
-          deleteButton.textContent = "🗑️";
           deleteButton.className = "delete-group-button";
           deleteButton.title = "Delete";
+          deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="delete-icon">
+  <polyline points="3 6 5 6 21 6"></polyline>
+  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>`;
 
           actionsContainer.appendChild(editButton);
           actionsContainer.appendChild(deleteButton);
@@ -1039,22 +1132,197 @@ function createNewGroup(groupName, stream, contextMenu) {
           menuItem.appendChild(checkBox);
           menuItem.appendChild(groupContainer);
 
-          // Find the correct index for the new group (it's the last one added)
-          const newGroupIndex = groups.length - 1;
+          // State tracking variables - critical for proper auto-saving
+          let currentGroupName = groupName;
+          let editingActive = false;
+          let debouncedSaveFunction = null;
 
-          // --- Add event listeners for the new item (similar to showContextMenu) ---
-          // ... your existing event listeners and logic ...
+          // Debounce utility function - recreated for scope accessibility
+          const debounce = (func, delay) => {
+            let timeoutId;
+            let waiting = false;
 
-          // Find the items container to append the new item
+            const debounced = (...args) => {
+              clearTimeout(timeoutId);
+              waiting = true;
+              timeoutId = setTimeout(() => {
+                func(...args);
+                waiting = false;
+              }, delay);
+            };
+
+            debounced.cancel = () => {
+              clearTimeout(timeoutId);
+              waiting = false;
+            };
+
+            debounced.isWaiting = () => waiting;
+
+            return debounced;
+          };
+
+          const enterEditMode = () => {
+            if (editingActive) return;
+
+            editingActive = true;
+            const originalWhiteSpace = groupNameSpan.style.whiteSpace || "nowrap";
+            const originalOverflow = groupNameSpan.style.overflow || "hidden";
+            const originalTextOverflow = groupNameSpan.style.textOverflow || "ellipsis";
+            const originalName = currentGroupName;
+
+            // Change edit button to save button
+            editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="save-icon">
+  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+</svg>`;
+            editButton.title = "Save";
+            editButton.classList.add("editing-active");
+
+            groupNameSpan.style.whiteSpace = "normal";
+            groupNameSpan.style.overflow = "visible";
+            groupNameSpan.style.textOverflow = "unset";
+            groupNameSpan.contentEditable = true;
+            groupNameSpan.classList.add("editing");
+            groupNameSpan.focus();
+
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.selectNodeContents(groupNameSpan);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            const saveEdit = () => {
+              const newName = groupNameSpan.textContent.trim();
+              if (newName && newName !== originalName) {
+                chrome.storage.local.get("favoriteGroups", function (data) {
+                  const currentGroups = data.favoriteGroups || [];
+                  const groupIndexToUpdate = currentGroups.findIndex(g => g.name === originalName);
+                  if (groupIndexToUpdate !== -1) {
+                    if (currentGroups.some((g, i) => g.name === newName && i !== groupIndexToUpdate)) {
+                      alert("A group with this name already exists.");
+                      groupNameSpan.textContent = originalName;
+                    } else {
+                      currentGroups[groupIndexToUpdate].name = newName;
+                      chrome.storage.local.set({ favoriteGroups: currentGroups }, function () {
+                        console.log("Group name updated:", newName);
+                        currentGroupName = newName; // Update our stored group name
+                        if (typeof updateLiveStreams === 'function') updateLiveStreams();
+                      });
+                    }
+                  } else {
+                    console.error("Could not find group to update:", originalName);
+                    groupNameSpan.textContent = originalName;
+                  }
+                });
+              } else if (!newName) {
+                groupNameSpan.textContent = originalName;
+              }
+            };
+
+            const exitEditMode = () => {
+              if (!editingActive) return;
+
+              editingActive = false;
+
+              // Reset edit button to original state
+              editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
+  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+</svg>`;
+              editButton.title = "Edit";
+              editButton.classList.remove("editing-active");
+
+              groupNameSpan.contentEditable = false;
+              groupNameSpan.classList.remove("editing");
+              groupNameSpan.style.whiteSpace = originalWhiteSpace;
+              groupNameSpan.style.overflow = originalOverflow;
+              groupNameSpan.style.textOverflow = originalTextOverflow;
+
+              // Clean up event handlers
+              groupNameSpan.onkeydown = null;
+              groupNameSpan.onblur = null;
+              groupNameSpan.oninput = null;
+
+              if (debouncedSaveFunction) {
+                debouncedSaveFunction.cancel();
+                debouncedSaveFunction = null;
+              }
+            };
+
+            // Create a new debounced save function
+            debouncedSaveFunction = debounce(saveEdit, 500);
+
+            // Set up auto-saving on input
+            groupNameSpan.oninput = () => {
+              debouncedSaveFunction();
+            };
+
+            groupNameSpan.onkeydown = function (e) {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (debouncedSaveFunction) debouncedSaveFunction.cancel();
+                saveEdit();
+                exitEditMode();
+                groupNameSpan.blur();
+              } else if (e.key === 'Escape') {
+                e.preventDefault();
+                if (debouncedSaveFunction) debouncedSaveFunction.cancel();
+                groupNameSpan.textContent = originalName;
+                exitEditMode();
+                groupNameSpan.blur();
+              }
+            };
+
+            groupNameSpan.onblur = () => {
+              if (debouncedSaveFunction) debouncedSaveFunction.cancel();
+              saveEdit();
+              exitEditMode();
+            };
+          };
+
+          editButton.onclick = (e) => {
+            e.stopPropagation();
+            enterEditMode();
+          };
+
+          deleteButton.onclick = function (event) {
+            event.stopPropagation();
+            chrome.storage.local.get("favoriteGroups", function (data) {
+              const currentGroups = data.favoriteGroups || [];
+              const groupIndex = currentGroups.findIndex(g => g.name === currentGroupName);
+              if (groupIndex !== -1) {
+                deleteGroup(groupIndex, currentGroupName, contextMenu);
+              } else {
+                console.error("Group not found for deletion:", currentGroupName);
+              }
+            });
+          };
+
+          menuItem.addEventListener("click", function (event) {
+            if (!editButton.contains(event.target) &&
+              !deleteButton.contains(event.target) &&
+              event.target !== checkBox &&
+              !groupNameSpan.isContentEditable
+            ) {
+              checkBox.checked = !checkBox.checked;
+              checkBox.dispatchEvent(new Event("change"));
+            }
+          });
+
+          checkBox.addEventListener("change", function () {
+            if (checkBox.checked) {
+              addToGroup(stream, currentGroupName);
+            } else {
+              removeFromGroup(stream, currentGroupName);
+            }
+          });
+
+          // Add to DOM
           const itemsContainer = contextMenu.querySelector(".context-menu-items-container");
           if (itemsContainer) {
-            // Remove "No favorite groups found" message if it exists
             const noGroupMsg = itemsContainer.querySelector(".context-menu-item");
             if (noGroupMsg && noGroupMsg.textContent === "No favorite groups found.") {
               noGroupMsg.remove();
             }
-
-            // Add the new item to the scrollable container
             itemsContainer.appendChild(menuItem);
           }
 
@@ -1138,9 +1406,10 @@ function openAddGroupForm(footerContainer, stream, addNewGroupButtonElement) {
     const groupName = groupNameInput.value.trim();
     if (groupName) {
       try {
-        // Get the context menu to pass to createNewGroup
-        const contextMenu = footerContainer.parentNode;
+        // Get the context menu from the footer container's parent
+        const contextMenu = footerContainer.closest(".custom-context-menu");
         await createNewGroup(groupName, stream, contextMenu);
+        cleanupAndShowButton();
       } catch (error) {
         console.log("Group creation failed or was duplicate:", error);
         if (error === "duplicate") {
@@ -1195,21 +1464,24 @@ function openAddGroupForm(footerContainer, stream, addNewGroupButtonElement) {
   };
 }
 
-function deleteGroup(index, contextMenu) {
+function deleteGroup(index, groupName, contextMenu) {
   chrome.storage.local.get("favoriteGroups", function (data) {
     var groups = data.favoriteGroups || [];
-    if (index >= 0 && index < groups.length) {
-      groups.splice(index, 1); // Remove the group from the array
-      chrome.storage.local.set({ favoriteGroups: groups }, function () {
-        console.log("Group deleted");
 
-        // Find the items container
+    // Try to find by index first (more reliable after edits)
+    if (index >= 0 && index < groups.length) {
+      const deletedGroupName = groups[index].name;
+      groups.splice(index, 1);
+
+      chrome.storage.local.set({ favoriteGroups: groups }, function () {
+        console.log("Group deleted:", deletedGroupName);
+
+        // Remove the menu item at the same index position
         const itemsContainer = contextMenu.querySelector(".context-menu-items-container");
         if (itemsContainer) {
-          // Remove the group from the items container
           const menuItems = itemsContainer.querySelectorAll(".context-menu-item");
           if (index < menuItems.length) {
-            itemsContainer.removeChild(menuItems[index]);
+            menuItems[index].remove();
           }
 
           // Add "No favorite groups found" message if no groups remain
@@ -1224,7 +1496,7 @@ function deleteGroup(index, contextMenu) {
         if (typeof updateLiveStreams === 'function') updateLiveStreams();
       });
     } else {
-      console.log("Invalid index for deletion.");
+      console.log("Group not found for deletion. Index:", index);
     }
   });
 }
