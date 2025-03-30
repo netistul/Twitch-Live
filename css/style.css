@@ -342,7 +342,9 @@ body {
   max-height: 35px;
   object-fit: cover;
   opacity: 0.5;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease,
+    transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: center center;
 }
 
 #settingsIcon:hover {
@@ -354,18 +356,21 @@ body {
   0% {
     transform: rotate(0deg);
   }
+  80% {
+    transform: rotate(375deg); /* Overshoot */
+  }
   100% {
-    transform: rotate(360deg);
+    transform: rotate(360deg); /* Bounce back to exact full rotation */
   }
 }
 
 .rotating {
-  animation: rotateAvatar 0.5s ease-in-out;
+  animation: rotateAvatar 1.8s cubic-bezier(0.34, 0.15, 0.26, 1);
 }
 
 /* Add click (active) state */
 #settingsIcon:active {
-  transform: scale(0.75);
+  transform: scale(0.9);
 }
 
 .access-count {
