@@ -950,6 +950,19 @@ function createNewGroup(groupName, stream, contextMenu) {
               noGroupMsg.remove();
             }
             itemsContainer.appendChild(menuItem);
+
+            // Add highlight class to the new item
+            menuItem.classList.add("new-item-highlight");
+
+            // Auto scroll to newly added item if out of view
+            menuItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Remove highlight after animation completes
+            setTimeout(() => {
+              if (menuItem && menuItem.parentNode) {
+                menuItem.classList.remove("new-item-highlight");
+              }
+            }, 3000);
           }
 
           resolve(newGroup);

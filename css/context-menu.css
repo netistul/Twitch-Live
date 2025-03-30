@@ -368,8 +368,8 @@
 
 .cancel-new-group-icon {
   position: absolute;
-  top: -12px;
-  right: -12px;
+  top: -10px;
+  right: -10px;
   background: rgba(245, 245, 245, 0.9);
   border: 1px solid rgba(208, 208, 208, 0.8);
   border-radius: 50%;
@@ -498,6 +498,26 @@
 .context-menu-item input[type="checkbox"]:hover {
   border-color: #9147ff;
   box-shadow: 0 0 0 2px rgba(145, 71, 255, 0.15);
+}
+
+/* New item highlight animation - Light mode */
+.new-item-highlight {
+  animation: highlightPulse 3s ease;
+}
+
+@keyframes highlightPulse {
+  0% {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  10% {
+    background-color: rgba(145, 71, 255, 0.15);
+  }
+  50% {
+    background-color: rgba(145, 71, 255, 0.15);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
 }
 
 /* Dark Mode Styles */
@@ -735,4 +755,24 @@
     rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
+}
+
+/* Dark mode highlight animation */
+.dark-mode .new-item-highlight {
+  animation: highlightPulseDark 3s ease;
+}
+
+@keyframes highlightPulseDark {
+  0% {
+    background-color: rgba(28, 28, 34, 0.85);
+  }
+  10% {
+    background-color: rgba(145, 71, 255, 0.25);
+  }
+  50% {
+    background-color: rgba(145, 71, 255, 0.25);
+  }
+  100% {
+    background-color: rgba(28, 28, 34, 0.85);
+  }
 }
