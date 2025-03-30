@@ -707,31 +707,262 @@ if (navigator.userAgent.includes("Firefox")) {
 
 /* add to favorite list */
 
-function showContextMenu(stream, x, y) {
-  // Debounce utility function
-  const debounce = (func, delay) => {
-    let timeoutId;
-    let waiting = false;
+// Group editing utility function
+function setupGroupEditing(groupNameSpan, editButton, groupName) {
+  let editingActive = false;
+  let currentGroupName = groupName;
+  let hasUnsavedChanges = false;
 
-    const debounced = (...args) => {
-      clearTimeout(timeoutId);
-      waiting = true;
-      timeoutId = setTimeout(() => {
-        func(...args);
-        waiting = false;
-      }, delay);
-    };
+  const saveEdit = () => {
+    if (!editingActive) return;
 
-    debounced.cancel = () => {
-      clearTimeout(timeoutId);
-      waiting = false;
-    };
+    const newName = groupNameSpan.textContent.trim();
+    const originalName = currentGroupName;
 
-    debounced.isWaiting = () => waiting;
-
-    return debounced;
+    if (newName && newName !== originalName) {
+      chrome.storage.local.get("favoriteGroups", function (data) {
+        const currentGroups = data.favoriteGroups || [];
+        const groupIndexToUpdate = currentGroups.findIndex(g => g.name === originalName);
+        if (groupIndexToUpdate !== -1) {
+          if (currentGroups.some((g, i) => g.name === newName && i !== groupIndexToUpdate)) {
+            alert("A group with this name already exists.");
+            groupNameSpan.textContent = originalName;
+          } else {
+            currentGroups[groupIndexToUpdate].name = newName;
+            chrome.storage.local.set({ favoriteGroups: currentGroups }, function () {
+              console.log("Group name updated:", newName);
+              currentGroupName = newName; // Update our stored group name
+              if (typeof updateLiveStreams === 'function') updateLiveStreams();
+            });
+          }
+        } else {
+          console.error("Could not find group to update:", originalName);
+          groupNameSpan.textContent = originalName;
+        }
+      });
+    } else if (!newName) {
+      groupNameSpan.textContent = originalName;
+    }
   };
 
+  const exitEditMode = () => {
+    if (!editingActive) return;
+
+    editingActive = false;
+    hasUnsavedChanges = false;
+
+    // Reset edit button to original state
+    editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
+<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+</svg>`;
+    editButton.title = "Edit";
+    editButton.classList.remove("editing-active");
+    editButton.classList.remove("has-changes");
+
+    groupNameSpan.contentEditable = false;
+    groupNameSpan.classList.remove("editing");
+    groupNameSpan.style.whiteSpace = "nowrap";
+    groupNameSpan.style.overflow = "hidden";
+    groupNameSpan.style.textOverflow = "ellipsis";
+
+    // Clean up event handlers
+    groupNameSpan.onkeydown = null;
+    groupNameSpan.onblur = null;
+    groupNameSpan.oninput = null;
+  };
+
+  const enterEditMode = () => {
+    if (editingActive) return;
+
+    editingActive = true;
+    hasUnsavedChanges = false;
+    const originalName = currentGroupName;
+
+    // Change edit button to save button with text
+    editButton.innerHTML = `Save`;
+    editButton.title = "Save changes";
+    editButton.classList.add("editing-active");
+
+    groupNameSpan.style.whiteSpace = "normal";
+    groupNameSpan.style.overflow = "visible";
+    groupNameSpan.style.textOverflow = "unset";
+    groupNameSpan.contentEditable = true;
+    groupNameSpan.classList.add("editing");
+    groupNameSpan.focus();
+
+    const range = document.createRange();
+    const selection = window.getSelection();
+    range.selectNodeContents(groupNameSpan);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    // Track changes to content
+    groupNameSpan.oninput = () => {
+      if (!hasUnsavedChanges && groupNameSpan.textContent.trim() !== originalName) {
+        hasUnsavedChanges = true;
+        editButton.classList.add("has-changes");
+      } else if (groupNameSpan.textContent.trim() === originalName) {
+        hasUnsavedChanges = false;
+        editButton.classList.remove("has-changes");
+      }
+    };
+
+    groupNameSpan.onkeydown = function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveEdit();
+        exitEditMode();
+        groupNameSpan.blur();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        groupNameSpan.textContent = originalName;
+        exitEditMode();
+        groupNameSpan.blur();
+      }
+    };
+
+    groupNameSpan.onblur = () => {
+      if (hasUnsavedChanges) {
+        saveEdit();
+      }
+      exitEditMode();
+    };
+  };
+
+  // Set up click handler for edit button to toggle between edit and save
+  editButton.onclick = (e) => {
+    e.stopPropagation();
+    if (editingActive) {
+      saveEdit();
+      exitEditMode();
+    } else {
+      enterEditMode();
+    }
+  };
+
+  // Return current group name for reference
+  return {
+    getCurrentGroupName: () => currentGroupName
+  };
+}
+
+function createNewGroup(groupName, stream, contextMenu) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get("favoriteGroups", function (data) {
+      const groups = data.favoriteGroups || [];
+      if (!groups.some((g) => g.name === groupName)) {
+        const newGroup = {
+          name: groupName,
+          streamers: [stream.channelName],
+        };
+        groups.push(newGroup);
+        chrome.storage.local.set({ favoriteGroups: groups }, function () {
+          if (chrome.runtime.lastError) {
+            console.error("Error saving new group:", chrome.runtime.lastError);
+            alert("Error saving new group.");
+            reject(chrome.runtime.lastError);
+            return;
+          }
+          console.log(`New group '${groupName}' created and added ${stream.channelName}`);
+          if (typeof updateLiveStreams === 'function') updateLiveStreams();
+
+          // Create and add the new group item visually
+          const menuItem = document.createElement("div");
+          menuItem.className = "context-menu-item";
+
+          const checkBox = document.createElement("input");
+          checkBox.type = "checkbox";
+          checkBox.checked = true;
+
+          const groupContainer = document.createElement("div");
+          groupContainer.className = "group-name-container";
+
+          const groupNameSpan = document.createElement("span");
+          groupNameSpan.className = "group-name";
+          groupNameSpan.textContent = groupName;
+
+          const actionsContainer = document.createElement("div");
+          actionsContainer.className = "actions-container";
+
+          const editButton = document.createElement("button");
+          editButton.className = "edit-group-btn";
+          editButton.title = "Edit";
+          editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
+  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+</svg>`;
+
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "delete-group-button";
+          deleteButton.title = "Delete";
+          deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="delete-icon">
+  <polyline points="3 6 5 6 21 6"></polyline>
+  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>`;
+
+          actionsContainer.appendChild(editButton);
+          actionsContainer.appendChild(deleteButton);
+          groupContainer.appendChild(groupNameSpan);
+          groupContainer.appendChild(actionsContainer);
+          menuItem.appendChild(checkBox);
+          menuItem.appendChild(groupContainer);
+
+          // Set up group editing
+          const groupEditor = setupGroupEditing(groupNameSpan, editButton, groupName);
+
+          deleteButton.onclick = function (event) {
+            event.stopPropagation();
+            chrome.storage.local.get("favoriteGroups", function (data) {
+              const currentGroups = data.favoriteGroups || [];
+              const groupIndex = currentGroups.findIndex(g => g.name === groupEditor.getCurrentGroupName());
+              if (groupIndex !== -1) {
+                deleteGroup(groupIndex, groupEditor.getCurrentGroupName(), contextMenu);
+              } else {
+                console.error("Group not found for deletion:", groupEditor.getCurrentGroupName());
+              }
+            });
+          };
+
+          menuItem.addEventListener("click", function (event) {
+            if (!editButton.contains(event.target) &&
+              !deleteButton.contains(event.target) &&
+              event.target !== checkBox &&
+              !groupNameSpan.isContentEditable
+            ) {
+              checkBox.checked = !checkBox.checked;
+              checkBox.dispatchEvent(new Event("change"));
+            }
+          });
+
+          checkBox.addEventListener("change", function () {
+            if (checkBox.checked) {
+              addToGroup(stream, groupEditor.getCurrentGroupName());
+            } else {
+              removeFromGroup(stream, groupEditor.getCurrentGroupName());
+            }
+          });
+
+          // Add to DOM
+          const itemsContainer = contextMenu.querySelector(".context-menu-items-container");
+          if (itemsContainer) {
+            const noGroupMsg = itemsContainer.querySelector(".context-menu-item");
+            if (noGroupMsg && noGroupMsg.textContent === "No favorite groups found.") {
+              noGroupMsg.remove();
+            }
+            itemsContainer.appendChild(menuItem);
+          }
+
+          resolve(newGroup);
+        });
+      } else {
+        alert("A group with this name already exists.");
+        reject("duplicate");
+      }
+    });
+  });
+}
+
+function showContextMenu(stream, x, y) {
   const existingMenu = document.querySelector(".custom-context-menu");
   if (existingMenu) existingMenu.remove();
 
@@ -820,144 +1051,12 @@ function showContextMenu(stream, x, y) {
         menuItem.appendChild(checkBox);
         menuItem.appendChild(groupContainer);
 
-        // THIS SECTION IS THE KEY FIX
-        let editingActive = false;
-        let debouncedSaveFunction;
-        let originalName;
-
-        const enterEditMode = () => {
-          if (editingActive) return;
-
-          editingActive = true;
-          const originalWhiteSpace = groupNameSpan.style.whiteSpace || "nowrap";
-          const originalOverflow = groupNameSpan.style.overflow || "hidden";
-          const originalTextOverflow = groupNameSpan.style.textOverflow || "ellipsis";
-
-          // Get the current name from the span
-          originalName = groupNameSpan.textContent.trim();
-
-          // Change to save icon
-          editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="save-icon">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>`;
-          editButton.title = "Save";
-          editButton.classList.add("editing-active");
-
-          groupNameSpan.style.whiteSpace = "normal";
-          groupNameSpan.style.overflow = "visible";
-          groupNameSpan.style.textOverflow = "unset";
-          groupNameSpan.contentEditable = true;
-          groupNameSpan.classList.add("editing");
-          groupNameSpan.focus();
-
-          const range = document.createRange();
-          const selection = window.getSelection();
-          range.selectNodeContents(groupNameSpan);
-          range.collapse(false);
-          selection.removeAllRanges();
-          selection.addRange(range);
-
-          const saveEdit = () => {
-            const newName = groupNameSpan.textContent.trim();
-            if (newName && newName !== originalName) {
-              chrome.storage.local.get("favoriteGroups", (data) => {
-                const currentGroups = data.favoriteGroups || [];
-                // Find the group by matching the original name from the span
-                const groupIndex = currentGroups.findIndex(g => g.name === originalName);
-                if (groupIndex !== -1) {
-                  if (currentGroups.some((g, i) => g.name === newName && i !== groupIndex)) {
-                    alert("A group with this name already exists.");
-                    groupNameSpan.textContent = originalName;
-                  } else {
-                    // Update the group name in storage
-                    currentGroups[groupIndex].name = newName;
-                    chrome.storage.local.set({ favoriteGroups: currentGroups }, () => {
-                      console.log("Group name updated:", newName);
-                      // Update the group object in the current context as well
-                      group.name = newName;
-                      originalName = newName; // Update our reference
-                      if (typeof updateLiveStreams === 'function') updateLiveStreams();
-                    });
-                  }
-                } else {
-                  console.error("Group not found for editing:", originalName);
-                }
-              });
-            } else if (!newName) {
-              groupNameSpan.textContent = originalName;
-            }
-          };
-
-          const exitEditMode = () => {
-            if (!editingActive) return;
-
-            editingActive = false;
-
-            // Reset UI
-            editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
-              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-            </svg>`;
-            editButton.title = "Edit";
-            editButton.classList.remove("editing-active");
-
-            groupNameSpan.contentEditable = false;
-            groupNameSpan.classList.remove("editing");
-            groupNameSpan.style.whiteSpace = originalWhiteSpace;
-            groupNameSpan.style.overflow = originalOverflow;
-            groupNameSpan.style.textOverflow = originalTextOverflow;
-
-            // Clean up input handlers
-            groupNameSpan.oninput = null;
-            groupNameSpan.onkeydown = null;
-            groupNameSpan.onblur = null;
-
-            if (debouncedSaveFunction) {
-              debouncedSaveFunction.cancel();
-              debouncedSaveFunction = null;
-            }
-          };
-
-          // Create a new debounced save function each time
-          debouncedSaveFunction = debounce(saveEdit, 500);
-
-          // Input handler triggers debounced save
-          groupNameSpan.oninput = () => {
-            debouncedSaveFunction();
-          };
-
-          // Handle special keys
-          groupNameSpan.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              if (debouncedSaveFunction) debouncedSaveFunction.cancel();
-              saveEdit();
-              exitEditMode();
-              groupNameSpan.blur();
-            } else if (e.key === 'Escape') {
-              e.preventDefault();
-              if (debouncedSaveFunction) debouncedSaveFunction.cancel();
-              groupNameSpan.textContent = originalName;
-              exitEditMode();
-              groupNameSpan.blur();
-            }
-          };
-
-          // Handle blur event
-          groupNameSpan.onblur = () => {
-            if (debouncedSaveFunction) debouncedSaveFunction.cancel();
-            saveEdit();
-            exitEditMode();
-          };
-        };
-
-        editButton.onclick = (e) => {
-          e.stopPropagation();
-          enterEditMode();
-        };
+        // Set up group editing - using our shared utility
+        const groupEditor = setupGroupEditing(groupNameSpan, editButton, group.name);
 
         deleteButton.onclick = (event) => {
           event.stopPropagation();
-          deleteGroup(index, group.name, contextMenu);
+          deleteGroup(index, groupEditor.getCurrentGroupName(), contextMenu);
         };
 
         menuItem.addEventListener("click", (event) => {
@@ -972,9 +1071,9 @@ function showContextMenu(stream, x, y) {
 
         checkBox.addEventListener("change", () => {
           if (checkBox.checked) {
-            addToGroup(stream, group.name);
+            addToGroup(stream, groupEditor.getCurrentGroupName());
           } else {
-            removeFromGroup(stream, group.name);
+            removeFromGroup(stream, groupEditor.getCurrentGroupName());
           }
         });
 
@@ -1071,270 +1170,6 @@ function removeFromGroup(stream, groupName) {
   });
 }
 
-// Note: `createNewGroup` no longer needs the `addNewGroupButton` parameter
-function createNewGroup(groupName, stream, contextMenu) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get("favoriteGroups", function (data) {
-      const groups = data.favoriteGroups || [];
-      if (!groups.some((g) => g.name === groupName)) {
-        const newGroup = {
-          name: groupName,
-          streamers: [stream.channelName],
-        };
-        groups.push(newGroup);
-        chrome.storage.local.set({ favoriteGroups: groups }, function () {
-          if (chrome.runtime.lastError) {
-            console.error("Error saving new group:", chrome.runtime.lastError);
-            alert("Error saving new group.");
-            reject(chrome.runtime.lastError);
-            return;
-          }
-          console.log(`New group '${groupName}' created and added ${stream.channelName}`);
-          if (typeof updateLiveStreams === 'function') updateLiveStreams();
-
-          // Create and add the new group item visually
-          const menuItem = document.createElement("div");
-          menuItem.className = "context-menu-item";
-
-          const checkBox = document.createElement("input");
-          checkBox.type = "checkbox";
-          checkBox.checked = true;
-
-          const groupContainer = document.createElement("div");
-          groupContainer.className = "group-name-container";
-
-          const groupNameSpan = document.createElement("span");
-          groupNameSpan.className = "group-name";
-          groupNameSpan.textContent = groupName;
-
-          const actionsContainer = document.createElement("div");
-          actionsContainer.className = "actions-container";
-
-          const editButton = document.createElement("button");
-          editButton.className = "edit-group-btn";
-          editButton.title = "Edit";
-          editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
-  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-</svg>`;
-
-          const deleteButton = document.createElement("button");
-          deleteButton.className = "delete-group-button";
-          deleteButton.title = "Delete";
-          deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="delete-icon">
-  <polyline points="3 6 5 6 21 6"></polyline>
-  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-</svg>`;
-
-          actionsContainer.appendChild(editButton);
-          actionsContainer.appendChild(deleteButton);
-          groupContainer.appendChild(groupNameSpan);
-          groupContainer.appendChild(actionsContainer);
-          menuItem.appendChild(checkBox);
-          menuItem.appendChild(groupContainer);
-
-          // State tracking variables - critical for proper auto-saving
-          let currentGroupName = groupName;
-          let editingActive = false;
-          let debouncedSaveFunction = null;
-
-          // Debounce utility function - recreated for scope accessibility
-          const debounce = (func, delay) => {
-            let timeoutId;
-            let waiting = false;
-
-            const debounced = (...args) => {
-              clearTimeout(timeoutId);
-              waiting = true;
-              timeoutId = setTimeout(() => {
-                func(...args);
-                waiting = false;
-              }, delay);
-            };
-
-            debounced.cancel = () => {
-              clearTimeout(timeoutId);
-              waiting = false;
-            };
-
-            debounced.isWaiting = () => waiting;
-
-            return debounced;
-          };
-
-          const enterEditMode = () => {
-            if (editingActive) return;
-
-            editingActive = true;
-            const originalWhiteSpace = groupNameSpan.style.whiteSpace || "nowrap";
-            const originalOverflow = groupNameSpan.style.overflow || "hidden";
-            const originalTextOverflow = groupNameSpan.style.textOverflow || "ellipsis";
-            const originalName = currentGroupName;
-
-            // Change edit button to save button
-            editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="save-icon">
-  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-</svg>`;
-            editButton.title = "Save";
-            editButton.classList.add("editing-active");
-
-            groupNameSpan.style.whiteSpace = "normal";
-            groupNameSpan.style.overflow = "visible";
-            groupNameSpan.style.textOverflow = "unset";
-            groupNameSpan.contentEditable = true;
-            groupNameSpan.classList.add("editing");
-            groupNameSpan.focus();
-
-            const range = document.createRange();
-            const selection = window.getSelection();
-            range.selectNodeContents(groupNameSpan);
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            const saveEdit = () => {
-              const newName = groupNameSpan.textContent.trim();
-              if (newName && newName !== originalName) {
-                chrome.storage.local.get("favoriteGroups", function (data) {
-                  const currentGroups = data.favoriteGroups || [];
-                  const groupIndexToUpdate = currentGroups.findIndex(g => g.name === originalName);
-                  if (groupIndexToUpdate !== -1) {
-                    if (currentGroups.some((g, i) => g.name === newName && i !== groupIndexToUpdate)) {
-                      alert("A group with this name already exists.");
-                      groupNameSpan.textContent = originalName;
-                    } else {
-                      currentGroups[groupIndexToUpdate].name = newName;
-                      chrome.storage.local.set({ favoriteGroups: currentGroups }, function () {
-                        console.log("Group name updated:", newName);
-                        currentGroupName = newName; // Update our stored group name
-                        if (typeof updateLiveStreams === 'function') updateLiveStreams();
-                      });
-                    }
-                  } else {
-                    console.error("Could not find group to update:", originalName);
-                    groupNameSpan.textContent = originalName;
-                  }
-                });
-              } else if (!newName) {
-                groupNameSpan.textContent = originalName;
-              }
-            };
-
-            const exitEditMode = () => {
-              if (!editingActive) return;
-
-              editingActive = false;
-
-              // Reset edit button to original state
-              editButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="edit-icon">
-  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-</svg>`;
-              editButton.title = "Edit";
-              editButton.classList.remove("editing-active");
-
-              groupNameSpan.contentEditable = false;
-              groupNameSpan.classList.remove("editing");
-              groupNameSpan.style.whiteSpace = originalWhiteSpace;
-              groupNameSpan.style.overflow = originalOverflow;
-              groupNameSpan.style.textOverflow = originalTextOverflow;
-
-              // Clean up event handlers
-              groupNameSpan.onkeydown = null;
-              groupNameSpan.onblur = null;
-              groupNameSpan.oninput = null;
-
-              if (debouncedSaveFunction) {
-                debouncedSaveFunction.cancel();
-                debouncedSaveFunction = null;
-              }
-            };
-
-            // Create a new debounced save function
-            debouncedSaveFunction = debounce(saveEdit, 500);
-
-            // Set up auto-saving on input
-            groupNameSpan.oninput = () => {
-              debouncedSaveFunction();
-            };
-
-            groupNameSpan.onkeydown = function (e) {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                if (debouncedSaveFunction) debouncedSaveFunction.cancel();
-                saveEdit();
-                exitEditMode();
-                groupNameSpan.blur();
-              } else if (e.key === 'Escape') {
-                e.preventDefault();
-                if (debouncedSaveFunction) debouncedSaveFunction.cancel();
-                groupNameSpan.textContent = originalName;
-                exitEditMode();
-                groupNameSpan.blur();
-              }
-            };
-
-            groupNameSpan.onblur = () => {
-              if (debouncedSaveFunction) debouncedSaveFunction.cancel();
-              saveEdit();
-              exitEditMode();
-            };
-          };
-
-          editButton.onclick = (e) => {
-            e.stopPropagation();
-            enterEditMode();
-          };
-
-          deleteButton.onclick = function (event) {
-            event.stopPropagation();
-            chrome.storage.local.get("favoriteGroups", function (data) {
-              const currentGroups = data.favoriteGroups || [];
-              const groupIndex = currentGroups.findIndex(g => g.name === currentGroupName);
-              if (groupIndex !== -1) {
-                deleteGroup(groupIndex, currentGroupName, contextMenu);
-              } else {
-                console.error("Group not found for deletion:", currentGroupName);
-              }
-            });
-          };
-
-          menuItem.addEventListener("click", function (event) {
-            if (!editButton.contains(event.target) &&
-              !deleteButton.contains(event.target) &&
-              event.target !== checkBox &&
-              !groupNameSpan.isContentEditable
-            ) {
-              checkBox.checked = !checkBox.checked;
-              checkBox.dispatchEvent(new Event("change"));
-            }
-          });
-
-          checkBox.addEventListener("change", function () {
-            if (checkBox.checked) {
-              addToGroup(stream, currentGroupName);
-            } else {
-              removeFromGroup(stream, currentGroupName);
-            }
-          });
-
-          // Add to DOM
-          const itemsContainer = contextMenu.querySelector(".context-menu-items-container");
-          if (itemsContainer) {
-            const noGroupMsg = itemsContainer.querySelector(".context-menu-item");
-            if (noGroupMsg && noGroupMsg.textContent === "No favorite groups found.") {
-              noGroupMsg.remove();
-            }
-            itemsContainer.appendChild(menuItem);
-          }
-
-          resolve(newGroup);
-        });
-      } else {
-        alert("A group with this name already exists.");
-        reject("duplicate");
-      }
-    });
-  });
-}
 
 // Modified function to accept the button element and handle unhiding
 function openAddGroupForm(footerContainer, stream, addNewGroupButtonElement) {
