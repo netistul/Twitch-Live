@@ -74,10 +74,37 @@ body.dark-mode {
 
 /* Dark mode styling */
 .dark-mode .info-box {
-  background-color: #372f5d; /* Dark background */
-  border-left: 4px solid #4da3ff; /* Lighter blue */
-  color: #ddd;
-  box-shadow: 2px 2px 5px rgba(255, 255, 255, 0.1);
+  background-color: rgba(
+    40,
+    40,
+    45,
+    0.95
+  ); /* Slightly lighter than #1b1b1b for contrast */
+  border-left: 4px solid #9147ff; /* Twitch purple */
+  color: #efeff1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Removed the purple glow */
+  border-radius: 8px;
+}
+
+/* Icons in info box */
+.info-box .icon {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Tip highlight in info box */
+.info-box .tip {
+  background-color: rgba(77, 163, 255, 0.1);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+  border-left: 3px solid #4da3ff;
+}
+
+.dark-mode .info-box .tip {
+  background-color: rgba(145, 71, 255, 0.15);
+  border-left: 3px solid #9147ff;
 }
 
 /* Dark Mode Tooltip */
@@ -87,8 +114,7 @@ body.dark-mode {
 }
 
 /* Dark Mode Info Box (if using inside tooltip) */
-.dark-mode .tooltip-lighter-text,
-.dark-mode .info-box {
+.dark-mode .tooltip-lighter-text {
   border-left: 3px solid #7d5bbe; /* Brighter accent border */
 }
 

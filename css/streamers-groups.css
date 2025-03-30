@@ -227,6 +227,8 @@
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  left: -11px; /* This offsets half the difference between right and left padding */
+  width: fit-content; /* This ensures the button only takes up as much space as needed */
 }
 
 /* ================= DARK MODE ================= */

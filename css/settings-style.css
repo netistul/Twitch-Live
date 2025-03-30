@@ -987,18 +987,32 @@ body {
 }
 
 /* Light mode info box */
+/* Light mode info box */
 .info-box {
-  background-color: #f9f9f9;
+  background-color: rgba(255, 255, 255, 0.95);
   border-left: 4px solid #007bff;
-  color: #333;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
+  border-radius: 8px;
+  color: #333333;
+  padding: 16px;
+  margin: 12px 0;
   font-size: 14px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  display: block; /* Change to block instead of inline-block */
-  width: 100%; /* Ensure it takes full width of parent */
-  box-sizing: border-box; /* Include padding in width calculation */
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  letter-spacing: 0.2px;
+  line-height: 1.5;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0.2, 1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.info-box strong {
+  font-weight: 600;
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
 }
 
 /* Global Scrollbar Styles */
