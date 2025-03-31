@@ -365,7 +365,7 @@
 }
 
 .channel-name.newline-mode {
-  margin-top: -4px;
+  margin-top: 2px;
 }
 
 /* ======================== */
@@ -415,8 +415,8 @@
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
     "Noto Color Emoji";
   position: absolute;
-  bottom: -0px;
-  left: 31px;
+  bottom: 0;
+  right: 0;
   background-color: rgba(0, 0, 0, 0.797);
   border-radius: 2px;
   padding: 2px 4px 4px 3px;

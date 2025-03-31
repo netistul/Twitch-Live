@@ -522,18 +522,23 @@
 
 /* Dark Mode Styles */
 .dark-mode .custom-context-menu {
-  background-color: rgba(24, 24, 27, 0.85);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3), 0 0 8px rgba(145, 71, 255, 0.15),
-    0 0 1px rgba(255, 255, 255, 0.1);
+  background-color: #252529; /* Solid, lighter grey background for better contrast */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Simplified shadow */
   color: #efeff1;
-  border: 1px solid rgba(60, 60, 70, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid #3a3a3d; /* Slightly more visible border */
+  backdrop-filter: none; /* Remove blur/glass effect */
+  -webkit-backdrop-filter: none;
 }
 
 .dark-mode .context-menu-header,
 .dark-mode .context-menu-footer {
-  background: rgba(24, 24, 30, 0.8);
+  background: #202024; /* Slightly darker than main background */
+}
+
+/* Remove additional effects */
+.dark-mode .custom-context-menu::before,
+.dark-mode .custom-context-menu::after {
+  display: none;
 }
 
 .dark-mode .context-menu-header {
@@ -725,36 +730,6 @@
 .dark-mode .context-menu-item input[type="checkbox"]:hover {
   border-color: #9147ff;
   box-shadow: 0 0 0 2px rgba(145, 71, 255, 0.2);
-}
-
-/* Twitch-specific purple glow effects for dark mode */
-.dark-mode .custom-context-menu {
-  background-color: rgba(28, 28, 34, 0.85); /* Slightly more opaque */
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3), 0 0 8px rgba(145, 71, 255, 0.15);
-  border: 1px solid rgba(60, 60, 70, 0.7);
-  backdrop-filter: blur(8px); /* Reduced blur */
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.dark-mode .custom-context-menu::before {
-  display: none;
-}
-
-.dark-mode .custom-context-menu::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 12px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    rgba(145, 71, 255, 0.01) 40%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  pointer-events: none;
 }
 
 /* Dark mode highlight animation */
