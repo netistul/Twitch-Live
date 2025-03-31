@@ -16,7 +16,7 @@ function displayGroups() {
       if (groups.length === 0) {
         groupListContainer.innerHTML = `
           <p style="font-size: 16px; text-align: center;">
-            <img src="css/nogroup.gif" style="display: block; margin: 0 auto;">
+            <img src="css/settings/nogroup.gif" style="display: block; margin: 0 auto;">
             <strong>No Favorite Groups Created Yet</strong><br><br>
             This is a list that will help you filter your favorite live streams from the popup into new category groups.
             <br><br>
@@ -876,7 +876,19 @@ function displayUserInfo() {
       if (!userInfoDiv) return;
 
       if (!result.twitchAccessToken) {
-        // Login state code remains the same...
+        // Updated login state with a proper container
+        userInfoDiv.innerHTML = ""; // Clear previous content
+
+        // Create login container
+        const loginContainer = document.createElement("div");
+        loginContainer.className = "login-container";
+
+        // Add info text
+        const infoText = document.createElement("p");
+        infoText.innerHTML = "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
+        loginContainer.appendChild(infoText);
+
+        // Add login button
         const loginButton = document.createElement("button");
         loginButton.id = "loginButton";
         loginButton.textContent = "Login with Twitch";
@@ -886,14 +898,8 @@ function displayUserInfo() {
           chrome.runtime.sendMessage({ action: "startOAuth" });
         });
 
-        userInfoDiv.appendChild(loginButton);
-
-        const infoText = document.createElement("p");
-        infoText.innerHTML = "Log in with Twitch to view channels you follow. <br><br> Enjoy real-time updates directly in the extension's popup, making sure you never miss a moment of your favorite streams!";
-        infoText.style.marginTop = "10px";
-        infoText.style.fontSize = "14px";
-        infoText.style.color = "#646464";
-        userInfoDiv.appendChild(infoText);
+        loginContainer.appendChild(loginButton);
+        userInfoDiv.appendChild(loginContainer);
       } else if (result.userDisplayName && result.userAvatar) {
         // Modified logged-in state HTML structure
         userInfoDiv.innerHTML = `
@@ -904,7 +910,7 @@ function displayUserInfo() {
                 <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
                 <div class="logout-dropdown">
                   <button id="logoutButton" class="logout-button">
-                    <img src="css/logout.png" alt="Logout" class="logout-icon"> Logout
+                    <img src="css/settings/logout.png" alt="Logout" class="logout-icon"> Logout
                   </button>
                 </div>
               </div>
@@ -991,7 +997,7 @@ function showLoginTip() {
   tipContainer.appendChild(tipText);
 
   const tipImage = document.createElement("img");
-  tipImage.src = "css/infopin.png";
+  tipImage.src = "css/settings/infopin.png";
   tipImage.alt = "Pin Icon";
   tipImage.style.width = "250px";
   tipImage.style.marginTop = "5px";

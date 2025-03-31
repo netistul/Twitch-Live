@@ -1,3 +1,4 @@
+/* General Body Styles */
 body {
   background-color: #efeff1; /* Light gray background */
 }
@@ -9,7 +10,7 @@ body {
   align-items: center; /* Vertically center the content */
   background-color: #dedbdb; /* Dark background */
   color: rgb(35, 35, 35);
-  padding: 10px 20px; /* Adjust padding */
+  padding: 3px 10px; /* Adjust padding */
   font-family: "Arial", sans-serif;
   margin: 0;
   width: 100%; /* Full width */
@@ -25,151 +26,7 @@ body {
   letter-spacing: 1px;
 }
 
-#settingsTable.settings-menu {
-  background-color: #d7cfcf;
-  margin: 1px 0 1px 1px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Changed from center to left-align */
-  flex-shrink: 1; /* Allows shrinking */
-
-  position: relative;
-  overflow: hidden; /* Changed from overflow-x */
-  /* Dynamic Width */
-  width: 250px; /* Default */
-  min-width: 120px; /* Absolute minimum */
-
-  /* Height Control (Keep your existing setup) */
-  min-height: 100%;
-  height: auto;
-  align-self: stretch;
-
-  /* Visual Style */
-  padding: 8px 0;
-  background: #d7cfcf;
-  position: relative;
-
-  /* Super-Responsive Behavior */
-  transition: width 0.2s ease !important; /* Faster response */
-  will-change: width;
-}
-
-/* Aggressive Scaling - Moved outside the selector */
-@media (max-width: 1400px) {
-  #settingsTable.settings-menu {
-    width: 240px;
-  }
-}
-
-@media (max-width: 1300px) {
-  #settingsTable.settings-menu {
-    width: 230px;
-  }
-}
-
-@media (max-width: 1200px) {
-  #settingsTable.settings-menu {
-    width: 220px;
-  }
-}
-
-@media (max-width: 1100px) {
-  #settingsTable.settings-menu {
-    width: 210px;
-  }
-}
-
-@media (max-width: 1000px) {
-  #settingsTable.settings-menu {
-    width: 200px;
-  }
-}
-
-@media (max-width: 900px) {
-  #settingsTable.settings-menu {
-    width: 190px;
-  }
-}
-
-@media (max-width: 800px) {
-  #settingsTable.settings-menu {
-    width: 180px;
-  }
-}
-
-@media (max-width: 600px) {
-  #settingsTable.settings-menu {
-    width: 150px; /* Minimum width */
-  }
-}
-
-@media (max-width: 400px) {
-  #settingsTable.settings-menu {
-    width: 100px; /* Minimum width */
-  }
-}
-
-.settings-layout {
-  display: flex;
-  align-items: stretch; /* Key: Makes children equal height */
-}
-
-#optionsMenu.settings-content {
-  flex: 1;
-  min-height: 100%; /* Ensure it pushes parent height */
-}
-
-.menu-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  box-sizing: border-box; /* Add this to ensure padding is included in width */
-}
-
-.menu-item {
-  display: block;
-  padding: 12px 15px; /* Simplified padding */
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  color: #333;
-  font-family: Verdana, sans-serif;
-  margin: 0; /* Remove the negative margins */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.menu-item:hover {
-  background-color: rgba(100, 65, 165, 0.1);
-}
-
-.menu-item.active {
-  background-color: rgba(100, 65, 165, 0.2);
-  box-shadow: 0 0 0 100vmax rgba(100, 65, 165, 0.2);
-  clip-path: inset(0 -100vmax);
-}
-
-.menu-item.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background-color: #6441a5;
-  border-radius: 0 4px 4px 0;
-}
-
-.settings-section {
-  display: none;
-}
-
-.settings-section.active {
-  display: block;
-}
-
-/* Auto-shrink behavior */
-
+/* Settings Container */
 #settingsContainer {
   display: flex;
   justify-content: flex-start;
@@ -178,6 +35,42 @@ body {
   font-size: 14px;
   margin-left: 1px;
   position: relative;
+}
+
+/* Options Menu Styles */
+#optionsMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center items vertically */
+  align-items: center; /* Center items horizontally */
+  margin-bottom: 20px;
+  background-color: #d7cfcf;
+  border-radius: 8px;
+  padding: 3px;
+  margin: 0 10px;
+  min-width: 300px;
+}
+
+#optionsMenu.settings-content {
+  flex: 1;
+  min-height: 100%; /* Ensure it pushes parent height */
+}
+
+.optionsMenuHeader {
+  font-family: "Noto Sans Display", sans-serif; /* Example font */
+  font-size: 20px; /* Font size */
+  color: #6441a57b; /* Twitch-like purple color */
+  margin-bottom: 15px; /* Spacing after the header */
+  text-align: center; /* Center the header text */
+}
+
+/* Settings Section Styles */
+.settings-section {
+  display: none;
+}
+
+.settings-section.active {
+  display: block;
 }
 
 .settings-group {
@@ -193,10 +86,6 @@ body {
 }
 
 .optionItem {
-  display: block; /* Make sure each item is a block-level element */
-}
-
-.optionItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -204,31 +93,7 @@ body {
   margin-right: 15px;
 }
 
-#optionsMenu {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Center items vertically */
-  align-items: center; /* Center items horizontally */
-  margin-bottom: 20px;
-  background-color: #d7cfcf;
-  border-radius: 8px;
-  padding: 3px;
-  margin: 0 10px;
-  min-width: 300px;
-}
-
-.optionsMenuHeader {
-  font-family: "Noto Sans Display", sans-serif; /* Example font */
-  font-size: 20px; /* Font size */
-  color: #6441a57b; /* Twitch-like purple color */
-  margin-bottom: 15px; /* Spacing after the header */
-  text-align: center; /* Center the header text */
-}
-
-.delete-group-btn:hover {
-  background-color: #ff3333; /* Darker red on hover */
-}
-
+/* Font Styles */
 @font-face {
   font-family: "Open Sans";
   src: url("../fonts/OpenSans-Regular.ttf") format("truetype");
@@ -278,163 +143,7 @@ body {
   font-style: normal;
 }
 
-/* Dropdown container */
-.logout-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 5px); /* Small gap from avatar */
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 100px;
-  background: #18181b;
-  border-radius: 4px;
-  padding: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  z-index: 9999;
-  border: 1px solid #303032;
-}
-
-.logout-dropdown.show {
-  display: block;
-}
-
-/* Logout button */
-.logout-button {
-  background: none;
-  border: none;
-  width: 100%;
-  padding: 8px 12px;
-  color: #efeff1;
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-radius: 2px;
-  transition: all 0.1s ease;
-}
-
-.logout-button:hover,
-.logout-button:focus {
-  background-color: #303032;
-  color: #bf94ff;
-  box-shadow: 0 0 5px 2px #6441a5;
-  border-radius: 4px;
-}
-
-/* Logout icon */
-.logout-icon {
-  width: 16px;
-  height: 16px;
-  filter: invert(100%);
-  transition: filter 0.1s ease;
-}
-
-.logout-button:hover .logout-icon,
-.logout-button:focus .logout-icon {
-  filter: invert(71%) sepia(14%) saturate(2163%) hue-rotate(205deg)
-    brightness(102%) contrast(101%);
-}
-
-/* Avatar container */
-.user-avatar-container {
-  cursor: pointer;
-  position: relative;
-}
-
-.user-avatar-container img:hover {
-  box-shadow: 0 0 5px 2px #6441a5;
-  border-radius: 20px;
-}
-
-/* Animation for dropdown appearance */
-@keyframes dropdownFade {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -8px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-.logout-dropdown.show {
-  animation: dropdownFade 0.2s ease forwards;
-}
-
-.settings-right-section {
-  flex: 0 0 auto;
-  position: relative;
-  padding: 20px;
-  min-width: 200px; /* Add minimum width */
-}
-
-#loginButton {
-  background-color: #6441a5;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  white-space: nowrap;
-  width: 100%;
-}
-
-#loginButton:hover {
-  background-color: #503484;
-}
-
-/*User is logged in */
-#userTable {
-  background-color: #d7cfcf; /* Dark gray table background color */
-  border-radius: 5px; /* Rounded corners for the table */
-  padding: 10px; /* Padding inside the table */
-  margin: 10px 0; /* Margin around the table */
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Box shadow for a subtle effect */
-}
-
-.user-row {
-  display: table-row;
-}
-
-.user-cell {
-  display: table-cell;
-  padding: -5px;
-  font-family: Verdana;
-  white-space: nowrap; /* Prevent line breaks */
-}
-
-.user-avatar-container {
-  position: relative;
-  cursor: pointer;
-}
-
-.user-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 20px;
-  margin-right: 0px;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-
-#userInfo {
-  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
-  position: relative;
-  margin-left: 20px;
-  text-align: center;
-  max-width: 300px;
-  z-index: 1000;
-  display: block !important;
-  flex-shrink: 0; /* Add this to prevent shrinking */
-  align-items: center;
-}
-
-/* Tooltip text styles */
+/* Tooltip Styles */
 .tooltip-text {
   font-family: "Segoe UI", Tahoma, sans-serif;
   visibility: hidden;
@@ -475,18 +184,6 @@ body {
   bottom: auto;
 }
 
-/* Default (top) tooltip arrow - points downward */
-.tooltip-text::after {
-  content: "";
-  position: absolute;
-  top: 100%; /* Arrow appears at the bottom of the tooltip */
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #6441a5 transparent transparent transparent; /* Arrow points down */
-}
-
 /* Bottom-positioned tooltip arrow - points upward */
 .tooltip-text.position-bottom::after {
   top: auto;
@@ -498,6 +195,7 @@ body {
   color: #fdeded;
   opacity: 0.8;
 }
+
 /* Show tooltip on hover for any label within checkbox-container */
 .checkbox-container .styled-label:hover .tooltip-text {
   visibility: visible;
@@ -520,8 +218,7 @@ body {
   margin-right: 4px;
 }
 
-/* */
-
+/* Setting Description */
 .setting-description {
   position: relative;
   margin-bottom: 8px;
@@ -539,7 +236,7 @@ body {
   opacity: 1;
 }
 
-/* dropdown */
+/* Dropdown Styles */
 .custom-select-container {
   position: relative;
   margin-left: 10px;
@@ -650,16 +347,27 @@ body {
 .custom-select-container {
   margin-top: 30px; /* Adds space above the dropdown */
 }
+
 .custom-select-header,
 .custom-select-options {
   width: 100%; /* Let the container control the width */
 }
 
+/* Stream Grouping Styles */
 .streamGroupingTitle {
   text-align: center;
   margin-bottom: 10px;
   width: 100%;
   font-size: 14px;
+  font-family: Verdana, sans-serif;
+  position: relative;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.streamGroupingTitle:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }
 
 #streamGroupingSelect {
@@ -675,28 +383,17 @@ body {
   padding: 10px 0;
 }
 
-.streamGroupingTitle {
-  font-family: Verdana, sans-serif;
-  position: relative;
-  display: inline-block;
-  margin-top: 5px;
-}
-
-.streamGroupingTitle:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
-}
 #groupList {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-/* Add margin to the bottom of the dark mode switch container */
+
+/* Checkbox Styles */
 .dark-mode-switch {
   margin-bottom: 14px; /* Adjust the value as needed */
 }
 
-/* Style for the checkbox container */
 .checkbox-container {
   display: flex;
   align-items: center;
@@ -704,12 +401,10 @@ body {
   position: relative; /* Added for tooltip positioning */
 }
 
-/* Hides the default checkbox */
 .styled-checkbox {
   display: none;
 }
 
-/* Style for label */
 #hideAccessedCountCheckbox + .styled-label {
   cursor: pointer; /* Changes cursor to indicate interactive element */
   position: relative;
@@ -722,8 +417,7 @@ body {
   max-width: 100%; /* Ensure it uses the full available space */
 }
 
-/* NOTIFICATION */
-/* Style for new custom checkbox */
+/* Style for custom checkbox */
 .styled-label {
   position: relative;
   padding-left: 32px; /* Space for the checkbox */
@@ -731,18 +425,6 @@ body {
   user-select: none;
 }
 
-/* Custom styling for the bell icons */
-.custom-bell-icon {
-  position: absolute;
-  left: 0; /* Align with the container edge */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 25px;
-  height: 25px;
-  fill: #28a745;
-}
-
-/* Create a custom checkbox */
 .styled-label:before {
   content: "";
   position: absolute;
@@ -755,12 +437,10 @@ body {
   border-radius: 4px; /* Rounded corners */
 }
 
-/* Style for when the checkbox is checked */
 .styled-checkbox:checked + .styled-label:before {
   background-color: #2196f3; /* Change color when checked */
 }
 
-/* Adding a checkmark when the checkbox is checked */
 .styled-checkbox:checked + .styled-label:after {
   content: "";
   position: absolute;
@@ -773,17 +453,17 @@ body {
   transform: translateY(-50%) rotate(45deg);
 }
 
-/* Hides the default checkbox */
-.styled-checkbox {
-  display: none;
+/* Notification Bell Icon Styles */
+.custom-bell-icon {
+  position: absolute;
+  left: 0; /* Align with the container edge */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  fill: #28a745;
 }
 
-/* Hides the default checkbox */
-.styled-checkbox {
-  display: none;
-}
-
-/* Style for bell icon label */
 .bell-icon-label {
   position: relative;
   padding-left: 32px; /* Changed from 33px to match styled-label */
@@ -792,7 +472,7 @@ body {
   display: flex;
   align-items: center;
 }
-/* Style for bell icon */
+
 .bell-icon-label i {
   position: absolute;
   left: 19px; /* Adjust this to align with your other checkboxes */
@@ -801,7 +481,6 @@ body {
   font-size: 25px; /* Size of the icon */
 }
 
-/* Style for the label text */
 .label-text {
   font-family: Verdana, sans-serif;
   font-size: 14px;
@@ -809,17 +488,16 @@ body {
   margin-left: 0; /* Remove extra margin */
 }
 
-/* Hide the filled bell icon by default */
 .bell-icon-label .fa-solid {
   opacity: 0;
   color: #28a745;
 }
 
-/* When the checkbox is checked, show the filled bell */
 .styled-checkbox:checked + .bell-icon-label .fa-solid {
   opacity: 1;
 }
 
+/* Channel Filter Styles */
 .channel-filter-control {
   cursor: pointer;
   padding: 5px;
@@ -850,7 +528,7 @@ body {
 
 .channel-checkbox-container label {
   font-size: 14px;
-  color: white;
+  color: #000000;
   font-family: "Noto Sans", sans-serif;
   font-weight: 500;
   line-height: 1.4;
@@ -862,10 +540,6 @@ body {
   transition: color 0.3s ease;
 }
 
-/* Light mode styles */
-.channel-checkbox-container label {
-  color: #000000;
-}
 .channel-checkbox {
   /* Hide default checkbox */
   appearance: none;
@@ -910,13 +584,10 @@ body {
 
 .channel-checkbox-container.disabled label {
   color: #6a6a6a; /* Lighter text color for disabled labels */
-}
-
-/* Adjust label cursor when checkbox is disabled */
-.channel-checkbox-container.disabled label {
   cursor: not-allowed;
 }
 
+/* Notification Filter Styles */
 .filterNotificationLabel {
   font-family: "Arial", sans-serif;
   font-size: 14px;
@@ -981,13 +652,7 @@ body {
   opacity: 1;
 }
 
-/* Update existing styles */
-.optionItem {
-  margin-bottom: 15px;
-}
-
-/* Light mode info box */
-/* Light mode info box */
+/* Info Box Styles */
 .info-box {
   background-color: rgba(255, 255, 255, 0.95);
   border-left: 4px solid #007bff;
@@ -1015,7 +680,21 @@ body {
   margin-bottom: 8px;
 }
 
-/* Global Scrollbar Styles */
+/* Input Hint Styles */
+.input-hint {
+  color: #666; /* Light gray for light mode */
+  font-size: 13px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.input-hint em {
+  color: #6441a5; /* Twitch purple for examples */
+  font-style: normal;
+}
+
+/* Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 10px; /* Width of the scrollbar */
 }
@@ -1060,25 +739,21 @@ body {
   background: rgba(121, 75, 196, 0.7);
 }
 
-/* Hint text styling */
-.input-hint {
-  color: #666; /* Light gray for light mode */
-  font-size: 13px;
-  margin-top: 4px;
-  margin-bottom: 16px;
-  font-style: italic;
+/* Dark Mode Styles */
+/* Dark mode - body */
+body.dark-mode {
+  background-color: #1b1b1b; /* Dark background for the body */
+  color: #c7c7c7; /* Lighter text color for better readability */
 }
 
-.input-hint em {
-  color: #6441a5; /* Twitch purple for examples */
-  font-style: normal;
+/* Dark mode - header */
+.dark-mode .twitch-header {
+  background-color: #1b1b1b; /* Dark background */
+  color: white;
+  border-bottom: 1px solid rgb(38, 38, 38); /* 1px bottom border */
 }
 
-/* ======================== */
-/* DARK MODE - SETTINGS CONTAINERS */
-/* ======================== */
-
-/* settings background */
+/* Dark mode - settings containers */
 .dark-mode #optionsMenu {
   background-color: #1b1b1b;
   color: #fff;
@@ -1091,4 +766,79 @@ body {
 
 .dark-mode .settings-group {
   color: #fff;
+}
+
+/* Dark mode - text elements */
+.dark-mode .setting-description {
+  color: #e4e4e4;
+}
+
+.dark-mode #hideAccessedCountCheckbox + .styled-label {
+  color: #e4e4e4;
+}
+
+.dark-mode .filterNotificationLabel {
+  color: #e4e4e4;
+}
+
+/* Dark mode - info box */
+.dark-mode .info-box {
+  background-color: rgba(
+    40,
+    40,
+    45,
+    0.95
+  ); /* Slightly lighter than #1b1b1b for contrast */
+  border-left: 4px solid #9147ff; /* Twitch purple */
+  color: #efeff1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+/* Icons in info box */
+.info-box .icon {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Tip highlight in info box */
+.info-box .tip {
+  background-color: rgba(77, 163, 255, 0.1);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+  border-left: 3px solid #4da3ff;
+}
+
+.dark-mode .info-box .tip {
+  background-color: rgba(145, 71, 255, 0.15);
+  border-left: 3px solid #9147ff;
+}
+
+/* Dark Mode - Tooltip */
+.dark-mode .tooltip-text {
+  background-color: #3a2458; /* Darker purple (better contrast in dark mode) */
+  border: 1px solid #4b367c; /* Optional: subtle border for depth */
+}
+
+.dark-mode .tooltip-lighter-text {
+  border-left: 3px solid #7d5bbe; /* Brighter accent border */
+}
+
+.dark-mode .tooltip-text::after {
+  border-color: #9a7fd1 transparent transparent transparent; /* Even lighter purple */
+}
+
+.dark-mode .tooltip-text.position-bottom::after {
+  border-color: transparent transparent #9a7fd1 transparent; /* Points up */
+}
+
+/* Dark mode - input hint */
+.dark-mode .input-hint {
+  color: #aaa; /* Lighter gray for dark mode */
+}
+
+.dark-mode .input-hint em {
+  color: #b9a3ff; /* Lighter purple for dark mode */
 }

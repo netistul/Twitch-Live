@@ -1,0 +1,263 @@
+/* ================= USER INTERFACE COMPONENTS ================= */
+
+/* User info section */
+.settings-right-section {
+  flex: 0 0 auto;
+  position: relative;
+  padding: 16px;
+  min-width: 200px;
+  font-family: "Inter", sans-serif;
+}
+
+/* Avatar and user container */
+.user-avatar-container {
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-indigo-400);
+  transition: all 0.2s ease;
+}
+
+.user-avatar-container:hover .user-avatar {
+  box-shadow: 0 0 0 2px var(--color-indigo-500);
+  transform: scale(1.05);
+}
+
+/* Login container styling */
+.login-container {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 16px;
+  margin: 10px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.dark-mode .login-container {
+  background-color: #1e1e22;
+  border: 1px solid #202020;
+  color: #c7c7c7;
+}
+
+.login-container p {
+  margin: 0 0 16px 0;
+  color: #646464;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dark-mode .login-container p {
+  color: #e4e4e4;
+}
+
+/* User table styling */
+#userTable {
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 8px;
+  padding: 3px;
+  margin: 5px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: "Inter", sans-serif;
+  transition: all 0.2s ease;
+}
+
+#userTable:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+}
+
+.user-cell {
+  padding: 4px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+#userInfo {
+  font-family: "Inter", sans-serif;
+  position: relative;
+  margin-left: 12px;
+  text-align: center;
+  max-width: 300px;
+  z-index: 100;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Login button */
+#loginButton {
+  background-color: #6441a5;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  white-space: nowrap;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+#loginButton:hover {
+  background-color: #503484;
+}
+
+/* ================= DROPDOWN STYLING ================= */
+.logout-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 150px;
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.logout-dropdown.show {
+  display: block;
+  opacity: 1;
+  animation: dropdownFade 0.2s ease forwards;
+}
+
+/* Logout button styling */
+.logout-button {
+  background: none;
+  border: none;
+  width: 100%;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover,
+.logout-button:focus {
+  background-color: var(--color-gray-100);
+  color: var(--color-indigo-500);
+}
+
+/* Logout icon */
+.logout-icon {
+  width: 16px;
+  height: 16px;
+  transition: all 0.2s ease;
+}
+
+/* Animation for dropdown appearance */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ================= DARK MODE STYLING ================= */
+.dark-mode #userTable {
+  background-color: #1e1e22;
+  border: 1px solid #202020;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .user-cell,
+.dark-mode #userInfo {
+  color: #f0f0f0;
+}
+
+.dark-mode .logout-dropdown {
+  background-color: #24252e;
+  border: 1px solid #3a3b45;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .logout-button {
+  color: #e0e0e0;
+}
+
+.dark-mode .logout-button:hover,
+.dark-mode .logout-button:focus {
+  background-color: #2e2f3a;
+  color: var(--color-indigo-400);
+}
+
+.dark-mode .logout-icon {
+  filter: invert(100%);
+}
+
+.dark-mode .logout-button:hover .logout-icon,
+.dark-mode .logout-button:focus .logout-icon {
+  filter: invert(54%) sepia(86%) saturate(1752%) hue-rotate(229deg)
+    brightness(101%) contrast(96%);
+}
+
+.dark-mode .user-avatar {
+  border-color: var(--color-indigo-500);
+}
+
+.dark-mode .user-avatar-container:hover .user-avatar {
+  box-shadow: 0 0 0 2px var(--color-indigo-400);
+}
+
+.dark-mode #loginButton {
+  background-color: #6441a5;
+  color: white;
+}
+
+.dark-mode #loginButton:hover {
+  background-color: #503484;
+}
+
+/* Dark Mode Label */
+.dark-mode .darkModeLabel {
+  color: #e0e0e0;
+}
+
+/* Separator */
+.separator {
+  height: 1px;
+  background-color: var(--modal-border);
+  margin: 8px 0;
+}
+
+.dark-mode .separator {
+  background-color: #3a3b45;
+}

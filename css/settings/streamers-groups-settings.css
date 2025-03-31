@@ -221,7 +221,7 @@
   font-weight: 500;
 
   /* Light Mode */
-  background-color: transparent;
+  background-color: floralwhite;
   border: 1px solid var(--color-indigo-400);
   color: var(--color-indigo-600);
   border-radius: 20px;
@@ -229,6 +229,10 @@
   transition: all 0.3s ease;
   left: -11px; /* This offsets half the difference between right and left padding */
   width: fit-content; /* This ensures the button only takes up as much space as needed */
+}
+
+#addFavoriteGroupButton:hover {
+  background-color: rgb(255, 255, 255);
 }
 
 /* ================= DARK MODE ================= */
@@ -241,22 +245,6 @@
   border: 1px solid #3a3b45; /* Subtle border */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.05); /* Inner glow */
-}
-
-.dark-mode .group-item::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--color-indigo-400) 50%,
-    transparent 100%
-  );
-  opacity: 0.3;
 }
 
 .dark-mode .streamers-list {
