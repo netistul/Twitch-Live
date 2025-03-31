@@ -223,8 +223,12 @@
 }
 
 .dark-mode .menu-item.active {
-  background-color: rgba(150, 120, 220, 0.15);
-  color: #a98aff;
+  background: linear-gradient(
+    to right,
+    rgba(150, 120, 220, 0.15) 0%,
+    rgba(150, 120, 220, 0.05) 100%
+  );
+  color: #b3b1b1;
 }
 
 .dark-mode .menu-item.active::before {

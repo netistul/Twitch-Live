@@ -20,6 +20,7 @@ body {
 
 /* Header Title */
 .twitch-header-title {
+  font-family: "Inter", Verdana, sans-serif;
   margin: 0;
   font-size: 24px;
   font-weight: bold;
