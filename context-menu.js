@@ -364,18 +364,32 @@ function showContextMenu(stream, x, y) {
     // Add tooltip for long channel names
     channelNameSpan.title = stream.channelName;
 
-
     const toFavoriteGroupText = document.createElement("span");
     toFavoriteGroupText.classList.add("context-menu-header-text");
-    // Initial short text, will be updated after rendering
-    toFavoriteGroupText.textContent = "to list:";
-
+    // Start with full text - we'll adjust later if needed
+    toFavoriteGroupText.textContent = "to favorite list:";
 
     twitchCombo.appendChild(twitchIcon);
     twitchCombo.appendChild(channelNameSpan);
+
+    // Create a wrapper for the stream name and text to keep them together
+    const nameAndTextWrapper = document.createElement("div");
+    nameAndTextWrapper.style.display = "flex";
+    nameAndTextWrapper.style.alignItems = "center";
+    nameAndTextWrapper.style.flexShrink = "1";
+    nameAndTextWrapper.style.minWidth = "0";
+    nameAndTextWrapper.style.overflow = "hidden";
+
     menuHeader.appendChild(firstPart);
-    menuHeader.appendChild(twitchCombo);
-    menuHeader.appendChild(toFavoriteGroupText);
+    menuHeader.appendChild(nameAndTextWrapper);
+
+    // Add consistent gap between elements
+    twitchCombo.style.marginRight = "4px";
+
+    // Put these elements in the wrapper to keep them together
+    nameAndTextWrapper.appendChild(twitchCombo);
+    nameAndTextWrapper.appendChild(toFavoriteGroupText);
+
     contextMenu.appendChild(menuHeader);
 
     // --- Scrollable Items Container ---
@@ -387,7 +401,6 @@ function showContextMenu(stream, x, y) {
     const footerContainer = document.createElement("div");
     footerContainer.className = "context-menu-footer";
     contextMenu.appendChild(footerContainer);
-
 
     // --- Populate with Favorite Groups ---
     chrome.storage.local.get("favoriteGroups", function (data) {
@@ -511,7 +524,6 @@ function showContextMenu(stream, x, y) {
         // Append the fully constructed menu to the body (initially invisible)
         document.body.appendChild(contextMenu);
 
-
         // --- Position Calculation and Display ---
         // Use requestAnimationFrame to ensure layout is calculated before positioning
         requestAnimationFrame(() => {
@@ -519,21 +531,13 @@ function showContextMenu(stream, x, y) {
             const menuHeight = contextMenu.offsetHeight;
             const margin = 5; // Small margin from window edges
 
-            // Adjust header text based on available space
-            const headerRect = menuHeader.getBoundingClientRect();
-            const firstPartRect = firstPart.getBoundingClientRect();
-            const twitchComboRect = twitchCombo.getBoundingClientRect();
-            // Calculate space used by "Add" + icon + name + some padding
-            const usedWidth = (twitchComboRect.right - headerRect.left) + 10;
-            // Calculate remaining width in the header for the last text part
-            const availableWidth = menuWidth - usedWidth - 20; // Subtract some padding
-
-            if (availableWidth >= 90) { // Enough space for the longer text?
-                toFavoriteGroupText.textContent = "to favorite list:";
-            } else {
-                toFavoriteGroupText.textContent = "to list:"; // Fallback to shorter text
+            // Check if channel name is being truncated
+            if (channelNameSpan.scrollWidth > channelNameSpan.clientWidth) {
+                // Channel name is being cut off, let's check if shortening the suffix text helps
+                if (toFavoriteGroupText.textContent === "to favorite list:") {
+                    toFavoriteGroupText.textContent = "to list:"; // Use shorter text
+                }
             }
-
 
             // Calculate safe coordinates to keep the menu within viewport bounds
             let finalX = x;
@@ -548,7 +552,6 @@ function showContextMenu(stream, x, y) {
             // Ensure menu doesn't go off the top or left edges either
             finalX = Math.max(margin, finalX);
             finalY = Math.max(margin, finalY);
-
 
             contextMenu.style.left = `${finalX}px`;
             contextMenu.style.top = `${finalY}px`;
