@@ -15,21 +15,17 @@ chrome.runtime.onStartup.addListener(initializeExtension);
 
 // Common initialization function
 function initializeExtension() {
-  console.log("Initializing extension...");
   updateBadgeAtStartup();
   fetchList();
   createContextMenuItems();
   setupAlarm();
   const startupTime = Date.now();
-  chrome.storage.local.set({ startupTime: startupTime }, () => {
-    console.log("Startup time set.");
-  });
+  chrome.storage.local.set({ startupTime: startupTime });
 }
 
 function setupAlarm() {
   chrome.alarms.clear("fetchDataAlarm", () => {
     chrome.alarms.create("fetchDataAlarm", { periodInMinutes: 0.33 }); // Adjust time as needed
-    console.log("Alarm set up");
   });
 }
 
@@ -40,8 +36,6 @@ function fetchList() {
       fetchUserProfileUpdates(result.twitchAccessToken);
       // Then continue with fetching follows
       fetchFollowList(result.twitchAccessToken, result.userId);
-    } else {
-      console.log("Access Token or User ID not found.");
     }
   });
 }
@@ -108,7 +102,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           // Save the access token to local storage
           const storage = isFirefox ? browser.storage.local : chrome.storage.local;
           storage.set({ twitchAccessToken: accessToken }, () => {
-            console.log("Twitch Access Token saved");
             fetchUserProfile(accessToken); // Fetch and handle the user's profile
           });
         }
@@ -118,8 +111,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // Handle the message to disconnect the Twitch account
   if (message.action === "disconnectTwitch") {
-    console.log("Disconnecting Twitch account via settings page");
-
     // Clear all related data from local storage
     const storage = isFirefox ? browser.storage.local : chrome.storage.local;
     storage.remove(
@@ -132,9 +123,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         "userDisplayName",
       ],
       () => {
-        console.log(
-          "Access token, followed list, live streams, and user information removed from storage."
-        );
         // Reset the badge text for the extension icon
         const action = isFirefox ? browser.action : chrome.action;
         action.setBadgeText({ text: "" });
@@ -168,9 +156,7 @@ function fetchUserProfile(accessToken) {
           userDisplayName: displayName, // Storing the display name
         },
         () => {
-          console.log("User ID, Avatar, and Display Name saved");
           fetchFollowList(accessToken, userId, true); // Continue with your other operations
-
         }
       );
     })
@@ -192,8 +178,6 @@ function fetchFollowList(
     url += `&after=${cursor}`;
   }
 
-  console.log("Fetching follow list with URL:", url);
-
   const options = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -206,7 +190,6 @@ function fetchFollowList(
     .then((data) => {
       // Handle null response (auth token expired case from fetchWithRetry)
       if (data === null) {
-        console.log("Auth token expired or invalid, handled by fetchWithRetry");
         return;
       }
 
@@ -225,13 +208,11 @@ function fetchFollowList(
       } else {
         // All pages fetched, save to storage and proceed
         chrome.storage.local.set({ followedList: followedList }, () => {
-          console.log("Followed Channels saved in local storage");
           fetchStreamData(accessToken, followedList);
 
           if (isOAuthComplete) {
             // Send message without callback to avoid "port closed" error
             chrome.runtime.sendMessage({ action: "oauthComplete" });
-            console.log("Notification sent to popup (if available)");
           }
         });
       }
@@ -242,8 +223,6 @@ function fetchFollowList(
 }
 
 function fetchStreamData(accessToken, followedList) {
-  console.log("Fetching stream data...");
-
   const someThreshold = 60000;
 
   const streamFetchPromises = followedList.map((channel) => {
@@ -364,8 +343,6 @@ function fetchStreamData(accessToken, followedList) {
             liveStreams: liveStreams,
           },
           () => {
-            console.log("Live stream data and last known live streams updated in local storage");
-
             // Cache the count of live streams
             const liveCount = liveStreams.length;
             chrome.storage.local.set({ liveStreamCount: liveCount }, () => {
@@ -386,16 +363,10 @@ function fetchWithRetry(url, options, maxRetries = 3, initialDelay = 1000) {
       fetch(url, options)
         .then(response => {
           if (response.status === 401) {
-            console.log("Access token expired. Deleting token and triggering re-authentication.");
-            chrome.storage.local.remove("twitchAccessToken", () => {
-              console.log("Expired token removed from storage.");
-            });
+            chrome.storage.local.remove("twitchAccessToken");
 
             // Set the token expiration flag back
-            chrome.storage.local.set({ tokenExpired: true }, () => {
-              console.log("Token expiration flag set in storage.");
-            });
-
+            chrome.storage.local.set({ tokenExpired: true });
             resolve(null); // Continue with retry logic or null response
           }
           else if (response.status === 429 && retriesLeft > 0) {
@@ -421,8 +392,6 @@ function fetchWithRetry(url, options, maxRetries = 3, initialDelay = 1000) {
             // Extract channel info from URL if possible
             const channel = url.includes('login=') ? url.split('login=')[1].split('&')[0] : 'unknown';
 
-            console.log(`Setting rateLimitHit=true AFTER ALL RETRIES for ${endpoint}`);
-
             // Only set the rate limit hit flag after all retries have failed
             chrome.storage.local.get(['lastRateLimitNotification'], function (data) {
               const now = Date.now();
@@ -430,7 +399,6 @@ function fetchWithRetry(url, options, maxRetries = 3, initialDelay = 1000) {
 
               // Only update the rate limit status and send notification if it's been at least 30 seconds
               if (now - lastNotification > 30000) {
-                console.log(`Sending notification for ${endpoint} after all retries failed`);
                 chrome.storage.local.set({
                   rateLimitHit: true,
                   rateLimitTimestamp: now,
@@ -449,7 +417,6 @@ function fetchWithRetry(url, options, maxRetries = 3, initialDelay = 1000) {
                   }
                 });
               } else {
-                console.log(`Updating rateLimitHit but not sending notification (throttled)`);
                 // Just update the timestamp without triggering a new notification
                 chrome.storage.local.set({
                   rateLimitHit: true,
@@ -503,7 +470,6 @@ function fetchUserProfileUpdates(accessToken) {
   })
     .then((data) => {
       if (data === null) {
-        console.log("Auth token expired or invalid during profile update check");
         return;
       }
 
@@ -512,15 +478,10 @@ function fetchUserProfileUpdates(accessToken) {
       const displayName = userProfile.display_name;
 
       // Update the avatar and display name in storage
-      chrome.storage.local.set(
-        {
-          userAvatar: avatarUrl,
-          userDisplayName: displayName,
-        },
-        () => {
-          console.log("User Avatar and Display Name updated");
-        }
-      );
+      chrome.storage.local.set({
+        userAvatar: avatarUrl,
+        userDisplayName: displayName,
+      });
     })
     .catch((error) => {
       console.error("Error updating user profile:", error);
@@ -550,8 +511,6 @@ function sendLiveNotification(channel) {
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "disconnectTwitch") {
-    console.log("Context menu item clicked - Disconnecting Twitch account");
-
     // Remove specific items from the local storage
     chrome.storage.local.remove(
       [
@@ -563,15 +522,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         "userDisplayName", // Removing user display name
       ],
       () => {
-        console.log(
-          "Access token, followed list, live streams, and user information removed from storage."
-        );
         chrome.action.setBadgeText({ text: "" });
       }
     );
   } else if (info.menuItemId === "openSettings") {
-    console.log("Context menu item clicked - Opening Settings");
-
     // Open the settings page in a new tab
     chrome.tabs.create({
       url: "settings.html",
@@ -584,8 +538,6 @@ function updateBadgeAtStartup() {
     if (result.liveStreamCount !== undefined) {
       chrome.action.setBadgeText({ text: result.liveStreamCount.toString() });
       chrome.action.setBadgeBackgroundColor({ color: "#6366f1" });
-    } else {
-      console.log("No cached live stream count found.");
     }
   });
 }

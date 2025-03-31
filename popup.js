@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("DOMContentLoaded event triggered");
-
   applyDarkMode();
 
   // Update live streams immediately for all users
@@ -19,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Accessing buttonContainer & spinner element
   const buttonContainer = document.getElementById("buttonContainer");
-  console.log("buttonContainer:", buttonContainer);
 
   // Create the spinner element for loading
   const spinner = document.createElement("img");
@@ -38,8 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Store the original source and change to emoji
     settingsIcon.setAttribute('data-original-src', settingsIcon.src);
     settingsIcon.src = 'css/cog.png'; // Change to the path of your settings/cog icon
-    // Alternative: use emoji directly
-    // this.outerHTML = '<div id="settingsIcon" class="rotating">⚙️</div>';
   });
 
   settingsIcon.addEventListener("mouseleave", function () {
@@ -231,10 +226,6 @@ function updateLiveStreams() {
 
         let avatarImg;
         if (showAvatar) {
-          console.log('Stream Title Display:', streamTitleDisplay);
-          console.log('Stream Thumbnail:', stream.thumbnail);
-          console.log('Stream Avatar:', stream.avatar);
-
           if (streamTitleDisplay === "newline" && stream.thumbnail) {
             avatarImg = document.createElement("img");
 
@@ -252,9 +243,7 @@ function updateLiveStreams() {
             avatarImg.className = "stream-thumbnail loading";
             avatarImg.alt = `${stream.channelName}'s thumbnail`;
           }
-
           else if (stream.avatar) {
-            console.log('Creating avatar element');
             avatarImg = document.createElement("img");
             avatarImg.src = stream.avatar;
             avatarImg.className = "stream-avatar";
@@ -263,7 +252,6 @@ function updateLiveStreams() {
             avatarImg.style.height = "30px";
             avatarImg.style.borderRadius = "15px";
             avatarImg.style.marginRight = "5px";
-            console.log('Avatar element created with src:', avatarImg.src);
           }
 
           if (avatarImg) {
@@ -427,11 +415,8 @@ function updateLiveStreams() {
         }
 
         const showStreamTime = result.showStreamTime === "on";
-        console.log('showStreamTime setting:', result.showStreamTime);
-        console.log('showStreamTime after parsing:', showStreamTime);
 
         if (showStreamTime) {
-          console.log('Creating time span because showStreamTime is:', showStreamTime);
           const timeSpan = document.createElement("span");
           timeSpan.className = "stream-time";
           timeSpan.style.fontSize = "12px";
@@ -643,45 +628,12 @@ function incrementChannelAccess(broadcasterLogin) {
   });
 }
 
-// When the popup opens
-chrome.runtime.sendMessage({ popupOpen: true }, () => {
-  if (chrome.runtime.lastError) {
-    console.log("Error in sending message: ", chrome.runtime.lastError.message);
-  } else {
-    console.log("Popup open message sent");
-  }
-});
-
-window.addEventListener("unload", function () {
-  chrome.runtime.sendMessage({ popupOpen: false }, () => {
-    if (chrome.runtime.lastError) {
-      console.log(
-        "Error in sending message: ",
-        chrome.runtime.lastError.message
-      );
-    } else {
-      console.log("Popup close message sent");
-    }
-  });
-});
-
 function applyDarkMode() {
   chrome.storage.local.get("darkMode", function (data) {
-    // If no theme is set (data.darkMode is undefined), use dark mode
     const isDarkMode = !data.darkMode || data.darkMode === "dark";
 
-    try {
-      if (isDarkMode) {
-        document.body.classList.add("dark-mode");
-        document.body.classList.remove("light-mode");
-      } else {
-        document.body.classList.remove("dark-mode");
-        document.body.classList.add("light-mode");
-      }
-      console.log(`Theme set to: ${isDarkMode ? 'dark' : 'light'} mode`);
-    } catch (error) {
-      console.error('Error applying theme:', error);
-    }
+    // Simply toggle dark-mode class only
+    document.body.classList.toggle("dark-mode", isDarkMode);
   });
 }
 
