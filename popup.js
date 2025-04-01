@@ -325,7 +325,6 @@ function updateLiveStreams() {
             Object.assign(titleSpan.style, {
               display: "block",
               fontSize: "12px",
-              color: "#9CA3AF",
               textOverflow: "ellipsis",
               overflow: "hidden",
               whiteSpace: "nowrap",
@@ -340,9 +339,12 @@ function updateLiveStreams() {
           // Then add the category with smaller style if newline is enabled
           if (streamTitleDisplay === "newline") {
             categorySpan.style.fontSize = "11px";
-            categorySpan.style.color = "#9CA3AF";
+            // Color will be controlled via CSS
             categorySpan.style.display = "block";
             categorySpan.style.marginTop = "2px";
+
+            // Add a specific class that you can target in CSS
+            categorySpan.classList.add("newline-category");
           }
 
           categoryDiv.appendChild(categorySpan);
@@ -457,7 +459,7 @@ function updateLiveStreams() {
 
         const viewersSpan = document.createElement("span");
         viewersSpan.className = isRerun ? "viewers rerun" : "viewers";
-        viewersSpan.textContent = stream.viewers;
+        viewersSpan.textContent = formatViewerCount(stream.viewers);
         viewersWrapper.appendChild(viewersSpan);
 
         // Include signal icon if avatar is shown

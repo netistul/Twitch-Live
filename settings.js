@@ -778,7 +778,7 @@ function updatePreview() {
         timeSpan.className = "stream-time";
         timeSpan.textContent = formatStreamTime(previewStream.started_at);
         viewersSpan.appendChild(timeSpan);
-        viewersSpan.appendChild(document.createTextNode(` ${previewStream.viewers} `));
+        viewersSpan.appendChild(document.createTextNode(` ${formatViewerCount(previewStream.viewers)} `));
 
         const timeInterval = setInterval(() => {
           if (timeSpan) {
@@ -798,7 +798,7 @@ function updatePreview() {
         });
         observer.observe(previewContainer, { childList: true, subtree: true });
       } else {
-        viewersSpan.textContent = `\u00A0 ${previewStream.viewers} `;
+        viewersSpan.textContent = `\u00A0 ${formatViewerCount(previewStream.viewers)} `;
       }
 
       if (showAvatar) {
