@@ -58,7 +58,7 @@ body {
 }
 
 .optionsMenuHeader {
-  font-family: "Noto Sans Display", sans-serif; /* Example font */
+  font-family: "Noto Sans", sans-serif;
   font-size: 20px; /* Font size */
   color: #6441a57b; /* Twitch-like purple color */
   margin-bottom: 15px; /* Spacing after the header */
@@ -97,49 +97,49 @@ body {
 /* Font Styles */
 @font-face {
   font-family: "Open Sans";
-  src: url("../fonts/OpenSans-Regular.ttf") format("truetype");
+  src: url("../../fonts/OpenSans-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Open Sans";
-  src: url("../fonts/OpenSans-Bold.ttf") format("truetype");
+  src: url("../../fonts/OpenSans-Bold.ttf") format("truetype");
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("../fonts/NotoSans-Regular.ttf") format("truetype");
+  src: url("../../fonts/NotoSans-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Patrick Hand";
-  src: url("../fonts/PatrickHand-Regular.ttf") format("truetype");
+  src: url("../../fonts/PatrickHand-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/Inter_18pt-Regular.ttf") format("truetype");
+  src: url("../../fonts/Inter_18pt-Regular.ttf") format("truetype");
   font-weight: 400; /* Regular */
   font-style: normal;
 }
 
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/Inter_18pt-Medium.ttf") format("truetype");
+  src: url("../../fonts/Inter_18pt-Medium.ttf") format("truetype");
   font-weight: 500; /* Medium */
   font-style: normal;
 }
 
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/Inter_18pt-SemiBold.ttf") format("truetype");
+  src: url("../../fonts/Inter_18pt-SemiBold.ttf") format("truetype");
   font-weight: 600; /* SemiBold */
   font-style: normal;
 }

@@ -630,13 +630,22 @@ function incrementChannelAccess(broadcasterLogin) {
 
 function applyDarkMode() {
   chrome.storage.local.get("darkMode", function (data) {
-    const isDarkMode = !data.darkMode || data.darkMode === "dark";
+    // Reset theme classes first
+    document.body.classList.remove("dark-mode", "light-mode", "very-dark-mode");
 
-    // Simply toggle dark-mode class only
-    document.body.classList.toggle("dark-mode", isDarkMode);
+    // Apply appropriate theme based on stored preference
+    const themePreference = data.darkMode || "dark";
+
+    if (themePreference === "dark") {
+      document.body.classList.add("dark-mode");
+    } else if (themePreference === "verydark") {
+      document.body.classList.add("dark-mode"); // For compatibility
+      document.body.classList.add("very-dark-mode"); // Additional class for very dark styling
+    } else {
+      document.body.classList.add("light-mode");
+    }
   });
 }
-
 /* Custom scrollbar for Firefox */
 if (navigator.userAgent.includes("Firefox")) {
   document.body.style.scrollbarWidth = "thin";

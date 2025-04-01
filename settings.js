@@ -1042,7 +1042,6 @@ document.addEventListener("DOMContentLoaded", function () {
     var isChecked =
       data.hideAccessedCount !== undefined ? data.hideAccessedCount : false;
     document.getElementById("hideAccessedCountCheckbox").checked = isChecked;
-    console.log("Loaded Hide Accessed Count preference:", isChecked);
   });
 
   // Save the "Do not show accessed count" preference when changed
@@ -1291,16 +1290,20 @@ document.addEventListener("DOMContentLoaded", function () {
 // Dropdowns - Stream grouping
 document.addEventListener("DOMContentLoaded", function () {
   // Theme handling function
-  function setTheme(isDarkMode) {
+  function setTheme(preference) {
     try {
-      if (isDarkMode) {
+      // Reset all theme classes first
+      document.body.classList.remove("dark-mode", "light-mode", "very-dark-mode");
+
+      if (preference === "dark") {
         document.body.classList.add("dark-mode");
-        document.body.classList.remove("light-mode");
+      } else if (preference === "verydark") {
+        document.body.classList.add("dark-mode"); // Still use dark-mode for compatibility
+        document.body.classList.add("very-dark-mode"); // Add additional class for very dark styling
       } else {
-        document.body.classList.remove("dark-mode");
         document.body.classList.add("light-mode");
       }
-      console.log(`Theme set to: ${isDarkMode ? 'dark' : 'light'} mode`);
+
     } catch (error) {
       console.error('Error setting theme:', error);
     }
@@ -1375,7 +1378,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // If the storageKey is "darkMode", apply the theme
           if (storageKey === "darkMode") {
-            setTheme(preference === "dark");
+            setTheme(preference);
           }
         } catch (error) {
           console.error('Error in storage callback:', error);
@@ -1426,6 +1429,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const cleanText = getCleanOptionText(option);
             const value = option.dataset.value;
 
+            console.log(`Option clicked: ${storageKey} = ${value}`);
+
             // Update custom dropdown display with clean text
             selectedText.textContent = cleanText;
             options.forEach(opt => opt.classList.remove('selected'));
@@ -1435,55 +1440,202 @@ document.addEventListener("DOMContentLoaded", function () {
             // Update original select value
             originalSelect.value = value;
 
-            // If the storageKey is "darkMode", apply the theme
-            if (storageKey === "darkMode") {
-              setTheme(value === "dark");
-            }
-
             // Create updates object for storage
             let updates = { [storageKey]: value };
 
-            // If this is the stream title display being set to newline,
-            // automatically enable stream time
+            // If this is the stream title display being set to "newline" and currently using dark theme,
+            // automatically switch to very dark theme
             if (storageKey === "streamTitleDisplay" && value === "newline") {
-              updates.showStreamTime = "on";  // Set the correct value to match the select options
+              console.log("Thumbnail display option detected, checking current theme...");
 
-              // Update stream time dropdown UI
-              const streamTimeContainer = document.querySelector('.custom-select-container:has(#showStreamTimeSelect)');
-              if (streamTimeContainer) {
-                const streamTimeHeader = streamTimeContainer.querySelector('.selected-option');
-                const streamTimeOptions = streamTimeContainer.querySelectorAll('.custom-option');
+              // Check current theme
+              chrome.storage.local.get("darkMode", function (data) {
+                console.log("Current theme setting:", data.darkMode);
 
-                if (streamTimeHeader) {
-                  streamTimeHeader.textContent = "Show stream time";
+                // Set stream time to ON (existing functionality)
+                updates.showStreamTime = "on";
+
+                if (data.darkMode === "dark") {
+                  console.log("Dark theme detected, switching to very dark theme");
+
+                  // Update to very dark theme
+                  updates.darkMode = "verydark";
+
+                  // Update theme dropdown UI
+                  const themeContainer = document.querySelector('.theme-select-container');
+                  if (themeContainer) {
+                    const themeHeader = themeContainer.querySelector('.selected-option');
+                    const themeOptions = themeContainer.querySelectorAll('.custom-option');
+
+                    if (themeHeader) {
+                      themeHeader.textContent = "🖤 Very dark theme";
+                    }
+
+                    themeOptions.forEach(opt => {
+                      opt.classList.remove('selected');
+                      if (opt.dataset.value === 'verydark') {
+                        opt.classList.add('selected');
+                      }
+                    });
+
+                    // Update the original select for theme
+                    const themeSelect = document.getElementById('themeSelect');
+                    if (themeSelect) {
+                      themeSelect.value = "verydark";
+                    }
+
+                    // Apply the theme change immediately to current page
+                    document.body.classList.remove("dark-mode", "light-mode", "very-dark-mode");
+                    document.body.classList.add("dark-mode");
+                    document.body.classList.add("very-dark-mode");
+                  }
                 }
 
-                streamTimeOptions.forEach(opt => {
-                  opt.classList.remove('selected');
-                  if (opt.dataset.value === 'on') {
-                    opt.classList.add('selected');
+                // Update stream time dropdown UI (existing functionality)
+                const streamTimeContainer = document.querySelector('.custom-select-container:has(#showStreamTimeSelect)');
+                if (streamTimeContainer) {
+                  const streamTimeHeader = streamTimeContainer.querySelector('.selected-option');
+                  const streamTimeOptions = streamTimeContainer.querySelectorAll('.custom-option');
+
+                  if (streamTimeHeader) {
+                    streamTimeHeader.textContent = "Show stream time";
+                  }
+
+                  streamTimeOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === 'on') {
+                      opt.classList.add('selected');
+                    }
+                  });
+
+                  // Update the original select for stream time
+                  const streamTimeSelect = document.getElementById('showStreamTimeSelect');
+                  if (streamTimeSelect) {
+                    streamTimeSelect.value = "on";
+                  }
+
+                  // Trigger the change event on the original select
+                  streamTimeSelect.dispatchEvent(new Event('change'));
+                }
+
+                // Save all updates together
+                chrome.storage.local.set(updates, function () {
+                  chrome.runtime.sendMessage({ action: "oauthComplete" });
+                  console.log(`Settings saved with updates:`, updates);
+                  if (typeof updatePreview === 'function') {
+                    updatePreview();
                   }
                 });
+              });
+            }
+            // NEW CONDITION: If this is the stream title display being changed FROM "newline" to something else
+            else if (storageKey === "streamTitleDisplay" && value !== "newline") {
+              // Get current settings to check if we're changing FROM newline
+              chrome.storage.local.get(["streamTitleDisplay", "darkMode", "showStreamTime"], function (data) {
+                // Only proceed with reset if we're changing FROM newline
+                if (data.streamTitleDisplay === "newline") {
+                  console.log("Changing from newline display, resetting theme and stream time to defaults");
 
-                // Update the original select for stream time
-                const streamTimeSelect = document.getElementById('showStreamTimeSelect');
-                if (streamTimeSelect) {
-                  streamTimeSelect.value = "on";  // Make sure to use the string "on"
+                  // Reset stream time to default (off)
+                  updates.showStreamTime = "off";
+
+                  // Reset theme to regular dark (if currently very dark)
+                  if (data.darkMode === "verydark") {
+                    updates.darkMode = "dark";
+
+                    // Update theme dropdown UI
+                    const themeContainer = document.querySelector('.theme-select-container');
+                    if (themeContainer) {
+                      const themeHeader = themeContainer.querySelector('.selected-option');
+                      const themeOptions = themeContainer.querySelectorAll('.custom-option');
+
+                      if (themeHeader) {
+                        themeHeader.textContent = "🌙 Dark theme";
+                      }
+
+                      themeOptions.forEach(opt => {
+                        opt.classList.remove('selected');
+                        if (opt.dataset.value === 'dark') {
+                          opt.classList.add('selected');
+                        }
+                      });
+
+                      // Update the original select for theme
+                      const themeSelect = document.getElementById('themeSelect');
+                      if (themeSelect) {
+                        themeSelect.value = "dark";
+                      }
+
+                      // Apply the theme change immediately to current page
+                      document.body.classList.remove("dark-mode", "light-mode", "very-dark-mode");
+                      document.body.classList.add("dark-mode");
+                    }
+                  }
+
+                  // Update stream time dropdown UI
+                  const streamTimeContainer = document.querySelector('.custom-select-container:has(#showStreamTimeSelect)');
+                  if (streamTimeContainer) {
+                    const streamTimeHeader = streamTimeContainer.querySelector('.selected-option');
+                    const streamTimeOptions = streamTimeContainer.querySelectorAll('.custom-option');
+
+                    if (streamTimeHeader) {
+                      streamTimeHeader.textContent = "Stream time hidden (by default)";
+                    }
+
+                    streamTimeOptions.forEach(opt => {
+                      opt.classList.remove('selected');
+                      if (opt.dataset.value === 'off') {
+                        opt.classList.add('selected');
+                      }
+                    });
+
+                    // Update the original select for stream time
+                    const streamTimeSelect = document.getElementById('showStreamTimeSelect');
+                    if (streamTimeSelect) {
+                      streamTimeSelect.value = "off";
+                    }
+
+                    // Trigger the change event on the original select
+                    streamTimeSelect.dispatchEvent(new Event('change'));
+                  }
                 }
 
-                // Trigger the change event on the original select
-                streamTimeSelect.dispatchEvent(new Event('change'));
-              }
+                // Save all updates together
+                chrome.storage.local.set(updates, function () {
+                  chrome.runtime.sendMessage({ action: "oauthComplete" });
+                  console.log(`Settings saved with updates:`, updates);
+                  if (typeof updatePreview === 'function') {
+                    updatePreview();
+                  }
+                });
+              });
             }
+            // For all other options, just save normally
+            else {
+              // If the storageKey is "darkMode", apply the theme immediately
+              if (storageKey === "darkMode") {
+                // Apply theme change directly to current document
+                document.body.classList.remove("dark-mode", "light-mode", "very-dark-mode");
 
-            // Save to storage
-            chrome.storage.local.set(updates, function () {
-              chrome.runtime.sendMessage({ action: "oauthComplete" });
-              console.log(`Settings updated:`, updates);
-              if (typeof updatePreview === 'function') {
-                updatePreview();
+                if (value === "dark") {
+                  document.body.classList.add("dark-mode");
+                } else if (value === "verydark") {
+                  document.body.classList.add("dark-mode");
+                  document.body.classList.add("very-dark-mode");
+                } else {
+                  document.body.classList.add("light-mode");
+                }
               }
-            });
+
+              // Save to storage
+              chrome.storage.local.set(updates, function () {
+                chrome.runtime.sendMessage({ action: "oauthComplete" });
+                console.log(`Settings saved normally:`, updates);
+                if (typeof updatePreview === 'function') {
+                  updatePreview();
+                }
+              });
+            }
           } catch (error) {
             console.error('Error handling option selection:', error);
           }
