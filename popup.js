@@ -221,6 +221,11 @@ function updateLiveStreams() {
         // Sub-wrapper for channel name, category, and viewers
         const subWrapper = document.createElement("div");
         subWrapper.className = showAvatar ? "sub-wrapper-with-avatar" : "";
+        // Add a specific class when newline is enabled
+        if (streamTitleDisplay === "newline" && stream.thumbnail) {
+          subWrapper.classList.add("sub-wrapper-newline");
+          subWrapper.className = showAvatar ? "sub-wrapper-with-avatar sub-wrapper-with-thumbnail" : "";
+        }
         subWrapper.style.width = "100%";  // Add this
         subWrapper.style.overflow = "hidden";  // Add this
 
@@ -230,8 +235,7 @@ function updateLiveStreams() {
             avatarImg = document.createElement("img");
 
             // Add dark placeholder while loading
-            avatarImg.src = "css/dark-thumbnail-placeholder.svg"; // Dark themed placeholder
-            avatarImg.style.backgroundColor = "#18181b"; // Twitch-like dark background
+            avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' fill='%2318181b'/%3E%3C/svg%3E";
 
             // Load the actual image in the background
             const actualImage = new Image();
@@ -465,7 +469,11 @@ function updateLiveStreams() {
         // Include signal icon if avatar is shown
         if (showAvatar && stream.avatar) {
           const iconImg = document.createElement("img");
-          iconImg.src = isRerun ? "css/rerun.svg" : "css/signal.svg";
+          iconImg.src = isRerun
+            ? "css/rerun.svg"
+            : streamTitleDisplay === "newline"
+              ? "css/signal-newline.svg"  // Thicker icon for newline
+              : "css/signal.svg";         // Original red icon
           iconImg.className = "signal-icon";
           iconImg.alt = "Signal";
           iconImg.style.height = "13px";
