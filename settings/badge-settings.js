@@ -1,6 +1,26 @@
 // settings/badge-settings.js
 
 /**
+ * Predefined badge colors
+ * Each color has a hex value and an optional name for reference
+ */
+const PREDEFINED_BADGE_COLORS = [
+    { hex: "#6366f1", name: "Indigo" },     // Original color
+    { hex: "#ef4444", name: "Red" },        // Original color
+    { hex: "#10b981", name: "Green" },      // Original color
+    { hex: "#f59e0b", name: "Amber" },      // Original color
+    { hex: "#8b5cf6", name: "Purple" },     // Original color
+    { hex: "#0ea5e9", name: "Sky Blue" },   // New color
+    { hex: "#ec4899", name: "Pink" },       // New color
+    { hex: "#14b8a6", name: "Teal" },       // New color
+    { hex: "#f97316", name: "Orange" },     // New color
+    { hex: "#64748b", name: "Slate" }       // New color
+];
+
+// Default color (first color in the array)
+const DEFAULT_BADGE_COLOR = PREDEFINED_BADGE_COLORS[0].hex;
+
+/**
  * Initializes the Badge Settings section.
  * Loads the current badge visibility setting and sets up the toggle switch listener.
  * Also handles badge color selection.
@@ -8,13 +28,36 @@
 function initializeBadgeSettingsSection() {
     console.log("Initializing Badge Settings Section...");
     const enableBadgeCheckbox = document.getElementById("enableBadgeCheckbox");
-    const colorBoxes = document.querySelectorAll(".color-box");
+    const colorPickerContainer = document.querySelector(".color-presets");
     const colorPicker = document.getElementById("badgeColorPicker");
 
     if (!enableBadgeCheckbox) {
         console.error("Enable Badge Checkbox not found.");
         return;
     }
+
+    if (!colorPickerContainer) {
+        console.error("Color picker container not found.");
+        return;
+    }
+
+    // Clear any existing color boxes
+    colorPickerContainer.innerHTML = "";
+
+    // Generate color boxes from predefined colors
+    PREDEFINED_BADGE_COLORS.forEach(color => {
+        const colorBox = document.createElement("div");
+        colorBox.className = "color-box";
+        colorBox.dataset.color = color.hex;
+        colorBox.style.backgroundColor = color.hex;
+        if (color.name) {
+            colorBox.title = color.name; // Add tooltip with color name
+        }
+        colorPickerContainer.appendChild(colorBox);
+    });
+
+    // Get all color boxes after they've been created
+    const colorBoxes = document.querySelectorAll(".color-box");
 
     // 1. Load the initial settings
     chrome.storage.local.get(["showBadge", "badgeColor"], function (data) {
@@ -23,7 +66,7 @@ function initializeBadgeSettingsSection() {
         enableBadgeCheckbox.checked = showBadge;
 
         // Default color or user selected color
-        const badgeColor = data.badgeColor || "#6366f1";
+        const badgeColor = data.badgeColor || DEFAULT_BADGE_COLOR;
 
         // Update color picker with current color
         colorPicker.value = badgeColor;
@@ -39,10 +82,10 @@ function initializeBadgeSettingsSection() {
         if (data.showBadge === undefined || data.badgeColor === undefined) {
             chrome.storage.local.set({
                 showBadge: true,
-                badgeColor: "#6366f1"
+                badgeColor: DEFAULT_BADGE_COLOR
             });
             // Send initial state to background
-            sendBadgeUpdateToBackground(true, "#6366f1");
+            sendBadgeUpdateToBackground(true, DEFAULT_BADGE_COLOR);
         }
     });
 
@@ -53,7 +96,7 @@ function initializeBadgeSettingsSection() {
 
         // Get current color
         chrome.storage.local.get("badgeColor", function (data) {
-            const currentColor = data.badgeColor || "#6366f1";
+            const currentColor = data.badgeColor || DEFAULT_BADGE_COLOR;
 
             // Save settings
             saveSettingsAndNotify({
