@@ -1,7 +1,8 @@
 // --- Constants ---
 const TWITCH_CLIENT_ID = "z05n4woixewpyagrqrui76x28avd2g";
 const FETCH_ALARM_NAME = "fetchDataAlarm";
-const FETCH_ALARM_PERIOD_MINUTES = 0.33; // Approx 20 seconds
+const FETCH_INTERVAL_SECONDS = 30; // Set to 30 seconds
+const FETCH_ALARM_PERIOD_MINUTES = FETCH_INTERVAL_SECONDS / 60; // Auto-converts to minutes
 const RATE_LIMIT_NOTIFICATION_COOLDOWN_MS = 30000; // 30 seconds
 const NEW_STREAM_NOTIFICATION_DELAY_MS = 60000; // 1 minute after startup
 
