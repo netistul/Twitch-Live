@@ -39,6 +39,11 @@
       type="text/css"
       href="css/settings/login-settings.css"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/settings/badge-settings.css"
+    />
   </head>
   <body class="dark-mode">
     <header class="twitch-header">
@@ -359,6 +364,30 @@
               </div>
             </div>
           </div>
+
+          <div id="badge-section" class="settings-section">
+            <div class="settings-group">
+              <div id="showBadgeOption" class="optionItem">
+                <div class="showAvatarLabel">
+                  Show Live Stream Count Badge❔
+                  <span class="tooltip-text">
+                    Enable or disable the badge on the extension icon that shows
+                    the number of currently live followed streams.
+                    <br /><br />
+                    <span class="info-box">
+                      💡 Turning this off will remove the number from the icon.
+                    </span>
+                  </span>
+                </div>
+                <label class="toggler-switch">
+                  <input type="checkbox" id="enableBadgeCheckbox" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add new settings here -->
         </div>
       </div>
     </div>
@@ -400,6 +429,7 @@
     <script src="settings/favorite-groups-settings.js"></script>
     <script src="settings/notifications-settings.js"></script>
     <script src="settings/display-settings.js"></script>
+    <script src="settings/badge-settings.js"></script>
     <script src="settings/user-settings.js"></script>
     <script src="utils.js"></script>
     <script src="settings.js"></script>

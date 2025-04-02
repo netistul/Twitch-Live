@@ -4,12 +4,12 @@
 .settings-right-section {
   flex: 0 0 auto;
   position: relative;
-  padding: 16px;
-  min-width: 200px;
+  padding: 12px;
+  min-width: 180px;
   font-family: "Inter", sans-serif;
 }
 
-/* Avatar and user container */
+/* Avatar and user container - more compact */
 .user-avatar-container {
   position: relative;
   cursor: pointer;
@@ -17,11 +17,12 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  flex-shrink: 0; /* Prevent avatar from shrinking */
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid var(--color-indigo-400);
   transition: all 0.2s ease;
@@ -38,10 +39,11 @@
   border-radius: 8px;
   border: 1px solid #e0e0e0;
   padding: 16px;
-  margin: 10px 0;
+  margin: 8px 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: all 0.2s ease;
+  max-width: 300px;
 }
 
 .dark-mode .login-container {
@@ -61,16 +63,20 @@
   color: #e4e4e4;
 }
 
-/* User table styling */
+/* Redesigned User table styling - more compact */
 #userTable {
   background-color: var(--modal-bg);
   border: 1px solid var(--modal-border);
-  border-radius: 8px;
-  padding: 3px;
+  border-radius: 6px;
+  padding: 2px 10px 2px 4px;
   margin: 5px 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   font-family: "Inter", sans-serif;
   transition: all 0.2s ease;
+  display: inline-block; /* Allow natural width expansion */
+  min-width: 50%; /* Minimum width */
+  max-width: 100%; /* Don't exceed container width */
+  width: auto; /* Let content determine width */
 }
 
 #userTable:hover {
@@ -80,26 +86,32 @@
 .user-row {
   display: flex;
   align-items: center;
+  width: 100%;
+  gap: 8px; /* Add space between avatar and name */
 }
 
 .user-cell {
   padding: 4px;
   font-family: "Inter", sans-serif;
-  font-size: 0.9rem;
-  white-space: nowrap;
+  font-size: 0.8rem;
   color: var(--text-primary);
+}
+
+.user-display-name {
+  font-weight: 500;
+  white-space: nowrap; /* Keep name on single line */
+  flex-shrink: 0; /* Prevent text from shrinking */
 }
 
 #userInfo {
   font-family: "Inter", sans-serif;
   position: relative;
-  margin-left: 12px;
-  text-align: center;
+  text-align: left;
   max-width: 300px;
   z-index: 100;
   display: flex !important;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Align to the left */
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-primary);
@@ -109,11 +121,11 @@
 #loginButton {
   background-color: #6441a5;
   color: white;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   white-space: nowrap;
   width: 100%;
   transition: all 0.2s ease;
@@ -127,14 +139,13 @@
 .logout-dropdown {
   display: none;
   position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 150px;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 120px;
   background-color: var(--modal-bg);
   border: 1px solid var(--modal-border);
-  border-radius: 8px;
-  padding: 6px;
+  border-radius: 6px;
+  padding: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 9999;
   opacity: 0;
@@ -152,15 +163,15 @@
   background: none;
   border: none;
   width: 100%;
-  padding: 8px 12px;
+  padding: 6px 10px;
   color: var(--text-primary);
   font-family: "Inter", sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   text-align: left;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   border-radius: 4px;
   transition: all 0.2s ease;
 }
@@ -173,8 +184,8 @@
 
 /* Logout icon */
 .logout-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   transition: all 0.2s ease;
 }
 
@@ -182,11 +193,11 @@
 @keyframes dropdownFade {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-8px);
+    transform: translateY(-6px);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
 }
 
@@ -260,4 +271,16 @@
 
 .dark-mode .separator {
   background-color: #3a3b45;
+}
+
+/* Login tip styling - keeping original dimensions */
+#loginTip {
+  /* No CSS rule for this to let the inline styles from JS handle it */
+  /* This ensures the JS styling remains untouched */
+  width: auto !important; /* Override any width settings to match JS inline styles */
+}
+
+/* Make sure the image in the tip maintains its original size */
+#loginTip img {
+  width: 250px !important; /* Match the exact width from JS */
 }

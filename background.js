@@ -302,6 +302,7 @@ function fetchStreamData(accessToken, followedList) {
       });
   });
 
+
   Promise.all(streamFetchPromises).then((streamData) => {
     const liveStreams = streamData.filter((data) => data !== null);
 
@@ -310,15 +311,18 @@ function fetchStreamData(accessToken, followedList) {
         lastKnownLiveStreams: {},
         startupTime: 0,
         enableNotifications: false,
-        selectedChannels: []
+        selectedChannels: [],
+        showBadge: true // Default to showing badge
       },
       (result) => {
         let lastKnownLiveStreams = result.lastKnownLiveStreams;
         const startupTime = result.startupTime;
         const enableNotifications = result.enableNotifications;
         const selectedChannels = result.selectedChannels;
+        const showBadge = result.showBadge; // Get badge preference
         const currentTime = Date.now();
 
+        // Process notifications (unchanged)
         liveStreams.forEach((stream) => {
           const wasLive = lastKnownLiveStreams[stream.channelName];
 
@@ -329,11 +333,9 @@ function fetchStreamData(accessToken, followedList) {
             enableNotifications &&
             (selectedChannels.length === 0 || selectedChannels.includes(stream.channelName))
           ) {
-            // Channel just went live, notifications are enabled, and channel is selected (or no filters)
             sendLiveNotification(stream);
           }
 
-          // Update the last known live streams
           lastKnownLiveStreams[stream.channelName] = stream.live;
         });
 
@@ -341,14 +343,11 @@ function fetchStreamData(accessToken, followedList) {
           {
             lastKnownLiveStreams: lastKnownLiveStreams,
             liveStreams: liveStreams,
+            liveStreamCount: liveStreams.length
           },
           () => {
-            // Cache the count of live streams
-            const liveCount = liveStreams.length;
-            chrome.storage.local.set({ liveStreamCount: liveCount }, () => {
-              chrome.action.setBadgeText({ text: liveCount.toString() });
-              chrome.action.setBadgeBackgroundColor({ color: "#6366f1" });
-            });
+            // Use updateBadge instead of directly setting badge
+            updateBadge();
           }
         );
       }
@@ -534,12 +533,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 function updateBadgeAtStartup() {
-  chrome.storage.local.get("liveStreamCount", (result) => {
-    if (result.liveStreamCount !== undefined) {
-      chrome.action.setBadgeText({ text: result.liveStreamCount.toString() });
-      chrome.action.setBadgeBackgroundColor({ color: "#6366f1" });
-    }
-  });
+  updateBadge();
 }
 
 function createContextMenuItems() {
@@ -558,3 +552,46 @@ function createContextMenuItems() {
     });
   });
 }
+
+// Function to update the badge based on count AND setting
+async function updateBadge() {
+  try {
+    const settings = await chrome.storage.local.get(["showBadge", "liveStreamCount"]);
+    const showBadge = settings.showBadge !== undefined ? settings.showBadge : true; // Default true
+    const liveCount = settings.liveStreamCount || 0;
+
+    let badgeText = "";
+    if (showBadge && liveCount > 0) {
+      badgeText = String(liveCount);
+    }
+
+    // Set badge text (empty string if showBadge is false or count is 0)
+    await chrome.action.setBadgeText({ text: badgeText });
+
+    // Always set the badge color to be consistent, regardless of whether text is showing
+    // This ensures the color is correct when the badge becomes visible again
+    await chrome.action.setBadgeBackgroundColor({ color: "#6366f1" });
+
+  } catch (error) {
+    console.error("Error updating badge:", error);
+  }
+}
+
+// Listener for the badge settings
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "updateBadgeState") {
+    console.log("Background received updateBadgeState:", message.showBadge);
+    // Store new setting and update badge
+    chrome.storage.local.set({ showBadge: message.showBadge }, () => {
+      updateBadge();
+      sendResponse({ status: "Badge state updated by background" });
+    });
+    return true; // Important: indicates async response
+  }
+  else if (message.action === "oauthComplete") {
+    console.log("Background received oauthComplete, refreshing data and badge...");
+    // Just acknowledge - the data refresh happens elsewhere
+    sendResponse({ status: "Background acknowledged oauthComplete" });
+    return false;
+  }
+});

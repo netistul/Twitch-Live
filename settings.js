@@ -96,31 +96,6 @@ function clearAllNotifications() {
   }
 }
 
-/**
-* Shows a simple informational message popup (legacy?).
-* Consider using showTemporaryNotification for consistency.
-* @param {string} message - The text message to display.
-*/
-function showTemporaryInfo(message) {
-  // TODO: Evaluate if this is still needed or can be replaced by showTemporaryNotification
-  console.warn("showTemporaryInfo is likely deprecated. Consider using showTemporaryNotification.");
-
-  const infoDiv = document.createElement("div");
-  infoDiv.textContent = message;
-  infoDiv.style.cssText = `
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 1000; text-align: center;
-      transition: opacity 0.5s ease-out; opacity: 1;
-  `;
-  document.body.appendChild(infoDiv);
-
-  setTimeout(() => {
-    infoDiv.style.opacity = '0';
-    infoDiv.addEventListener('transitionend', () => infoDiv.remove(), { once: true });
-  }, 3000);
-}
-
 // --- Core Functionality: Settings & Options ---
 
 
@@ -156,10 +131,11 @@ function initializeSettingsPage() {
   console.log("Initializing Settings Page...");
 
   // Initialize sections via their specific initializers
-  initializeUserSection(); // Handles user section
-  initializeFavoriteGroupsSection(); // Handles groups list AND add group modal setup
+  initializeUserSection();          // Handles user section
+  initializeFavoriteGroupsSection();// Handles groups list AND add group modal setup
   initializeNotificationsSection(); // Handles notification toggles and channel list
   initializeDisplaySection();       // Handles display toggles, dropdowns, and preview
+  initializeBadgeSettingsSection(); // Handles the badge toggle
 
   // Setup remaining interactive elements and listeners managed by settings.js
   setupMenuNavigation();            // Handles side menu clicks and section visibility
@@ -240,24 +216,35 @@ function setupMenuNavigation() {
 
 /** Sets up tooltip dynamic positioning */
 function setupTooltips() {
-  const labelsWithTooltips = document.querySelectorAll('.styled-label');
-  labelsWithTooltips.forEach(label => {
-    const tooltip = label.querySelector('.tooltip-text');
-    if (tooltip) {
-      label.addEventListener('mouseenter', function () {
-        tooltip.classList.remove('position-bottom'); // Reset
-        const labelRect = label.getBoundingClientRect();
+  // Select ALL tooltip text elements directly
+  const tooltips = document.querySelectorAll('.tooltip-text');
+
+  tooltips.forEach(tooltip => {
+    const container = tooltip.parentElement; // Get the immediate parent element
+
+    if (container) { // Ensure the tooltip has a parent
+      container.addEventListener('mouseenter', function () {
+        tooltip.classList.remove('position-bottom'); // Reset position
+
+        // Use the container's bounding box to check for space
+        const containerRect = container.getBoundingClientRect();
         const tooltipHeight = tooltip.offsetHeight;
-        // Simple check: if not enough space above (e.g., less than tooltip height + small buffer)
-        if (labelRect.top < tooltipHeight + 10) {
-          tooltip.classList.add('position-bottom');
+
+        // Check if there's not enough space above the container
+        // (less than tooltip height + small buffer like 10px)
+        if (containerRect.top < tooltipHeight + 10) {
+          tooltip.classList.add('position-bottom'); // Apply bottom positioning
+        } else {
+          // Optional: Ensure bottom class is removed if there IS space
+          // This is redundant if reset happens at the start, but safe
+          tooltip.classList.remove('position-bottom');
         }
       });
+    } else {
+      console.warn("Tooltip found without a parent element:", tooltip);
     }
   });
 }
-
-
 /**
 * Applies the selected theme to the document body.
 * @param {string} themePreference - 'light', 'dark', or 'verydark'.
@@ -350,6 +337,14 @@ function setupBackgroundMessageListener() {
           console.error("checkAndLoadNotificationChannels function not found!");
         }
 
+        // Refresh Badge Setting state (though usually static unless changed here)
+        // Not strictly necessary on oauthComplete, but good for consistency if needed later.
+        // if (typeof initializeBadgeSettingsSection === 'function') {
+        //    console.log("oauthComplete: Re-checking Badge Settings...");
+        //    // Re-calling initialize might re-add listeners, better to have a dedicated update function if needed
+        //    // For now, skip re-initialization on generic oauthComplete.
+        // }
+
         // --- Step 3: Update Preview reliably by checking for data ---
         if (typeof waitForLiveStreamsAndUpdatePreview === 'function') {
           console.log("oauthComplete: Starting intelligent preview update...");
@@ -369,6 +364,7 @@ function setupBackgroundMessageListener() {
         console.log("Settings changed message received.");
         if (typeof displayGroups === 'function') displayGroups();
         if (typeof updatePreview === 'function') updatePreview();
+        // Potentially update badge display value if changed externally? Unlikely for this setting.
         sendResponse({ status: "Settings UI potentially updated based on external change" });
         handled = true;
         break;
@@ -381,13 +377,22 @@ function setupBackgroundMessageListener() {
         handled = true;
         break;
 
+      // +++ ADD A CASE FOR THE BACKGROUND TO CONFIRM BADGE UPDATE IF NEEDED +++
+      // case "badgeUpdateConfirmed": // Example if background sends confirmation
+      //    console.log("Background confirmed badge state update.");
+      //    sendResponse({ status: "Acknowledged badge update confirmation" });
+      //    handled = true;
+      //    break;
 
       default:
         if (!handled) {
-          sendResponse({ status: "Message not handled by settings UI" });
+          // console.log(`Message action '${message.action}' not handled by settings UI.`);
+          sendResponse({ status: `Message action '${message.action}' not handled by settings UI` });
         }
         break;
     }
+    // Important: Return true to indicate you wish to send a response asynchronously
+    // (even if you send it synchronously in some branches).
     return true;
   });
 }

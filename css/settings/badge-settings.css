@@ -1,0 +1,55 @@
+/* css/settings/badge-settings.css */
+
+/*
+ * Styles specific to the Badge Settings section.
+ * Primarily focuses on ensuring correct layout within the settings content area.
+ */
+/* Badge Settings Styles */
+#showBadgeOption {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  margin-left: 10px;
+  width: calc(100% - 20px); /* Adjusted width to match container */
+  justify-content: space-between; /* Pushes items to edges */
+  min-width: 300px; /* Set a minimum width for the container */
+}
+
+/* Style for the badge label */
+#showBadgeOption .showAvatarLabel {
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  flex: 1; /* Allow it to take available space */
+  position: relative; /* For tooltip positioning */
+  margin-right: 15px; /* Space between label and toggle switch */
+}
+
+/* Make the toggle switch take a consistent space */
+#showBadgeOption .toggler-switch {
+  flex-shrink: 0; /* Prevent the switch from shrinking */
+  margin-left: auto; /* Push it to the far right */
+}
+
+/* Ensure the switch has the same dimensions as in other sections */
+#showBadgeOption .toggler-switch {
+  width: 50px; /* Fixed width for the toggle */
+  display: inline-block;
+  position: relative;
+}
+
+/* Make sure the tooltip works with this label */
+#showBadgeOption .showAvatarLabel:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Dark mode specific styling for badge option */
+.dark-mode #showBadgeOption .showAvatarLabel {
+  color: #e4e4e4 !important;
+}
+
+/* Ensure the settings group has enough width */
+#badge-section .settings-group {
+  width: 100%;
+  min-width: 330px; /* Match other settings sections */
+}

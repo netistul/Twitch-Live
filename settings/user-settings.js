@@ -37,21 +37,20 @@ function displayUserInfo() {
             } else if (result.userDisplayName && result.userAvatar) {
                 // --- Logged In State ---
                 userInfoDiv.innerHTML = `
-                  <div id="userTable">
-                    <div class="user-row">
-                      <div class="user-cell">Logged in as:</div>
-                      <div class="user-cell user-avatar-container" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" title="Account options">
-                        <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
-                        <div class="logout-dropdown">
-                          <button id="logoutButton" class="logout-button">
-                            <img src="css/settings/logout.png" alt="" class="logout-icon"> Logout
-                          </button>
-                        </div>
+                <div id="userTable">
+                  <div class="user-row">
+                    <div class="user-avatar-container" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" title="Account options">
+                      <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
+                      <div class="logout-dropdown">
+                        <button id="logoutButton" class="logout-button">
+                          <img src="css/settings/logout.png" alt="" class="logout-icon"> Logout
+                        </button>
                       </div>
-                      <div class="user-cell user-display-name">${result.userDisplayName}</div>
                     </div>
+                    <div class="user-cell user-display-name">${result.userDisplayName}</div>
                   </div>
-                `;
+                </div>
+              `;
 
                 // --- Setup Logout Dropdown Interaction ---
                 setupLogoutDropdown(userInfoDiv);
