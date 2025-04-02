@@ -5,7 +5,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.08);
   color: #333333;
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   position: fixed;
   width: 290px;
   z-index: 1000;
@@ -20,7 +20,7 @@
 .context-menu-header {
   color: #333333;
   width: 100%;
-  font-size: 13px; /* Reduced font size */
+  font-size: 15x;
   font-weight: 600;
   padding: 10px 14px; /* Reduced padding */
   border-bottom: 1px solid rgba(224, 224, 224, 0.6);
@@ -78,7 +78,7 @@
   flex: 1;
   min-width: 0;
   margin-right: 0;
-  font-size: 12px; /* Smaller text */
+  font-size: 15px;
 }
 
 .context-menu-close {
@@ -279,26 +279,24 @@
 }
 
 .context-menu-item.add-new-group-button {
-  /* Structure - with increased height */
-  padding: 10px 12px; /* Increased vertical padding */
+  /* Structure */
+  padding: 10px 12px;
   margin: 4px 8px;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
 
-  /* Display - ensuring proper centering */
+  /* Center alignment - simplified and strengthened */
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center; /* Add this back as a backup */
   width: calc(100% - 16px);
   box-sizing: border-box;
-  min-height: 38px; /* Increased explicit height */
+  min-height: 38px;
 
   /* Typography */
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
   font-weight: 500;
-  text-align: center;
 
   /* Styling */
   background-color: floralwhite;
@@ -306,7 +304,7 @@
   color: #6366f1;
   border-radius: 20px;
   transition: all 0.3s ease;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .context-menu-item.add-new-group-button:hover {
@@ -333,8 +331,8 @@
 
 .group-name-input {
   flex-grow: 1;
-  margin-right: 6px; /* Reduced margin */
-  padding: 6px 8px; /* Reduced padding */
+  margin-right: 6px;
+  padding: 10px 12px;
   background-color: rgba(255, 255, 255, 0.9);
   border: 1px solid #d0d0d0;
   border-radius: 4px;
@@ -350,7 +348,7 @@
 }
 
 .submit-new-group {
-  padding: 6px 10px; /* Reduced padding */
+  padding: 12px 10px; /* Reduced padding */
   background-color: #9147ff;
   border: none;
   color: white;
@@ -563,7 +561,7 @@
   background-color: #2d2d35;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.3);
   color: #ffffff;
-  border: 1px solid rgba(202, 202, 210, 0.8);
+  border: 1px solid rgba(153, 153, 157, 0.8);
 }
 
 .dark-mode .context-menu-header {
@@ -676,15 +674,93 @@
   opacity: 1;
 }
 
+/* Base animation for the button background */
+@keyframes pulse-bg {
+  0% {
+    background-color: floralwhite;
+  }
+  50% {
+    background-color: rgb(255, 255, 255);
+  }
+  100% {
+    background-color: floralwhite;
+  }
+}
+
+/* Animation for the glow effect */
+@keyframes pulse-glow {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.no-groups-add-button {
+  animation: pulse-bg 3s infinite ease-in-out;
+  position: relative; /* Ensure position for the pseudo-element */
+}
+
+/* Create the glow effect in both regular and dark mode */
+.no-groups-add-button::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(99, 102, 241, 0.15) 0%,
+    transparent 70%
+  );
+  opacity: 0; /* Start invisible */
+  z-index: 0;
+  animation: pulse-glow 3s infinite ease-in-out; /* Apply the glow animation */
+}
+
+/* Dark mode specifics */
+.dark-mode .no-groups-add-button {
+  animation: pulse-dark-bg 3s infinite ease-in-out;
+}
+
+@keyframes pulse-dark-bg {
+  0% {
+    background-color: #2a2b36;
+  }
+  50% {
+    background-color: #353650;
+  }
+  100% {
+    background-color: #2a2b36;
+  }
+}
+
+/* Stop animation on hover to provide clear feedback */
+.no-groups-add-button:hover {
+  animation: none;
+  background-color: rgb(255, 255, 255); /* Light mode hover state */
+}
+
+.dark-mode .no-groups-add-button:hover {
+  animation: none;
+  background-color: #353650; /* Dark mode hover state */
+}
+
+/* Keep the glow effect on hover */
+.no-groups-add-button:hover::after {
+  animation: none;
+  opacity: 1;
+}
+
 /* Ensure text stays above the glow effect */
 .dark-mode .context-menu-item.add-new-group-button span {
   position: relative;
   z-index: 1;
-}
-
-/* Ensure text is perfectly centered */
-.context-menu-item.add-new-group-button {
-  line-height: 1;
 }
 
 .dark-mode .new-group-form {

@@ -1,108 +1,6 @@
-/* ================= USER INTERFACE COMPONENTS ================= */
+/* ================= USER PROFILE STYLING ================= */
 
-/* User info section */
-.settings-right-section {
-  flex: 0 0 auto;
-  position: relative;
-  padding: 12px;
-  min-width: 180px;
-  font-family: "Inter", sans-serif;
-}
-
-/* Avatar and user container - more compact */
-.user-avatar-container {
-  position: relative;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0; /* Prevent avatar from shrinking */
-}
-
-.user-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--color-indigo-400);
-  transition: all 0.2s ease;
-}
-
-.user-avatar-container:hover .user-avatar {
-  box-shadow: 0 0 0 2px var(--color-indigo-500);
-  transform: scale(1.05);
-}
-
-/* Login container styling */
-.login-container {
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  padding: 16px;
-  margin: 8px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: all 0.2s ease;
-  max-width: 300px;
-}
-
-.dark-mode .login-container {
-  background-color: #1e1e22;
-  border: 1px solid #202020;
-  color: #c7c7c7;
-}
-
-.login-container p {
-  margin: 0 0 16px 0;
-  color: #646464;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.dark-mode .login-container p {
-  color: #e4e4e4;
-}
-
-/* Redesigned User table styling - more compact */
-#userTable {
-  background-color: var(--modal-bg);
-  border: 1px solid var(--modal-border);
-  border-radius: 6px;
-  padding: 2px 10px 2px 4px;
-  margin: 5px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-family: "Inter", sans-serif;
-  transition: all 0.2s ease;
-  display: inline-block; /* Allow natural width expansion */
-  min-width: 50%; /* Minimum width */
-  max-width: 100%; /* Don't exceed container width */
-  width: auto; /* Let content determine width */
-}
-
-#userTable:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.user-row {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 8px; /* Add space between avatar and name */
-}
-
-.user-cell {
-  padding: 4px;
-  font-family: "Inter", sans-serif;
-  font-size: 0.8rem;
-  color: var(--text-primary);
-}
-
-.user-display-name {
-  font-weight: 500;
-  white-space: nowrap; /* Keep name on single line */
-  flex-shrink: 0; /* Prevent text from shrinking */
-}
-
+/* Main container for user info */
 #userInfo {
   font-family: "Inter", sans-serif;
   position: relative;
@@ -110,29 +8,78 @@
   max-width: 300px;
   z-index: 100;
   display: flex !important;
-  flex-direction: column;
-  align-items: flex-start; /* Align to the left */
+  align-items: center;
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-primary);
+  padding-left: 0;
+  margin-left: 0;
 }
 
-/* Login button */
-#loginButton {
-  background-color: #6441a5;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
+/* Avatar container - positioned absolutely to overlap */
+.user-avatar-container {
+  position: relative;
   cursor: pointer;
-  font-size: 14px;
-  white-space: nowrap;
-  width: 100%;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  margin-right: -16px; /* Negative margin to overlap */
 }
 
-#loginButton:hover {
-  background-color: #503484;
+/* Avatar styling */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-indigo-400);
+  transition: all 0.2s ease;
+  background-color: transparent;
+  z-index: 5;
+}
+
+.user-avatar-container:hover .user-avatar {
+  box-shadow: 0 0 0 2px var(--color-indigo-500);
+  transform: scale(1.05);
+}
+
+/* User table styling - starts right of avatar */
+#userTable {
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 6px;
+  padding: 6px 12px 6px 24px; /* Extra padding on left for avatar overlap */
+  margin: 0;
+  margin-left: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: "Inter", sans-serif;
+  transition: all 0.2s ease;
+  display: inline-block;
+  z-index: 1;
+}
+
+#userTable:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* User row and cell styling */
+.user-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.user-cell {
+  padding: 4px 4px 4px 0;
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.user-display-name {
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ================= DROPDOWN STYLING ================= */
@@ -163,7 +110,7 @@
   background: none;
   border: none;
   width: 100%;
-  padding: 6px 10px;
+  padding: 8px 10px;
   color: var(--text-primary);
   font-family: "Inter", sans-serif;
   font-size: 0.8rem;
@@ -201,7 +148,7 @@
   }
 }
 
-/* ================= DARK MODE STYLING ================= */
+/* Dark mode specific adjustments */
 .dark-mode #userTable {
   background-color: #1e1e22;
   border: 1px solid #202020;
@@ -214,6 +161,15 @@
   color: #f0f0f0;
 }
 
+.dark-mode .user-avatar {
+  border-color: var(--color-indigo-500);
+}
+
+.dark-mode .user-avatar-container:hover .user-avatar {
+  box-shadow: 0 0 0 2px var(--color-indigo-400);
+}
+
+/* Dark mode dropdown styling */
 .dark-mode .logout-dropdown {
   background-color: #24252e;
   border: 1px solid #3a3b45;
@@ -240,12 +196,52 @@
     brightness(101%) contrast(96%);
 }
 
-.dark-mode .user-avatar {
-  border-color: var(--color-indigo-500);
+/* Keep login container styling as is */
+.login-container {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 16px;
+  margin: 8px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: all 0.2s ease;
+  max-width: 300px;
 }
 
-.dark-mode .user-avatar-container:hover .user-avatar {
-  box-shadow: 0 0 0 2px var(--color-indigo-400);
+.dark-mode .login-container {
+  background-color: #1e1e22;
+  border: 1px solid #202020;
+  color: #c7c7c7;
+}
+
+.login-container p {
+  margin: 0 0 16px 0;
+  color: #646464;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dark-mode .login-container p {
+  color: #e4e4e4;
+}
+
+/* Login button */
+#loginButton {
+  background-color: #6441a5;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+#loginButton:hover {
+  background-color: #503484;
 }
 
 .dark-mode #loginButton {

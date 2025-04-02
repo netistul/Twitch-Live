@@ -520,6 +520,12 @@ function showContextMenu(stream, x, y) {
         const addNewGroupButtonElement = document.createElement("div");
         addNewGroupButtonElement.textContent = "Add new favorite list";
         addNewGroupButtonElement.className = "context-menu-item add-new-group-button";
+
+        // Add the special animation class if there are no groups
+        if (groups.length === 0) {
+            addNewGroupButtonElement.classList.add("no-groups-add-button");
+        }
+
         addNewGroupButtonElement.style.display = 'block'; // Ensure it's visible initially
 
         addNewGroupButtonElement.onclick = function () {

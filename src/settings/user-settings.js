@@ -26,7 +26,7 @@ function displayUserInfo() {
                 const loginButton = document.createElement("button");
                 loginButton.id = "loginButton";
                 loginButton.textContent = "Login with Twitch";
-                loginButton.className = "login-button"; // Use classList.add if adding multiple
+                loginButton.className = "login-button";
                 loginButton.addEventListener("click", () => {
                     chrome.runtime.sendMessage({ action: "startOAuth" });
                 });
@@ -36,36 +36,69 @@ function displayUserInfo() {
 
             } else if (result.userDisplayName && result.userAvatar) {
                 // --- Logged In State ---
-                userInfoDiv.innerHTML = `
-                <div id="userTable">
-                  <div class="user-row">
-                    <div class="user-avatar-container" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" title="Account options">
-                      <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
-                      <div class="logout-dropdown">
-                        <button id="logoutButton" class="logout-button">
-                          <img src="../../css/settings/logout.png" alt="" class="logout-icon"> Logout
-                        </button>
-                      </div>
-                    </div>
-                    <div class="user-cell user-display-name">${result.userDisplayName}</div>
-                  </div>
-                </div>
-              `;
+                // Create avatar container first
+                const avatarContainer = document.createElement("div");
+                avatarContainer.className = "user-avatar-container";
+                avatarContainer.setAttribute("role", "button");
+                avatarContainer.setAttribute("tabindex", "0");
+                avatarContainer.setAttribute("aria-haspopup", "true");
+                avatarContainer.setAttribute("aria-expanded", "false");
+                avatarContainer.setAttribute("title", "Account options");
 
-                // --- Setup Logout Dropdown Interaction ---
+                // Add avatar image
+                const avatarImg = document.createElement("img");
+                avatarImg.src = result.userAvatar;
+                avatarImg.alt = "User Avatar";
+                avatarImg.className = "user-avatar";
+                avatarContainer.appendChild(avatarImg);
+
+                // Create dropdown for logout
+                const dropdownDiv = document.createElement("div");
+                dropdownDiv.className = "logout-dropdown";
+
+                // Add logout button to dropdown
+                const logoutButton = document.createElement("button");
+                logoutButton.id = "logoutButton";
+                logoutButton.className = "logout-button";
+                logoutButton.innerHTML = `
+                    <img src="../../css/settings/logout.png" alt="" class="logout-icon"> Logout
+                `;
+                dropdownDiv.appendChild(logoutButton);
+                avatarContainer.appendChild(dropdownDiv);
+
+                // Create user table that will appear to be pasted to the avatar
+                const userTable = document.createElement("div");
+                userTable.id = "userTable";
+
+                // Add user row with display name
+                const userRow = document.createElement("div");
+                userRow.className = "user-row";
+
+                const nameCell = document.createElement("div");
+                nameCell.className = "user-cell user-display-name";
+                nameCell.textContent = result.userDisplayName;
+
+                userRow.appendChild(nameCell);
+                userTable.appendChild(userRow);
+
+                // Add both elements to the userInfo div
+                userInfoDiv.appendChild(avatarContainer);
+                userInfoDiv.appendChild(userTable);
+
+                // Setup Logout Dropdown Interaction
                 setupLogoutDropdown(userInfoDiv);
 
                 // Show login tip only once after login
                 if (!result.loginTipShown) {
-                    showLoginTip(userInfoDiv); // Pass the container to append to
+                    showLoginTip(userInfoDiv);
                     chrome.storage.local.set({ loginTipShown: true });
                 }
             } else {
-                // Fallback/Error state (e.g., token exists but no user data)
+                // Fallback/Error state
                 userInfoDiv.textContent = "Logged in, but user data unavailable. Try logging out and back in.";
                 const logoutButton = document.createElement('button');
                 logoutButton.textContent = 'Logout';
-                logoutButton.onclick = handleLogout; // Reuse logout logic
+                logoutButton.onclick = handleLogout;
                 userInfoDiv.appendChild(logoutButton);
             }
         }

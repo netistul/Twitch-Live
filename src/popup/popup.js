@@ -62,13 +62,15 @@ function checkLoginAndDisplayAppropriateUI() {
   chrome.storage.local.get(
     ["twitchAccessToken", "tokenExpired"],
     function (result) {
+      if (chrome.runtime.lastError) {
+        console.error("Error checking login status:", chrome.runtime.lastError);
+        // Handle error appropriately, maybe show an error message
+        return;
+      }
       if (!result.twitchAccessToken) {
         console.log("No access token found, displaying login button.");
         // Call the UI function to show the login screen
         displayLoginButton(result.tokenExpired || false); // Pass expiry status to UI function (ui.js)
-        // Clear any potentially displayed streams from previous state
-        // const container = document.getElementById("buttonContainer");
-        // if (container) container.innerHTML = ''; // displayLoginButton already clears it
       } else {
         console.log("Access token found, updating live streams.");
         // Token exists, proceed to update streams (if not already updating)
@@ -95,13 +97,20 @@ function triggerUpdateLiveStreams() {
       "liveStreams",
       "favoriteGroups",
       "showAvatar",
-      "channelAccess",
+      "channelAccess", // Still need channelAccess here for sorting/display in updateLiveStreams
       "hideAccessedCount",
       "streamGrouping",
       "showStreamTime",
       "streamTitleDisplay",
     ],
     function (result) {
+      if (chrome.runtime.lastError) {
+        console.error("Error fetching data for stream update:", chrome.runtime.lastError);
+        isUpdatingStreams = false; // Allow next attempt
+        // Handle error appropriately
+        return;
+      }
+
       // Only proceed if logged in
       if (!result.twitchAccessToken) {
         console.log("Not logged in, skipping stream update trigger.");
@@ -130,18 +139,8 @@ function triggerUpdateLiveStreams() {
   );
 }
 
-function incrementChannelAccess(broadcasterLogin) {
-  console.log(`Incrementing access count for ${broadcasterLogin}`);
-  chrome.storage.local.get(["channelAccess"], function (result) {
-    let channelAccess = result.channelAccess || {};
-    channelAccess[broadcasterLogin] = (channelAccess[broadcasterLogin] || 0) + 1;
-    chrome.storage.local.set({ channelAccess: channelAccess }, () => {
-      console.log(`Access count for ${broadcasterLogin} updated to ${channelAccess[broadcasterLogin]}`);
-      // Optional: Trigger a UI refresh immediately if sorting might change noticeably
-      // triggerUpdateLiveStreams(); // Be careful of update loops if called too often
-    });
-  });
-}
+// ----- incrementChannelAccess function definition REMOVED from here -----
+
 
 // --- UI Event Handlers (Called by listeners set up in ui.js) ---
 
@@ -173,9 +172,16 @@ function handleSettingsClick() {
 function handleStreamLinkClick(broadcasterLogin, url) {
   console.log(`Stream link clicked for ${broadcasterLogin}`);
   // Increment access count first
+  // This now calls the function defined globally in channelAccess.js
   incrementChannelAccess(broadcasterLogin);
-  // Then open the link (use setTimeout to ensure storage write likely completes)
+
+  // Then open the link (use setTimeout to ensure storage write likely completes before navigation)
   setTimeout(() => {
-    window.open(url, "_blank");
+    // Ensure URL is valid before opening
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+      window.open(url, "_blank");
+    } else {
+      console.error("Invalid URL provided for stream link:", url);
+    }
   }, 50); // Small delay
 }

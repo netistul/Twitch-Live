@@ -461,7 +461,7 @@ function appendStreamLink(stream, container, streamSettings) {
     Object.assign(viewersWrapper.style, { display: "flex", alignItems: "center", gap: "8px" }); // Use flex for alignment
 
     if (streamTitleDisplay === "newline" && showAvatar && avatarImg) { // Positioning for newline mode
-        Object.assign(viewersWrapper.style, { position: "absolute", top: "11px", right: "5px" });
+        Object.assign(viewersWrapper.style, { position: "absolute", top: "8px", right: "5px" });
     }
 
 

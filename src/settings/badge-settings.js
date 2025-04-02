@@ -5,16 +5,15 @@
  * Each color has a hex value and an optional name for reference
  */
 const PREDEFINED_BADGE_COLORS = [
-    { hex: "#6366f1", name: "Indigo" },     // Original color
-    { hex: "#ef4444", name: "Red" },        // Original color
-    { hex: "#10b981", name: "Green" },      // Original color
-    { hex: "#f59e0b", name: "Amber" },      // Original color
-    { hex: "#8b5cf6", name: "Purple" },     // Original color
-    { hex: "#0ea5e9", name: "Sky Blue" },   // New color
-    { hex: "#ec4899", name: "Pink" },       // New color
-    { hex: "#14b8a6", name: "Teal" },       // New color
-    { hex: "#f97316", name: "Orange" },     // New color
-    { hex: "#64748b", name: "Slate" }       // New color
+    { hex: "#6366f1", name: "Indigo" },
+    { hex: "#ef4444", name: "Red" },
+    { hex: "#10b981", name: "Green" },
+    { hex: "#f59e0b", name: "Amber" },
+    { hex: "#8b5cf6", name: "Purple" },
+    { hex: "#0ea5e9", name: "Sky Blue" },
+    { hex: "#ec4899", name: "Pink" },
+    { hex: "#14b8a6", name: "Teal" },
+    { hex: "#f97316", name: "Orange" },
 ];
 
 // Default color (first color in the array)

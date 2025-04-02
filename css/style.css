@@ -370,11 +370,18 @@ body {
   opacity: 1;
 }
 
+/* Improved rotation animation */
 @keyframes rotateAvatar {
   0% {
     transform: rotate(0deg);
   }
-  80% {
+  25% {
+    transform: rotate(100deg); /* Accelerate at start */
+  }
+  65% {
+    transform: rotate(310deg); /* Slight deceleration */
+  }
+  85% {
     transform: rotate(375deg); /* Overshoot */
   }
   100% {
@@ -382,8 +389,38 @@ body {
   }
 }
 
+/* Alternative with elastic feel */
+@keyframes rotateAvatarElastic {
+  0% {
+    transform: rotate(0deg);
+  }
+  80% {
+    transform: rotate(385deg); /* Slightly more overshoot */
+  }
+  90% {
+    transform: rotate(355deg); /* Bounce back */
+  }
+  95% {
+    transform: rotate(362deg); /* Small forward bounce */
+  }
+  100% {
+    transform: rotate(360deg); /* Settle exactly */
+  }
+}
+
+/* Smooth continuous rotation option */
+@keyframes rotateAvatarContinuous {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .rotating {
-  animation: rotateAvatar 1.8s cubic-bezier(0.34, 0.15, 0.26, 1);
+  animation: rotateAvatarElastic 1.5s ease-out;
+  transform-origin: 49.5% 50.5%; /* Slightly off-center for a more natural mechanical feel */
 }
 
 /* Add click (active) state */

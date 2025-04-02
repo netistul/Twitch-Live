@@ -22,7 +22,7 @@ body {
 .twitch-header-title {
   font-family: "Inter", Verdana, sans-serif;
   margin: 0;
-  font-size: 24px;
+  font-size: 19px;
   font-weight: bold;
   letter-spacing: 1px;
 }
@@ -32,7 +32,7 @@ body {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  margin-top: 20px;
+  margin-top: 15px;
   font-size: 14px;
   margin-left: 1px;
   position: relative;
@@ -602,6 +602,7 @@ body {
 /* Disabled filter option styles */
 #filterNotificationOption.disabled {
   position: relative;
+  z-index: 30;
   cursor: not-allowed;
 }
 
@@ -653,8 +654,14 @@ body {
   opacity: 1;
 }
 
+.tooltip-text {
+  z-index: 30;
+}
+
 /* Info Box Styles */
 .info-box {
+  position: relative;
+  z-index: 20;
   background-color: rgba(255, 255, 255, 0.95);
   border-left: 4px solid #007bff;
   border-radius: 8px;
