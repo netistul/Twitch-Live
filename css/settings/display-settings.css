@@ -529,3 +529,15 @@
 .channel-checkbox-container.disabled label {
   color: #666666;
 }
+
+/* CSS for disabling the dropdown */
+.custom-select-container.disabled {
+  opacity: 0.5;
+  pointer-events: none; /* Prevents clicks on the container */
+}
+
+.custom-select-container.disabled .custom-select-header {
+  cursor: not-allowed;
+  /* Ensure header clicks are also prevented if pointer-events:none on container isn't enough */
+  pointer-events: none;
+}

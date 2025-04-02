@@ -210,6 +210,7 @@ body {
 .sub-wrapper-with-thumbnail {
   padding-bottom: 5px;
   padding-top: 1px;
+  padding-left: 8px;
 }
 
 .channel-name.with-avatar {
