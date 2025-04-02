@@ -1,171 +1,303 @@
-const twitchClientId = "z05n4woixewpyagrqrui76x28avd2g";
+// --- Constants ---
+const TWITCH_CLIENT_ID = "z05n4woixewpyagrqrui76x28avd2g";
+const FETCH_ALARM_NAME = "fetchDataAlarm";
+const FETCH_ALARM_PERIOD_MINUTES = 0.33; // Approx 20 seconds
+const RATE_LIMIT_NOTIFICATION_COOLDOWN_MS = 30000; // 30 seconds
+const NEW_STREAM_NOTIFICATION_DELAY_MS = 60000; // 1 minute after startup
+
+// --- Extension Lifecycle & Initialization ---
 
 // Listener for when the extension is installed or updated
 chrome.runtime.onInstalled.addListener((details) => {
+  console.log("Extension installed or updated:", details.reason);
   if (details.reason === "install") {
-    // Open settings page only on first install
-    openSettingsPage();
+    openSettingsPage(); // Open settings page only on first install
   }
-
   // Common initialization for install and update
   initializeExtension();
 });
 
-chrome.runtime.onStartup.addListener(initializeExtension);
-
-// Common initialization function
-function initializeExtension() {
-  updateBadgeAtStartup();
-  fetchList();
-  createContextMenuItems();
-  setupAlarm();
-  const startupTime = Date.now();
-  chrome.storage.local.set({ startupTime: startupTime });
-}
-
-function setupAlarm() {
-  chrome.alarms.clear("fetchDataAlarm", () => {
-    chrome.alarms.create("fetchDataAlarm", { periodInMinutes: 0.33 }); // Adjust time as needed
-  });
-}
-
-function fetchList() {
-  chrome.storage.local.get(["twitchAccessToken", "userId"], (result) => {
-    if (result.twitchAccessToken && result.userId) {
-      // First fetch user profile to check for avatar updates
-      fetchUserProfileUpdates(result.twitchAccessToken);
-      // Then continue with fetching follows
-      fetchFollowList(result.twitchAccessToken, result.userId);
-    }
-  });
-}
-
-// Alarm listener
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "fetchDataAlarm") {
-    fetchList(); // Call your data fetching function
-  }
+// Listener for when the browser starts
+chrome.runtime.onStartup.addListener(() => {
+  console.log("Browser started, initializing extension.");
+  initializeExtension();
 });
 
+/**
+ * Performs initial setup when the extension starts or is updated.
+ */
+function initializeExtension() {
+  console.log("Initializing extension...");
+  setupAlarm(); // Setup or reset the data fetching alarm
+  fetchList(); // Initial data fetch
+  createContextMenuItems(); // Setup right-click menu items
+  updateBadge(); // Update badge based on stored count (might be 0 initially)
+  // Record startup time to avoid notifications for streams already live at launch
+  chrome.storage.local.set({ startupTime: Date.now() });
+  // Clear any previous rate limit flags on startup/reload
+  chrome.storage.local.remove(["rateLimitHit", "rateLimitTimestamp", "rateLimitDetails", "lastRateLimitNotification"]);
+  console.log("Extension initialization complete.");
+}
+
+/**
+ * Opens the extension's settings page in a new tab.
+ */
 function openSettingsPage() {
   chrome.tabs.create({ url: "settings.html" });
 }
 
-// Add a listener for messages sent to the extension
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Determine if the environment is Firefox
-  const isFirefox = typeof browser !== "undefined" && browser.runtime && browser.runtime.id;
+// --- Alarms ---
 
-  // Handle the OAuth flow initiation message
-  if (message.action === "startOAuth") {
-    let redirectUri;
-
-    if (isFirefox) {
-      // Get the redirect URI for Firefox using browser.identity
-      redirectUri = browser.identity.getRedirectURL();
-    } else {
-      // Dynamically generate the redirect URI for Chrome using the extension's runtime ID
-      redirectUri = `https://${chrome.runtime.id}.chromiumapp.org/`;
-    }
-
-    // Construct the Twitch OAuth URL with the appropriate parameters
-    const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientId}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&scope=user:read:follows`;
-
-    // Launch the web authentication flow (browser-specific implementation)
-    const launchWebAuthFlow = isFirefox
-      ? browser.identity.launchWebAuthFlow
-      : chrome.identity.launchWebAuthFlow;
-
-    launchWebAuthFlow(
-      {
-        url: authUrl, // The constructed OAuth URL
-        interactive: true, // Make the flow interactive
-      },
-      (redirectUrl) => {
-        // Handle errors or the absence of a redirect URL
-        if ((isFirefox && browser.runtime.lastError) || !redirectUrl) {
-          console.error(
-            "OAuth flow failed:",
-            isFirefox ? browser.runtime.lastError : chrome.runtime.lastError
-          );
-          return;
+/**
+ * Sets up the periodic alarm for fetching data. Clears any existing alarm first.
+ */
+function setupAlarm() {
+  chrome.alarms.get(FETCH_ALARM_NAME, (existingAlarm) => {
+    // Check if the alarm exists and has the correct period
+    if (!existingAlarm || existingAlarm.periodInMinutes !== FETCH_ALARM_PERIOD_MINUTES) {
+      chrome.alarms.clear(FETCH_ALARM_NAME, (cleared) => {
+        if (cleared) {
+          console.log(`Cleared existing alarm '${FETCH_ALARM_NAME}'.`);
+        } else {
+          // May indicate an issue or no alarm existed, which is fine.
+          // console.log(`No existing alarm '${FETCH_ALARM_NAME}' to clear or error clearing.`);
         }
+        chrome.alarms.create(FETCH_ALARM_NAME, {
+          // Delay initial trigger slightly to allow initialization to settle
+          delayInMinutes: 0.1,
+          periodInMinutes: FETCH_ALARM_PERIOD_MINUTES
+        });
+        console.log(`Created alarm '${FETCH_ALARM_NAME}' with period ${FETCH_ALARM_PERIOD_MINUTES} minutes.`);
+      });
+    } else {
+      console.log(`Alarm '${FETCH_ALARM_NAME}' already exists with the correct period.`);
+    }
+  });
+}
 
-        // Extract the access token from the redirect URL
+
+// Listener for the data fetching alarm
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === FETCH_ALARM_NAME) {
+    console.log("Alarm triggered: fetching list.");
+    fetchList();
+  }
+});
+
+// --- Authentication & User Profile ---
+
+/**
+ * Initiates the Twitch OAuth flow.
+ * Handles browser differences for redirect URIs.
+ */
+function startOAuthFlow() {
+  const isFirefox = typeof browser !== "undefined" && browser.runtime && browser.runtime.id;
+  let redirectUri;
+
+  if (isFirefox) {
+    redirectUri = browser.identity.getRedirectURL();
+  } else {
+    redirectUri = `https://${chrome.runtime.id}.chromiumapp.org/`;
+  }
+
+  const authUrl = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(
+    redirectUri
+  )}&scope=user:read:follows`;
+
+  const launchWebAuthFlow = isFirefox
+    ? browser.identity.launchWebAuthFlow
+    : chrome.identity.launchWebAuthFlow;
+
+  launchWebAuthFlow(
+    { url: authUrl, interactive: true },
+    (redirectUrl) => {
+      const lastError = isFirefox ? browser.runtime.lastError : chrome.runtime.lastError;
+      if (lastError || !redirectUrl) {
+        console.error("OAuth flow failed:", lastError?.message || "No redirect URL received.");
+        // Optionally send a message back to UI indicating failure
+        chrome.runtime.sendMessage({ action: "oauthFailed", error: lastError?.message || "Unknown error" });
+        return;
+      }
+
+      try {
         const url = new URL(redirectUrl);
         const hash = url.hash.substring(1);
         const params = new URLSearchParams(hash);
         const accessToken = params.get("access_token");
+
         if (accessToken) {
-          // Save the access token to local storage
+          console.log("OAuth successful, access token obtained.");
           const storage = isFirefox ? browser.storage.local : chrome.storage.local;
-          storage.set({ twitchAccessToken: accessToken }, () => {
-            fetchUserProfile(accessToken); // Fetch and handle the user's profile
+          // Store token and immediately fetch profile/follows
+          storage.set({ twitchAccessToken: accessToken, tokenExpired: false }, () => {
+            console.log("Access token stored. Fetching user profile.");
+            fetchUserProfile(accessToken); // Fetch profile to get user ID etc.
+            // Note: fetchFollowList is called inside fetchUserProfile upon success
+            // Send message to UI indicating success AFTER profile fetch (inside fetchUserProfile)
           });
+        } else {
+          console.error("OAuth flow completed but no access token found in redirect URL.", redirectUrl);
+          chrome.runtime.sendMessage({ action: "oauthFailed", error: "Access token not found" });
         }
+      } catch (error) {
+        console.error("Error parsing redirect URL:", error, redirectUrl);
+        chrome.runtime.sendMessage({ action: "oauthFailed", error: "Failed to parse redirect URL" });
       }
-    );
-  }
+    }
+  );
+}
 
-  // Handle the message to disconnect the Twitch account
-  if (message.action === "disconnectTwitch") {
-    // Clear all related data from local storage
-    const storage = isFirefox ? browser.storage.local : chrome.storage.local;
-    storage.remove(
-      [
-        "twitchAccessToken",
-        "followedList",
-        "liveStreams",
-        "userId",
-        "userAvatar",
-        "userDisplayName",
-      ],
-      () => {
-        // Reset the badge text for the extension icon
-        const action = isFirefox ? browser.action : chrome.action;
-        action.setBadgeText({ text: "" });
-        sendResponse({ status: "success" }); // Send a success response to the sender
-      }
-    );
-
-    return true; // Indicate an asynchronous response (important for Chrome v80+)
-  }
-});
-
+/**
+ * Fetches the user's Twitch profile using the access token.
+ * Stores user ID, avatar, and display name. Triggers follow list fetch on success.
+ * @param {string} accessToken - The Twitch API access token.
+ */
 function fetchUserProfile(accessToken) {
-  fetch("https://api.twitch.tv/helix/users", {
+  fetchWithRetry("https://api.twitch.tv/helix/users", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      "Client-Id": twitchClientId,
+      "Client-Id": TWITCH_CLIENT_ID,
     },
   })
-    .then((response) => response.json())
     .then((data) => {
-      const userProfile = data.data[0];
-      const userId = userProfile.id; // Twitch user ID
-      const avatarUrl = userProfile.profile_image_url; // Twitch user avatar URL
-      const displayName = userProfile.display_name; // Twitch user display name
+      if (data?.data?.length > 0) {
+        const userProfile = data.data[0];
+        const userId = userProfile.id;
+        const userAvatar = userProfile.profile_image_url;
+        const userDisplayName = userProfile.display_name;
 
-      // Store user ID, avatar URL, and display name in local storage
-      chrome.storage.local.set(
-        {
-          userId: userId,
-          userAvatar: avatarUrl,
-          userDisplayName: displayName, // Storing the display name
-        },
-        () => {
-          fetchFollowList(accessToken, userId, true); // Continue with your other operations
-        }
-      );
+        console.log(`User profile fetched: ${userDisplayName} (ID: ${userId})`);
+
+        chrome.storage.local.set(
+          {
+            userId: userId,
+            userAvatar: userAvatar,
+            userDisplayName: userDisplayName,
+            tokenExpired: false // Explicitly set token as valid
+          },
+          () => {
+            console.log("User profile data stored. Fetching follow list.");
+            fetchFollowList(accessToken, userId, true); // Pass true for isOAuthComplete
+            // Send completion message *after* profile is successfully processed
+            chrome.runtime.sendMessage({ action: "oauthComplete" });
+          }
+        );
+      } else if (data === null) {
+        // fetchWithRetry returns null on 401, handled there.
+        console.log("fetchUserProfile: fetchWithRetry indicated token issue.");
+      }
+      else {
+        console.error("Error fetching user profile: Invalid data received.", data);
+        // Handle potential invalid token scenario even if not 401
+        handleAuthenticationError();
+      }
     })
     .catch((error) => {
-      // Handle any errors in the fetch operation
       console.error("Error fetching user profile:", error);
+      // Could be network error or other issue, potentially token related
+      handleAuthenticationError();
     });
 }
 
+/**
+ * Periodically fetches user profile to update avatar/display name if changed.
+ * @param {string} accessToken - The Twitch API access token.
+ */
+function fetchUserProfileUpdates(accessToken) {
+  fetchWithRetry("https://api.twitch.tv/helix/users", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Client-Id": TWITCH_CLIENT_ID,
+    },
+  })
+    .then((data) => {
+      if (data?.data?.length > 0) {
+        const userProfile = data.data[0];
+        const userAvatar = userProfile.profile_image_url;
+        const userDisplayName = userProfile.display_name;
+
+        // Update storage only if needed (optional optimization)
+        chrome.storage.local.get(["userAvatar", "userDisplayName"], (result) => {
+          if (result.userAvatar !== userAvatar || result.userDisplayName !== userDisplayName) {
+            console.log("User profile updated, saving changes.");
+            chrome.storage.local.set({
+              userAvatar: userAvatar,
+              userDisplayName: userDisplayName,
+            });
+          } else {
+            // console.log("User profile unchanged."); // Can be noisy
+          }
+        });
+      } else if (data === null) {
+        console.log("fetchUserProfileUpdates: fetchWithRetry indicated token issue.");
+      }
+      else {
+        console.warn("Could not update user profile: Invalid data received.", data);
+      }
+    })
+    .catch((error) => {
+      console.error("Error updating user profile:", error);
+      // Consider if this warrants calling handleAuthenticationError() as well
+    });
+}
+
+
+/**
+ * Handles common tasks when an authentication error (like 401) occurs.
+ * Clears token, sets expired flag, updates badge, potentially notifies UI.
+ */
+function handleAuthenticationError() {
+  console.warn("Handling authentication error (likely expired token).");
+  chrome.storage.local.remove(["twitchAccessToken", "userId", "userAvatar", "userDisplayName"], () => {
+    chrome.storage.local.set({ tokenExpired: true, liveStreams: [], liveStreamCount: 0 }, () => {
+      updateBadge(); // Clear the badge
+      // Optionally notify UI pages that user needs to re-authenticate
+      chrome.runtime.sendMessage({ action: "authError" }).catch(e => console.log("No UI listener for authError"));;
+      console.log("Cleared authentication token and related user data due to error.");
+    });
+  });
+}
+
+// --- Twitch Data Fetching (Follows & Streams) ---
+
+/**
+ * Main function to fetch data periodically. Gets token/userId and triggers subsequent fetches.
+ */
+function fetchList() {
+  chrome.storage.local.get(["twitchAccessToken", "userId", "tokenExpired"], (result) => {
+    if (result.tokenExpired) {
+      console.log("Token is marked as expired, skipping fetch.");
+      // Ensure badge is clear if token expired recently
+      updateBadge();
+      return;
+    }
+    if (result.twitchAccessToken && result.userId) {
+      // console.log("Fetching user profile updates and follow list..."); // Can be noisy
+      // Fetch profile updates first (quick check for avatar/name changes)
+      fetchUserProfileUpdates(result.twitchAccessToken);
+      // Then fetch the full follow list and stream statuses
+      fetchFollowList(result.twitchAccessToken, result.userId);
+    } else {
+      // console.log("Access token or user ID missing, skipping fetch."); // Can be noisy
+      // Clear badge if logged out
+      chrome.storage.local.get("liveStreamCount", (res) => {
+        if (res.liveStreamCount > 0) {
+          chrome.storage.local.set({ liveStreams: [], liveStreamCount: 0 }, updateBadge);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Recursively fetches all followed channels for a user.
+ * Uses pagination cursor. Saves the complete list to storage.
+ * @param {string} accessToken - Twitch API access token.
+ * @param {string} userId - Twitch user ID.
+ * @param {boolean} [isOAuthComplete=false] - Flag indicating if this fetch is part of the initial OAuth flow.
+ * @param {string} [cursor=""] - Pagination cursor for fetching next page.
+ * @param {Array} [followedList=[]] - Accumulated list of followed channels.
+ */
 function fetchFollowList(
   accessToken,
   userId,
@@ -178,26 +310,26 @@ function fetchFollowList(
     url += `&after=${cursor}`;
   }
 
-  const options = {
+  fetchWithRetry(url, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      "Client-ID": twitchClientId,
+      "Client-ID": TWITCH_CLIENT_ID,
     },
-  };
-
-  // Use fetchWithRetry instead of direct fetch
-  fetchWithRetry(url, options)
+  })
     .then((data) => {
-      // Handle null response (auth token expired case from fetchWithRetry)
-      if (data === null) {
+      if (data === null) { // Token likely expired (handled in fetchWithRetry)
+        console.log("fetchFollowList: fetchWithRetry indicated token issue.");
+        if (isOAuthComplete) {
+          // If this happened during initial OAuth, signal a problem
+          chrome.runtime.sendMessage({ action: "oauthFailed", error: "Failed to fetch follows after auth" });
+        }
         return;
       }
 
-      // Process the data
       followedList = followedList.concat(data.data || []);
 
-      // If there's pagination, fetch next page
-      if (data.pagination && data.pagination.cursor) {
+      if (data.pagination?.cursor) {
+        // Fetch next page
         fetchFollowList(
           accessToken,
           userId,
@@ -206,252 +338,309 @@ function fetchFollowList(
           followedList
         );
       } else {
-        // All pages fetched, save to storage and proceed
+        // All pages fetched
+        console.log(`Fetched all ${followedList.length} followed channels.`);
         chrome.storage.local.set({ followedList: followedList }, () => {
+          console.log("Followed list saved. Fetching stream data.");
           fetchStreamData(accessToken, followedList);
-
-          if (isOAuthComplete) {
-            // Send message without callback to avoid "port closed" error
-            chrome.runtime.sendMessage({ action: "oauthComplete" });
-          }
+          // Note: oauthComplete message is sent earlier in fetchUserProfile now
         });
       }
     })
     .catch((error) => {
-      console.error("Error fetching follow list after all retries:", error);
+      console.error("Error fetching follow list (final attempt failed):", error);
+      // If this fails during OAuth, it's a problem
+      if (isOAuthComplete) {
+        chrome.runtime.sendMessage({ action: "oauthFailed", error: "Failed to fetch follows after auth" });
+      }
     });
 }
 
+/**
+ * Fetches live stream status for all followed channels.
+ * Also fetches category and user data (for avatars) for live streams.
+ * Updates storage with live stream info and triggers notifications/badge update.
+ * @param {string} accessToken - Twitch API access token.
+ * @param {Array} followedList - List of followed channel objects.
+ */
 function fetchStreamData(accessToken, followedList) {
-  const someThreshold = 60000;
+  if (!followedList || followedList.length === 0) {
+    console.log("No followed channels to fetch stream data for.");
+    // Ensure live streams are cleared in storage if the follow list is empty
+    chrome.storage.local.set({ liveStreams: [], liveStreamCount: 0 }, updateBadge);
+    return;
+  }
 
-  const streamFetchPromises = followedList.map((channel) => {
-    if (!channel || !channel.broadcaster_login) {
-      console.error("Invalid channel data:", channel);
-      return Promise.resolve(null); // Skip this iteration gracefully
-    }
-    const streamUrl = `https://api.twitch.tv/helix/streams?user_login=${channel.broadcaster_login}`;
+  // Create batches of user_logins (max 100 per request)
+  const batchSize = 100;
+  const streamFetchPromises = [];
 
-    return fetchWithRetry(streamUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Client-Id": twitchClientId,
-      },
-    })
-      .then((streamData) => {
-        if (streamData && streamData.data && streamData.data.length > 0) {
-          const stream = streamData.data[0];
+  for (let i = 0; i < followedList.length; i += batchSize) {
+    const batch = followedList.slice(i, i + batchSize);
+    const userLogins = batch.map(channel => `user_login=${channel.broadcaster_login}`).join('&');
+    if (!userLogins) continue; // Skip empty batches
 
-          // Extract the thumbnail URL
-          const thumbnailUrl = stream.thumbnail_url
-            .replace("{width}", "320")
-            .replace("{height}", "180");
-
-          // Fetch the category and user data (for avatar) for live streams
-          const categoryUrl = `https://api.twitch.tv/helix/games?id=${stream.game_id}`;
-          const userUrl = `https://api.twitch.tv/helix/users?login=${channel.broadcaster_login}`;
-
-          return Promise.all([
-            fetchWithRetry(categoryUrl, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Client-Id": twitchClientId,
-              },
-            }),
-            fetchWithRetry(userUrl, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Client-Id": twitchClientId,
-              },
-            }),
-          ]).then(([categoryData, userData]) => {
-            if (categoryData && userData) {
-              const categoryName =
-                categoryData.data && categoryData.data.length > 0
-                  ? categoryData.data[0].name
-                  : "Unknown Category";
-              const avatarUrl =
-                userData.data && userData.data.length > 0
-                  ? userData.data[0].profile_image_url
-                  : "";
-              return {
-                broadcasterLogin: channel.broadcaster_login,
-                channelName: channel.broadcaster_name,
-                title: stream.title,
-                viewers: stream.viewer_count,
-                category: categoryName,
-                avatar: avatarUrl,
-                thumbnail: thumbnailUrl,
-                live: true,
-                started_at: stream.started_at,
-                type: stream.type
-              };
-            }
-            return null;
-          });
-        }
-        return null;
+    const streamUrl = `https://api.twitch.tv/helix/streams?${userLogins}&first=${batchSize}`;
+    streamFetchPromises.push(
+      fetchWithRetry(streamUrl, {
+        headers: { Authorization: `Bearer ${accessToken}`, "Client-Id": TWITCH_CLIENT_ID }
       })
-      .catch((error) => {
-        console.error(
-          "Error fetching stream data for channel:",
-          channel.broadcaster_login,
-          error
-        );
-        return null;
+    );
+  }
+
+  Promise.all(streamFetchPromises)
+    .then(results => {
+      // Combine results from all batches
+      let liveStreamData = [];
+      results.forEach(data => {
+        if (data?.data) {
+          liveStreamData = liveStreamData.concat(data.data);
+        } else if (data === null) {
+          console.log("fetchStreamData: fetchWithRetry indicated token issue during batch fetch.");
+          // Don't stop processing other batches, but token is likely bad.
+        }
       });
-  });
+
+      if (!liveStreamData || liveStreamData.length === 0) {
+        console.log("No streams are live.");
+        chrome.storage.local.set({ liveStreams: [], liveStreamCount: 0 }, () => {
+          updateBadge();
+          // Clear last known streams if nothing is live now
+          chrome.storage.local.set({ lastKnownLiveStreams: {} });
+        });
+        return;
+      }
+
+      console.log(`Found ${liveStreamData.length} live streams initially.`);
+
+      // Fetch additional details (category, avatar) for live streams
+      // Batch game IDs and user IDs for efficiency
+      const gameIds = [...new Set(liveStreamData.map(s => s.game_id).filter(id => id && id !== "0"))]; // Filter out empty/zero IDs
+      const userIds = [...new Set(liveStreamData.map(s => s.user_id).filter(id => id))]; // Ensure user_id exists
+
+      const fetchDetailsPromises = [];
+
+      // Fetch categories by game IDs (batching)
+      if (gameIds.length > 0) {
+        const gameBatches = [];
+        for (let i = 0; i < gameIds.length; i += 100) {
+          gameBatches.push(gameIds.slice(i, i + 100));
+        }
+        gameBatches.forEach(batch => {
+          const categoryUrl = `https://api.twitch.tv/helix/games?${batch.map(id => `id=${id}`).join('&')}`;
+          fetchDetailsPromises.push(
+            fetchWithRetry(categoryUrl, { headers: { Authorization: `Bearer ${accessToken}`, "Client-Id": TWITCH_CLIENT_ID } })
+              .then(data => ({ type: 'games', data: data?.data || [] }))
+              .catch(err => { console.error("Error fetching game batch:", err); return { type: 'games', data: [] }; }) // Allow partial success
+          );
+        });
+      } else {
+        fetchDetailsPromises.push(Promise.resolve({ type: 'games', data: [] })); // Ensure promise exists
+      }
 
 
-  Promise.all(streamFetchPromises).then((streamData) => {
-    const liveStreams = streamData.filter((data) => data !== null);
+      // Fetch user profiles by user IDs (batching, primarily for avatars)
+      if (userIds.length > 0) {
+        const userBatches = [];
+        for (let i = 0; i < userIds.length; i += 100) {
+          userBatches.push(userIds.slice(i, i + 100));
+        }
+        userBatches.forEach(batch => {
+          const userUrl = `https://api.twitch.tv/helix/users?${batch.map(id => `id=${id}`).join('&')}`;
+          fetchDetailsPromises.push(
+            fetchWithRetry(userUrl, { headers: { Authorization: `Bearer ${accessToken}`, "Client-Id": TWITCH_CLIENT_ID } })
+              .then(data => ({ type: 'users', data: data?.data || [] }))
+              .catch(err => { console.error("Error fetching user batch:", err); return { type: 'users', data: [] }; }) // Allow partial success
+          );
+        });
+      } else {
+        fetchDetailsPromises.push(Promise.resolve({ type: 'users', data: [] })); // Ensure promise exists
+      }
 
-    chrome.storage.local.get(
-      {
-        lastKnownLiveStreams: {},
-        startupTime: 0,
-        enableNotifications: false,
-        selectedChannels: [],
-        showBadge: true // Default to showing badge
-      },
-      (result) => {
-        let lastKnownLiveStreams = result.lastKnownLiveStreams;
-        const startupTime = result.startupTime;
-        const enableNotifications = result.enableNotifications;
-        const selectedChannels = result.selectedChannels;
-        const showBadge = result.showBadge; // Get badge preference
-        const currentTime = Date.now();
+      return Promise.all(fetchDetailsPromises).then(detailResults => {
+        const gameDataMap = new Map();
+        const userDataMap = new Map();
 
-        // Process notifications (unchanged)
-        liveStreams.forEach((stream) => {
-          const wasLive = lastKnownLiveStreams[stream.channelName];
-
-          if (
-            stream.live &&
-            !wasLive &&
-            currentTime - startupTime > someThreshold &&
-            enableNotifications &&
-            (selectedChannels.length === 0 || selectedChannels.includes(stream.channelName))
-          ) {
-            sendLiveNotification(stream);
+        detailResults.forEach(result => {
+          if (result.type === 'games') {
+            result.data.forEach(game => gameDataMap.set(game.id, game.name));
+          } else if (result.type === 'users') {
+            result.data.forEach(user => userDataMap.set(user.id, user.profile_image_url));
           }
-
-          lastKnownLiveStreams[stream.channelName] = stream.live;
         });
 
-        chrome.storage.local.set(
-          {
-            lastKnownLiveStreams: lastKnownLiveStreams,
-            liveStreams: liveStreams,
-            liveStreamCount: liveStreams.length
-          },
-          () => {
-            // Use updateBadge instead of directly setting badge
-            updateBadge();
-          }
-        );
-      }
-    );
-  });
+        // Now, combine stream data with fetched details
+        const enrichedLiveStreams = liveStreamData.map(stream => {
+          const thumbnailUrl = stream.thumbnail_url
+            .replace('{width}', '320')
+            .replace('{height}', '180');
+          const categoryName = gameDataMap.get(stream.game_id) || 'Unknown Category';
+          const avatarUrl = userDataMap.get(stream.user_id) || "images/default_avatar.png"; // Provide a default
+
+          return {
+            broadcasterLogin: stream.user_login,
+            channelName: stream.user_name, // Use user_name from stream endpoint
+            title: stream.title,
+            viewers: stream.viewer_count,
+            category: categoryName,
+            avatar: avatarUrl,
+            thumbnail: thumbnailUrl,
+            live: true,
+            started_at: stream.started_at,
+            type: stream.type // e.g., "live"
+          };
+        }).filter(stream => stream !== null); // Filter out any potential nulls if error handling was different
+
+        processLiveStreams(enrichedLiveStreams); // Process for notifications and storage
+      });
+
+    })
+    .catch(error => {
+      console.error("Error fetching stream data:", error);
+      // Clear live streams in storage on catastrophic failure? Maybe not, could be temporary.
+      // chrome.storage.local.set({ liveStreams: [], liveStreamCount: 0 }, updateBadge);
+    });
 }
 
-// Utility function for handling retries with exponential backoff
+
+/**
+ * Processes the fetched live streams: updates storage, checks for new streams,
+ * sends notifications, and updates the badge.
+ * @param {Array} liveStreams - Array of processed live stream objects.
+ */
+function processLiveStreams(liveStreams) {
+  chrome.storage.local.get(
+    {
+      lastKnownLiveStreams: {},
+      startupTime: 0,
+      enableNotifications: false, // Default off
+      selectedChannels: [],
+      showBadge: true, // Default on
+      // No need to get liveStreamCount here, we are setting it
+    },
+    (result) => {
+      let lastKnownLiveStreams = result.lastKnownLiveStreams || {};
+      const startupTime = result.startupTime || 0;
+      const enableNotifications = result.enableNotifications;
+      const selectedChannels = result.selectedChannels || [];
+      // showBadge is used by updateBadge, not directly here
+      const currentTime = Date.now();
+      const newLiveStreams = {}; // Track streams that just went live in *this* cycle
+
+      // Determine newly live streams for notifications
+      liveStreams.forEach((stream) => {
+        const channelId = stream.channelName; // Use channelName as the key
+        const wasLive = lastKnownLiveStreams[channelId]; // Check if it was live in the *previous* cycle
+
+        // Conditions for notification:
+        // 1. Stream is live.
+        // 2. It was NOT live in the last check OR lastKnown map is empty/missing entry (first run after install/clear).
+        // 3. Enough time has passed since extension startup to avoid flood.
+        // 4. Notifications are globally enabled.
+        // 5. EITHER no specific channels are selected (notify all) OR this channel IS selected.
+        if (
+          stream.live &&
+          !wasLive &&
+          currentTime - startupTime > NEW_STREAM_NOTIFICATION_DELAY_MS &&
+          enableNotifications &&
+          (selectedChannels.length === 0 || selectedChannels.includes(channelId))
+        ) {
+          console.log(`Sending notification for ${channelId} (wasLive: ${wasLive})`);
+          sendLiveNotification(stream);
+        }
+
+        // Update the map for the *next* cycle's check
+        if (stream.live) {
+          newLiveStreams[channelId] = true; // Mark as live *now*
+        }
+        // No need for an else; if it's not live, it won't be in newLiveStreams
+      });
+
+      // Save the latest live stream data and the updated map of currently live streams
+      chrome.storage.local.set(
+        {
+          liveStreams: liveStreams,
+          liveStreamCount: liveStreams.length,
+          lastKnownLiveStreams: newLiveStreams, // Save the state from *this* fetch
+        },
+        () => {
+          updateBadge(); // Update badge based on the new count and settings
+          console.log(`Processed ${liveStreams.length} live streams. Updated storage and badge.`);
+        }
+      );
+    }
+  );
+}
+
+
+// --- API Utilities ---
+
+/**
+ * Wrapper around fetch with exponential backoff retry logic for specific errors (429, other HTTP errors).
+ * Handles 401 Unauthorized by clearing the token and returning null.
+ * @param {string} url - The URL to fetch.
+ * @param {object} options - Fetch options (headers, etc.).
+ * @param {number} [maxRetries=3] - Maximum number of retries.
+ * @param {number} [initialDelay=1000] - Initial delay in ms before first retry.
+ * @returns {Promise<object|null>} - Resolves with the JSON response data, or null if auth failed (401). Rejects on other persistent errors.
+ */
 function fetchWithRetry(url, options, maxRetries = 3, initialDelay = 1000) {
   return new Promise((resolve, reject) => {
     const attemptFetch = (retriesLeft, delay) => {
       fetch(url, options)
         .then(response => {
           if (response.status === 401) {
-            chrome.storage.local.remove("twitchAccessToken");
-
-            // Set the token expiration flag back
-            chrome.storage.local.set({ tokenExpired: true });
-            resolve(null); // Continue with retry logic or null response
+            console.warn(`Authorization error (401) fetching ${url}. Token likely expired or invalid.`);
+            handleAuthenticationError(); // Centralized handler
+            resolve(null); // Resolve with null to indicate auth failure upstream
+            return; // Stop processing this fetch
           }
-          else if (response.status === 429 && retriesLeft > 0) {
-            console.log(`Rate limited on ${url}, retrying in ${delay}ms. Retries left: ${retriesLeft}`);
-            setTimeout(() => {
-              attemptFetch(retriesLeft - 1, delay * 2);
-            }, delay);
-          } else if (response.status === 429) {
-            console.error(`RATE LIMIT EXCEEDED after all retries for ${url}`);
-
-            // Better endpoint detection
-            let endpoint = 'unknown';
-            if (url.includes('/channels/followed?')) {
-              endpoint = 'followed';
-            } else if (url.includes('/games?')) {
-              endpoint = 'category';
-            } else if (url.includes('/users?')) {
-              endpoint = 'user';
-            } else if (url.includes('/streams?')) {
-              endpoint = 'stream';
-            }
-
-            // Extract channel info from URL if possible
-            const channel = url.includes('login=') ? url.split('login=')[1].split('&')[0] : 'unknown';
-
-            // Only set the rate limit hit flag after all retries have failed
-            chrome.storage.local.get(['lastRateLimitNotification'], function (data) {
-              const now = Date.now();
-              const lastNotification = data.lastRateLimitNotification || 0;
-
-              // Only update the rate limit status and send notification if it's been at least 30 seconds
-              if (now - lastNotification > 30000) {
-                chrome.storage.local.set({
-                  rateLimitHit: true,
-                  rateLimitTimestamp: now,
-                  lastRateLimitNotification: now,
-                  rateLimitDetails: {
-                    channel: channel,
-                    endpoint: endpoint
-                  }
-                });
-
-                chrome.runtime.sendMessage({
-                  action: "rateLimitHit",
-                  details: {
-                    channel: channel,
-                    endpoint: endpoint
-                  }
-                });
-              } else {
-                // Just update the timestamp without triggering a new notification
-                chrome.storage.local.set({
-                  rateLimitHit: true,
-                  rateLimitTimestamp: now,
-                  rateLimitDetails: {
-                    channel: channel,
-                    endpoint: endpoint
-                  }
-                });
-              }
-            });
-
-            resolve({ data: [] });
-          } else if (!response.ok) {
-            console.error(`HTTP error: ${response.status} for ${url}`);
+          if (response.status === 429) { // Rate Limited
             if (retriesLeft > 0) {
-              console.log(`Retrying in ${delay}ms due to HTTP error. Retries left: ${retriesLeft}`);
-              setTimeout(() => {
-                attemptFetch(retriesLeft - 1, delay * 2);
-              }, delay);
+              const retryAfter = parseInt(response.headers.get('Retry-After') || '0', 10) * 1000;
+              const waitTime = Math.max(retryAfter, delay); // Use Retry-After if available, otherwise backoff
+              console.log(`Rate limited (429) on ${url}. Retrying in ${waitTime}ms. Retries left: ${retriesLeft}`);
+              setTimeout(() => attemptFetch(retriesLeft - 1, delay * 2), waitTime);
             } else {
-              reject(new Error(`HTTP error! status: ${response.status}`));
+              console.error(`RATE LIMIT EXCEEDED after all retries for ${url}.`);
+              handleRateLimitExceeded(url); // Notify UI/log details
+              resolve({ data: [], pagination: {} }); // Resolve with empty data to prevent breaking callers expecting an object
             }
-          } else {
-            resolve(response.json());
+            return; // Stop processing this response further
           }
+          if (!response.ok) { // Other HTTP errors (e.g., 500, 404)
+            console.error(`HTTP error ${response.status}: ${response.statusText} for ${url}`);
+            if (retriesLeft > 0 && response.status >= 500) { // Only retry server errors
+              console.log(`Retrying in ${delay}ms due to server error. Retries left: ${retriesLeft}`);
+              setTimeout(() => attemptFetch(retriesLeft - 1, delay * 2), delay);
+            } else {
+              // Don't retry client errors (4xx) other than 401/429, or if retries exhausted
+              reject(new Error(`HTTP error ${response.status}: ${response.statusText} after ${maxRetries - retriesLeft} retries for ${url}`));
+            }
+            return; // Stop processing this response further
+          }
+
+          // Successful response
+          // Reset rate limit flag if we succeed after potentially hitting it
+          chrome.storage.local.get("rateLimitHit", (result) => {
+            if (result.rateLimitHit) {
+              chrome.storage.local.remove(["rateLimitHit", "rateLimitTimestamp", "rateLimitDetails"]);
+              console.log("Successfully fetched data after previous rate limit.");
+              // Notify UI that rate limit seems resolved
+              chrome.runtime.sendMessage({ action: "rateLimitResolved" }).catch(e => console.log("No UI listener for rateLimitResolved"));;
+            }
+          });
+          resolve(response.json()); // Parse JSON and resolve the promise
+
         })
-        .catch(error => {
+        .catch(error => { // Network errors or fetch API errors
+          console.error(`Network error fetching ${url}: ${error.message}`);
           if (retriesLeft > 0) {
-            console.log(`Error fetching ${url}, retrying in ${delay}ms. Error: ${error.message}`);
-            setTimeout(() => {
-              attemptFetch(retriesLeft - 1, delay * 2);
-            }, delay);
+            console.log(`Retrying in ${delay}ms due to network error. Retries left: ${retriesLeft}`);
+            setTimeout(() => attemptFetch(retriesLeft - 1, delay * 2), delay);
           } else {
-            console.error(`Failed to fetch ${url} after multiple retries: ${error.message}`);
-            reject(error);
+            console.error(`Failed to fetch ${url} after ${maxRetries} retries due to network/fetch error.`);
+            reject(error); // Reject after all retries fail
           }
         });
     };
@@ -460,89 +649,146 @@ function fetchWithRetry(url, options, maxRetries = 3, initialDelay = 1000) {
   });
 }
 
-function fetchUserProfileUpdates(accessToken) {
-  fetchWithRetry("https://api.twitch.tv/helix/users", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Client-Id": twitchClientId,
-    },
-  })
-    .then((data) => {
-      if (data === null) {
-        return;
-      }
+/**
+ * Handles the situation when rate limiting persists after all retries.
+ * Stores details and sends a message to the UI, applying a cooldown.
+ * @param {string} url - The URL that hit the rate limit.
+ */
+function handleRateLimitExceeded(url) {
+  let endpoint = 'unknown';
+  try {
+    const parsedUrl = new URL(url);
+    const path = parsedUrl.pathname;
+    if (path.includes('/helix/channels/followed')) endpoint = 'followed channels';
+    else if (path.includes('/helix/games')) endpoint = 'game info';
+    else if (path.includes('/helix/users')) endpoint = 'user info';
+    else if (path.includes('/helix/streams')) endpoint = 'stream status';
+  } catch (e) { /* ignore parsing error */ }
 
-      const userProfile = data.data[0];
-      const avatarUrl = userProfile.profile_image_url;
-      const displayName = userProfile.display_name;
+  const channel = url.includes('user_login=') ? url.split('user_login=')[1]?.split('&')[0] : 'N/A';
 
-      // Update the avatar and display name in storage
+  chrome.storage.local.get(['lastRateLimitNotification'], (data) => {
+    const now = Date.now();
+    const lastNotification = data.lastRateLimitNotification || 0;
+
+    if (now - lastNotification > RATE_LIMIT_NOTIFICATION_COOLDOWN_MS) {
+      console.log(`Persistent rate limit detected for endpoint: ${endpoint}. Notifying UI.`);
+      const rateLimitDetails = { channel: channel, endpoint: endpoint, timestamp: now };
       chrome.storage.local.set({
-        userAvatar: avatarUrl,
-        userDisplayName: displayName,
+        rateLimitHit: true,
+        rateLimitTimestamp: now,
+        lastRateLimitNotification: now,
+        rateLimitDetails: rateLimitDetails
+      }, () => {
+        // Send message to potentially update UI
+        chrome.runtime.sendMessage({ action: "rateLimitHit", details: rateLimitDetails })
+          .catch(e => console.log("No UI listener for rateLimitHit")); // Catch error if no UI is open
       });
-    })
-    .catch((error) => {
-      console.error("Error updating user profile:", error);
-    });
-}
-
-function sendLiveNotification(channel) {
-  // Check if notifications are enabled and if the channel is selected
-  chrome.storage.local.get(['enableNotifications', 'selectedChannels'], function (data) {
-    const selectedChannels = data.selectedChannels || [];
-
-    // Only send notification if:
-    // 1. Notifications are enabled AND
-    // 2. Either no channels are selected (meaning notify for all) OR the channel is in the selected list
-    if (data.enableNotifications &&
-      (selectedChannels.length === 0 || selectedChannels.includes(channel.channelName))) {
-      chrome.notifications.create("liveNotification_" + channel.channelName, {
-        type: "basic",
-        iconUrl: channel.avatar || "default_icon.png",
-        title: `${channel.channelName} is live!`,
-        message: `${channel.channelName} is streaming ${channel.category}.`,
-        priority: 2,
-      });
+    } else {
+      // Rate limit still active, but cooldown prevents repeated notifications. Just update timestamp.
+      console.log(`Persistent rate limit ongoing for endpoint: ${endpoint}. Cooldown active.`);
+      chrome.storage.local.set({ rateLimitHit: true, rateLimitTimestamp: now });
     }
   });
 }
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "disconnectTwitch") {
-    // Remove specific items from the local storage
-    chrome.storage.local.remove(
-      [
-        "twitchAccessToken",
-        "followedList",
-        "liveStreams",
-        "userId", // Removing user ID
-        "userAvatar", // Removing user avatar
-        "userDisplayName", // Removing user display name
-      ],
-      () => {
-        chrome.action.setBadgeText({ text: "" });
-      }
-    );
-  } else if (info.menuItemId === "openSettings") {
-    // Open the settings page in a new tab
-    chrome.tabs.create({
-      url: "settings.html",
-    });
-  }
-});
 
-function updateBadgeAtStartup() {
-  updateBadge();
+// --- Badge Management ---
+
+/**
+ * Updates the extension badge count and color based on stored live stream count and user settings.
+ */
+async function updateBadge() {
+  // Use async/await for cleaner storage access
+  try {
+    const settings = await chrome.storage.local.get(["showBadge", "liveStreamCount", "badgeColor", "tokenExpired"]);
+    const showBadge = settings.showBadge !== undefined ? settings.showBadge : true; // Default true
+    const liveCount = settings.liveStreamCount || 0;
+    const badgeColor = settings.badgeColor || "#6366f1"; // Default color indigo-500/600
+    const tokenExpired = settings.tokenExpired || false;
+
+    let badgeText = "";
+    let title = "Twitch Live Channels"; // Default title
+
+    if (tokenExpired) {
+      badgeText = "!"; // Indicate error/auth needed
+      title = "Twitch token expired! Click to re-authenticate.";
+    } else if (showBadge && liveCount > 0) {
+      badgeText = String(liveCount);
+      title = `${liveCount} followed channel(s) are live!`;
+    } else if (showBadge && liveCount === 0) {
+      badgeText = "0"; // Explicitly show 0 if badge is enabled but none live
+      title = "No followed channels are live.";
+    } else {
+      // Badge disabled or count is 0 and badge is enabled
+      badgeText = "";
+      title = liveCount === 0 ? "No followed channels are live." : "Twitch Live Channels (Badge Disabled)";
+    }
+
+    // Set badge text
+    await chrome.action.setBadgeText({ text: badgeText });
+
+    // Set badge background color only if there's text
+    if (badgeText) {
+      await chrome.action.setBadgeBackgroundColor({ color: tokenExpired ? "#DC2626" : badgeColor }); // Red for error, user color otherwise
+    }
+
+    // Set tooltip (title)
+    await chrome.action.setTitle({ title: title });
+
+  } catch (error) {
+    console.error("Error updating badge:", error);
+  }
 }
 
+// --- Notifications ---
+
+/**
+ * Sends a desktop notification that a channel has gone live.
+ * @param {object} stream - The stream object containing channel details.
+ */
+function sendLiveNotification(stream) {
+  // Re-check global notification setting just before sending (might have changed)
+  chrome.storage.local.get(['enableNotifications', 'selectedChannels'], (settings) => {
+    if (!settings.enableNotifications) return;
+
+    const selectedChannels = settings.selectedChannels || [];
+    // Final check: Is this specific channel allowed to notify?
+    if (selectedChannels.length > 0 && !selectedChannels.includes(stream.channelName)) {
+      // console.log(`Notification skipped for ${stream.channelName} (not in selected list).`);
+      return;
+    }
+
+    const notificationId = "liveNotification_" + stream.channelName; // Unique ID per channel
+    chrome.notifications.create(notificationId, {
+      type: "basic",
+      iconUrl: stream.avatar || "images/twitch_glitch_128.png", // Use a local fallback
+      title: `${stream.channelName} is live!`,
+      message: `${stream.title}\nStreaming: ${stream.category}`, // Include title and category
+      priority: 1, // 0 to 2; 1 is default-ish, 2 is high
+      // Optional: Add buttons if needed later
+      // buttons: [{ title: "Watch Now" }]
+    });
+    console.log(`Sent notification for ${stream.channelName}`);
+
+    // Optional: Add listener for notification clicks if buttons are added
+    // chrome.notifications.onButtonClicked.addListener((notifId, btnIdx) => { ... });
+    // chrome.notifications.onClicked.addListener(notifId => { ... });
+  });
+}
+
+// --- Context Menus ---
+
+/**
+ * Creates the right-click context menu items for the extension action icon.
+ */
 function createContextMenuItems() {
-  // Clear all existing context menu items first
+  // Remove all existing items first to prevent duplicates on reload
   chrome.contextMenus.removeAll(() => {
-    // Now, create new context menu items
+    // Use chrome.action for Manifest V3
     chrome.contextMenus.create({
       id: "openSettings",
-      title: "Open Twitch Live Settings",
+      title: "Open Settings",
       contexts: ["action"],
     });
     chrome.contextMenus.create({
@@ -550,53 +796,138 @@ function createContextMenuItems() {
       title: "Disconnect Twitch Account",
       contexts: ["action"],
     });
+    console.log("Context menu items created.");
   });
 }
 
-// Function to update the badge based on count AND setting
-async function updateBadge() {
-  try {
-    const settings = await chrome.storage.local.get(["showBadge", "liveStreamCount", "badgeColor"]);
-    const showBadge = settings.showBadge !== undefined ? settings.showBadge : true; // Default true
-    const liveCount = settings.liveStreamCount || 0;
-    const badgeColor = settings.badgeColor || "#6366f1"; // Default color if not set
-
-    let badgeText = "";
-    if (showBadge && liveCount > 0) {
-      badgeText = String(liveCount);
-    }
-
-    // Set badge text (empty string if showBadge is false or count is 0)
-    await chrome.action.setBadgeText({ text: badgeText });
-
-    // Set badge color only if there's text, using the user's color preference
-    if (badgeText) {
-      await chrome.action.setBadgeBackgroundColor({ color: badgeColor });
-    }
-
-  } catch (error) {
-    console.error("Error updating badge:", error);
-  }
-}
-
-// Listener for the badge settings
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "updateBadgeState") {
-    console.log("Background received updateBadgeState:", message.showBadge, message.badgeColor);
-    // Store new settings and update badge
-    chrome.storage.local.set({
-      showBadge: message.showBadge,
-      badgeColor: message.badgeColor
-    }, () => {
-      updateBadge();
-      sendResponse({ status: "Badge state updated by background" });
-    });
-    return true; // Important: indicates async response
-  }
-  else if (message.action === "oauthComplete") {
-    console.log("Background received oauthComplete, refreshing data and badge...");
-    // Just acknowledge - the data refresh happens elsewhere
-    sendResponse({ status: "Background acknowledged oauthComplete" });
-    return false;
+// Listener for context menu item clicks
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "disconnectTwitch") {
+    console.log("Context menu: Disconnect Twitch requested.");
+    disconnectTwitchAccount();
+  } else if (info.menuItemId === "openSettings") {
+    console.log("Context menu: Open Settings requested.");
+    openSettingsPage();
   }
 });
+
+/**
+ * Handles the process of disconnecting the Twitch account.
+ * Clears relevant storage and resets the badge.
+ * @param {function} [sendResponse] - Optional response callback for message passing.
+ */
+function disconnectTwitchAccount(sendResponse) {
+  const isFirefox = typeof browser !== "undefined" && browser.runtime && browser.runtime.id;
+  const storage = isFirefox ? browser.storage.local : chrome.storage.local;
+
+  storage.remove(
+    [
+      "twitchAccessToken",
+      "followedList",
+      "liveStreams",
+      "userId",
+      "userAvatar",
+      "userDisplayName",
+      "lastKnownLiveStreams", // Also clear notification state
+      "liveStreamCount",
+      "tokenExpired" // Clear expired flag too
+    ],
+    () => {
+      console.log("Twitch account disconnected, cleared relevant storage.");
+      chrome.action.setBadgeText({ text: "" }); // Clear badge immediately
+      chrome.action.setTitle({ title: "Twitch Live Channels (Not Connected)" }); // Update title
+      // Stop the alarm if running, as there's no token to fetch with
+      chrome.alarms.clear(FETCH_ALARM_NAME);
+      console.log(`Cleared alarm '${FETCH_ALARM_NAME}' due to disconnect.`);
+
+      if (sendResponse) {
+        sendResponse({ status: "success" });
+      }
+      // Send a general message that might update UI elements
+      chrome.runtime.sendMessage({ action: "disconnected" }).catch(e => console.log("No UI listener for disconnected"));;
+    }
+  );
+}
+
+// --- Message Handling ---
+
+// Central listener for messages from other parts of the extension (popup, settings)
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("Background received message:", message.action, message); // Log received messages
+
+  switch (message.action) {
+    case "startOAuth":
+      console.log("Received 'startOAuth' message.");
+      startOAuthFlow();
+      // OAuth flow is async, response is handled via separate messages ('oauthComplete'/'oauthFailed')
+      // No immediate response needed here, so don't return true.
+      break;
+
+    case "disconnectTwitch":
+      console.log("Received 'disconnectTwitch' message.");
+      disconnectTwitchAccount(sendResponse);
+      return true; // Indicate asynchronous response
+
+    case "updateBadgeState":
+      console.log("Received 'updateBadgeState' message:", message.showBadge, message.badgeColor);
+      chrome.storage.local.set({
+        showBadge: message.showBadge,
+        badgeColor: message.badgeColor
+      }, () => {
+        updateBadge(); // Update badge immediately with new settings
+        sendResponse({ status: "Badge state updated" });
+      });
+      return true; // Indicate asynchronous response
+
+    case "forceFetch":
+      console.log("Received 'forceFetch' message.");
+      fetchList(); // Trigger a manual refresh
+      sendResponse({ status: "Fetch triggered" });
+      break;
+
+    case "getInitialData": // Send necessary initial data to UI on request
+      console.log("Received 'getInitialData' message.");
+      chrome.storage.local.get([
+        "twitchAccessToken",
+        "userDisplayName",
+        "userAvatar",
+        "liveStreams",
+        "liveStreamCount",
+        "enableNotifications",
+        "selectedChannels",
+        "showBadge",
+        "badgeColor",
+        "followedList", // Send followed list for settings page
+        "tokenExpired",
+        "rateLimitHit",
+        "rateLimitDetails",
+        "rateLimitTimestamp"
+      ], (data) => {
+        sendResponse(data);
+      });
+      return true; // Indicate asynchronous response
+
+    // case "oauthComplete": // No longer strictly needed as a message *to* background
+    // case "oauthFailed":
+    // case "authError":
+    // case "disconnected":
+    // case "rateLimitHit":
+    // case "rateLimitResolved":
+    //    // These are messages *from* background *to* UI, handled by listeners in UI scripts.
+    //    // No action needed here in the background script's message listener.
+    //    console.log(`Background internally handled or sent '${message.action}' - no response needed.`);
+    //    break;
+
+    default:
+      console.log("Received unknown message action:", message.action);
+      // Optionally send a response for unhandled messages
+      // sendResponse({ status: "error", message: "Unknown action" });
+      break;
+  }
+
+  // Return false explicitly if not sending an async response (or let it be undefined)
+  // Returning true is only needed if sendResponse will be called later.
+  return false; // Default for synchronous handling or no response needed
+});
+
+console.log("Background script loaded and listeners attached.");

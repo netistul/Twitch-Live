@@ -116,19 +116,20 @@ function checkAndLoadNotificationChannels() {
 
     stopNotificationCheckInterval(); // Clear existing interval first
 
-    if (channelListDiv.children.length === 0) {
-        console.log("Notification channel list empty, starting check...");
-        loadNotificationChannelList(channelListDiv); // Try loading immediately
+    // Always try to load immediately when called (e.g., after login)
+    loadNotificationChannelList(channelListDiv);
 
-        // Start interval only if still empty after initial load attempt fails
-        if (channelListDiv.children.length === 0) {
-            notificationCheckInterval = setInterval(() => {
-                console.log("Checking for followed list for notifications...");
-                loadNotificationChannelList(channelListDiv);
-            }, CHECK_INTERVAL_MS);
-        }
+    // Only start polling if the list is still empty after initial load
+    if (channelListDiv.children.length === 0 ||
+        (channelListDiv.children.length === 1 &&
+            channelListDiv.querySelector('.channel-list-empty-message'))) {
+        console.log("Notification channel list empty, starting check...");
+        notificationCheckInterval = setInterval(() => {
+            console.log("Checking for followed list for notifications...");
+            loadNotificationChannelList(channelListDiv);
+        }, CHECK_INTERVAL_MS);
     } else {
-        console.log("Notification channel list already populated.");
+        console.log("Notification channel list populated.");
         // Ensure appearance is correct based on current settings
         chrome.storage.local.get(['enableNotifications', 'enableFilter'], data => {
             updateChannelListAppearance(data.enableNotifications && data.enableFilter);
