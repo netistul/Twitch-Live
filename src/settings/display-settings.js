@@ -574,6 +574,8 @@ function createPreviewElement(stream, showAvatar, streamTitleDisplay, showStream
     if (!showAvatar && streamTitleDisplay !== "newline" && stream.category) {
         const categoryDiv = document.createElement("div");
         categoryDiv.className = `stream-category ${showStreamTime ? 'with-time' : 'without-time'}`;
+        // class when avatar is hidden
+        categoryDiv.classList.add('no-avatar');
         categoryDiv.textContent = stream.category;
         viewersWrapper.appendChild(categoryDiv);
     }

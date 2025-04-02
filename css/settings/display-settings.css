@@ -351,6 +351,11 @@
 /* When stream-time is hidden (less spacing) */
 .stream-category.without-time {
   margin-right: 5px;
+  max-width: 120px;
+}
+
+.stream-category.no-avatar {
+  max-width: 100px; /* More restricted width when no avatar */
 }
 
 /* ======================== */
