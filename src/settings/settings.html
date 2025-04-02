@@ -6,43 +6,42 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="css/settings/settings-style.css"
-    />
-    <!-- Menu and layout -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="css/settings/menu-settings.css"
+      href="../../css/settings/settings-style.css"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="css/settings/modal-settings.css"
+      href="../../css/settings/menu-settings.css"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="css/settings/streamers-groups-settings.css"
+      href="../../css/settings/modal-settings.css"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="css/settings/display-settings.css"
+      href="../../css/settings/streamers-groups-settings.css"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="css/settings/switch-settings.css"
+      href="../../css/settings/display-settings.css"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="css/settings/login-settings.css"
+      href="../../css/settings/switch-settings.css"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="css/settings/badge-settings.css"
+      href="../../css/settings/login-settings.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../css/settings/badge-settings.css"
     />
   </head>
   <body class="dark-mode">
@@ -89,7 +88,7 @@
                 <div class="stream-preview">
                   <div class="user-avatar-container">
                     <img
-                      src="/css/twitch.png"
+                      src="../../css/twitch.png"
                       alt="Stream Avatar"
                       class="stream-avatar"
                     />
@@ -451,12 +450,15 @@
       </div>
     </div>
 
-    <script src="settings/favorite-groups-settings.js"></script>
-    <script src="settings/notifications-settings.js"></script>
-    <script src="settings/display-settings.js"></script>
-    <script src="settings/badge-settings.js"></script>
-    <script src="settings/user-settings.js"></script>
-    <script src="utils.js"></script>
+    <!-- Local scripts (same directory) -->
+    <script src="favorite-groups-settings.js"></script>
+    <script src="notifications-settings.js"></script>
+    <script src="display-settings.js"></script>
+    <script src="badge-settings.js"></script>
+    <script src="user-settings.js"></script>
     <script src="settings.js"></script>
+
+    <!-- utils.js is in src/ (one level up) -->
+    <script src="../utils.js"></script>
   </body>
 </html>

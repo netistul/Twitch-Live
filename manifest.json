@@ -15,10 +15,10 @@
     "notifications"
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "src/popup/popup.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background/background.js"
   },
   "oauth2": {
     "client_id": "z05n4woixewpyagrqrui76x28avd2g",

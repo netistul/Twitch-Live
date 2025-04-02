@@ -498,11 +498,11 @@ function createPreviewElement(stream, showAvatar, streamTitleDisplay, showStream
 
             const thumbnailImg = document.createElement("img");
             thumbnailImg.className = "stream-thumbnail";
-            thumbnailImg.src = "css/icon.png"; // Placeholder
+            thumbnailImg.src = "../../css/icon.png"; // Placeholder
 
             const actualImage = new Image();
             actualImage.onload = () => { thumbnailImg.src = stream.thumbnail.replace('{width}', '80').replace('{height}', '45'); };
-            actualImage.onerror = () => { thumbnailImg.src = "css/icon.png"; }; // Fallback on error
+            actualImage.onerror = () => { thumbnailImg.src = "../../css/icon.png"; }; // Fallback on error
             actualImage.src = stream.thumbnail.replace('{width}', '80').replace('{height}', '45');
 
             thumbnailWrapper.appendChild(thumbnailImg);
@@ -608,7 +608,7 @@ function createPreviewElement(stream, showAvatar, streamTitleDisplay, showStream
         const signalIconSpan = document.createElement("span");
         signalIconSpan.className = "signal-icon";
         const signalIconImg = document.createElement("img");
-        signalIconImg.src = "css/signal.svg";
+        signalIconImg.src = "../../css/signal.svg";
         signalIconImg.alt = "Live signal";
         signalIconSpan.appendChild(signalIconImg);
         viewersSpan.appendChild(signalIconSpan);

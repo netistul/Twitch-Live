@@ -44,7 +44,7 @@ function initializeExtension() {
  * Opens the extension's settings page in a new tab.
  */
 function openSettingsPage() {
-  chrome.tabs.create({ url: "settings.html" });
+  chrome.tabs.create({ url: chrome.runtime.getURL("src/settings/settings.html") });
 }
 
 // --- Alarms ---
@@ -179,8 +179,9 @@ function fetchUserProfile(accessToken) {
           () => {
             console.log("User profile data stored. Fetching follow list.");
             fetchFollowList(accessToken, userId, true); // Pass true for isOAuthComplete
-            // Send completion message *after* profile is successfully processed
-            chrome.runtime.sendMessage({ action: "oauthComplete" });
+            // Don't send completion message *after* profile is successfully processed
+            // chrome.runtime.sendMessage({ action: "oauthComplete" });
+            notifyOAuthComplete();
           }
         );
       } else if (data === null) {
@@ -198,6 +199,16 @@ function fetchUserProfile(accessToken) {
       // Could be network error or other issue, potentially token related
       handleAuthenticationError();
     });
+}
+
+function notifyOAuthComplete() {
+  // Just send the message and ignore errors
+  chrome.runtime.sendMessage({ action: "oauthComplete" }, response => {
+    if (chrome.runtime.lastError) {
+      // Silently ignore the error - this is expected when popup is closed
+      console.log("OAuth completed, but no listeners active. This is normal if settings page is closed.");
+    }
+  });
 }
 
 /**
@@ -476,7 +487,7 @@ function fetchStreamData(accessToken, followedList) {
             .replace('{width}', '320')
             .replace('{height}', '180');
           const categoryName = gameDataMap.get(stream.game_id) || 'Unknown Category';
-          const avatarUrl = userDataMap.get(stream.user_id) || "images/default_avatar.png"; // Provide a default
+          const avatarUrl = userDataMap.get(stream.user_id) || "../../css/twitch.png"; // Provide a default
 
           return {
             broadcasterLogin: stream.user_login,
@@ -763,7 +774,7 @@ function sendLiveNotification(stream) {
     const notificationId = "liveNotification_" + stream.channelName; // Unique ID per channel
     chrome.notifications.create(notificationId, {
       type: "basic",
-      iconUrl: stream.avatar || "images/twitch_glitch_128.png", // Use a local fallback
+      iconUrl: stream.avatar || "../../css/twitch.png", // Use a local fallback
       title: `${stream.channelName} is live!`,
       message: `${stream.title}\nStreaming: ${stream.category}`, // Include title and category
       priority: 1, // 0 to 2; 1 is default-ish, 2 is high

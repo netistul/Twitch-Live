@@ -350,7 +350,7 @@
 
 /* When stream-time is hidden (less spacing) */
 .stream-category.without-time {
-  margin-right: -4px;
+  margin-right: 5px;
 }
 
 /* ======================== */

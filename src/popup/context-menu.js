@@ -37,7 +37,7 @@ function setupGroupEditing(groupNameSpan, editButton, groupName) {
                             } else {
                                 console.log("Group name updated:", newName);
                                 currentGroupName = newName; // Update internal state
-                                if (typeof updateLiveStreams === 'function') updateLiveStreams(); // Refresh main list if function exists
+                                if (typeof triggerUpdateLiveStreams === 'function') triggerUpdateLiveStreams(); // Refresh main list if function exists
                             }
                         });
                     }
@@ -196,7 +196,7 @@ function createNewGroup(groupName, stream, contextMenu) {
                         return;
                     }
                     console.log(`New group '${groupName}' created and added ${stream.channelName}`);
-                    if (typeof updateLiveStreams === 'function') updateLiveStreams(); // Refresh main list
+                    if (typeof triggerUpdateLiveStreams === 'function') triggerUpdateLiveStreams(); // Refresh main list
 
                     // --- Visually Add New Group Item to Context Menu ---
 
@@ -342,6 +342,19 @@ function showContextMenu(stream, x, y) {
     contextMenu.className = "custom-context-menu";
     contextMenu.style.opacity = '0'; // Start hidden for position calculation
 
+    // record the original popup size and resize it when needed
+    // Store original body styles that we might modify
+    const originalBodyStyles = {
+        minHeight: document.body.style.minHeight,
+        height: document.body.style.height,
+        overflow: document.body.style.overflow
+    };
+
+    // Ensure we have enough height while preserving width
+    document.body.style.minHeight = '400px'; // Set a reasonable minimum height
+    document.body.style.height = 'auto';
+    document.body.style.overflow = 'auto'; // Allow scrolling if needed
+
     // --- Menu Header ---
     const menuHeader = document.createElement("div");
     menuHeader.className = "context-menu-header";
@@ -354,7 +367,7 @@ function showContextMenu(stream, x, y) {
     twitchCombo.className = "twitch-combo";
 
     const twitchIcon = document.createElement("img");
-    twitchIcon.src = "css/twitch.png"; // Ensure this path is correct relative to popup.html
+    twitchIcon.src = "../../css/twitch.png"; // Ensure this path is correct relative to popup.html
     twitchIcon.alt = "Twitch";
     twitchIcon.classList.add("context-menu-twitch-icon");
 
@@ -563,6 +576,12 @@ function showContextMenu(stream, x, y) {
                 // Check if the click was outside the context menu *and* not on the original item that triggered it (optional)
                 if (contextMenu && !contextMenu.contains(event.target)) {
                     contextMenu.remove();
+
+                    // Restore only the styles we modified
+                    document.body.style.minHeight = originalBodyStyles.minHeight;
+                    document.body.style.height = originalBodyStyles.height;
+                    document.body.style.overflow = originalBodyStyles.overflow;
+
                     document.removeEventListener("click", closeMenuOnClickAway, { capture: true });
                     document.removeEventListener("contextmenu", closeMenuOnClickAway, { capture: true }); // Also close on another right-click
                 }
@@ -594,7 +613,12 @@ function addToGroup(stream, groupName) {
                     console.error(`Error adding ${stream.channelName} to ${groupName}:`, chrome.runtime.lastError);
                 } else {
                     console.log(`Added ${stream.channelName} to ${groupName}`);
-                    if (typeof updateLiveStreams === 'function') updateLiveStreams(); // Refresh main list
+                    // Call triggerUpdateLiveStreams instead of updateLiveStreams directly
+                    if (typeof triggerUpdateLiveStreams === 'function') {
+                        triggerUpdateLiveStreams(); // This will properly fetch data and call updateLiveStreams
+                    } else {
+                        console.error("triggerUpdateLiveStreams function not available. Check script loading order.");
+                    }
                 }
             });
         } else if (!group) {
@@ -623,7 +647,7 @@ function removeFromGroup(stream, groupName) {
                         console.error(`Error removing ${stream.channelName} from ${groupName}:`, chrome.runtime.lastError);
                     } else {
                         console.log(`Removed ${stream.channelName} from ${groupName}`);
-                        if (typeof updateLiveStreams === 'function') updateLiveStreams(); // Refresh main list
+                        if (typeof triggerUpdateLiveStreams === 'function') triggerUpdateLiveStreams(); // Refresh main list
                     }
                 });
             }
@@ -819,7 +843,7 @@ function deleteGroup(index, groupName, contextMenu) {
                         }
 
                         // Refresh the main popup list
-                        if (typeof updateLiveStreams === 'function') updateLiveStreams();
+                        if (typeof triggerUpdateLiveStreams === 'function') triggerUpdateLiveStreams();
                     }
                 });
             } else {

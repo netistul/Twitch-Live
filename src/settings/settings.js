@@ -30,7 +30,7 @@ function showTemporaryNotification(actionText, action = 'added', channelName = '
 
     const twitchIcon = document.createElement('img');
     twitchIcon.className = 'notification-popup-twitch-icon';
-    twitchIcon.src = 'css/twitch.png';
+    twitchIcon.src = '../../css/twitch.png';
 
     const nameElement = document.createElement('span');
     nameElement.className = `notification-popup-channel notification-popup-channel--${action}`;

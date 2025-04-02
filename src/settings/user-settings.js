@@ -43,7 +43,7 @@ function displayUserInfo() {
                       <img src="${result.userAvatar}" alt="User Avatar" class="user-avatar">
                       <div class="logout-dropdown">
                         <button id="logoutButton" class="logout-button">
-                          <img src="css/settings/logout.png" alt="" class="logout-icon"> Logout
+                          <img src="../../css/settings/logout.png" alt="" class="logout-icon"> Logout
                         </button>
                       </div>
                     </div>
@@ -157,7 +157,7 @@ function showLoginTip(container) {
     tipContainer.appendChild(tipText);
 
     const tipImage = document.createElement("img");
-    tipImage.src = "css/settings/infopin.png";
+    tipImage.src = "../../css/settings/infopin.png";
     tipImage.alt = "Browser toolbar showing how to pin an extension.";
     tipImage.style.width = "250px";
     tipImage.style.marginTop = "5px";

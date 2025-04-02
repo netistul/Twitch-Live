@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Ensure UTF-8 encoding -->
+    <title>Twitch Extension Login</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/dark-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/context-menu.css" />
+  </head>
+  <body class="dark-mode">
+    <div id="header">
+      Twitch Live
+      <img id="settingsIcon" src="../../css/settings.png" alt="Settings" />
+    </div>
+
+    <div id="buttonContainer">
+      <div id="streamContainer"></div>
+      <!-- New container for stream links -->
+      <!-- Other elements like login button will be added here as well -->
+    </div>
+    <!-- SCRIPTS - UPDATED PATHS -->
+    <script src="../utils.js"></script>
+
+    <!-- Rate Limit (Now in the same directory) -->
+    <script src="rateLimit.js"></script>
+
+    <!-- Main logic (Now in the same directory) -->
+    <script src="popup.js"></script>
+
+    <!-- UI functions (Now in the same directory) -->
+    <script src="ui.js"></script>
+
+    <!-- Context menu (Now in the same directory) -->
+    <script src="context-menu.js"></script>
+    <!-- END SCRIPTS -->
+  </body>
+</html>

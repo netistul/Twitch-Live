@@ -21,7 +21,7 @@ function displayGroups() {
             if (groups.length === 0) {
                 groupListContainer.innerHTML = `
           <p style="font-size: 16px; text-align: center;">
-            <img src="css/settings/nogroup.gif" style="display: block; margin: 0 auto;">
+            <img src="../../css/settings/nogroup.gif" style="display: block; margin: 0 auto;">
             <strong>No Favorite Groups Created Yet</strong><br><br>
             This is a list that will help you filter your favorite live streams from the popup into new category groups.
             <br><br>
@@ -178,7 +178,7 @@ function createStreamerListItem(streamer, groupIndex, streamerIndex) {
     streamerItem.style.fontSize = "70%";
 
     const twitchIcon = document.createElement("img");
-    twitchIcon.src = "css/twitch.png";
+    twitchIcon.src = "../../css/twitch.png";
     twitchIcon.alt = "Twitch";
     twitchIcon.style.width = "20px";
     twitchIcon.style.marginRight = "3px";
@@ -430,7 +430,7 @@ function createDropdownStreamerItem(channel, isAdded, groupIndex, groupName) {
     item.dataset.channelName = channel.broadcaster_name.toLowerCase(); // For filtering
 
     const twitchLogo = document.createElement("img");
-    twitchLogo.src = "css/twitch.png";
+    twitchLogo.src = "../../css/twitch.png";
     twitchLogo.className = "dropdown-twitch-logo";
 
     const channelNameSpan = document.createElement("span");
