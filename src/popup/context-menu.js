@@ -287,10 +287,10 @@ function createNewGroup(groupName, stream, contextMenu) {
                     // Add the new menu item to the DOM in the correct sorted position
                     const itemsContainer = contextMenu.querySelector(".context-menu-items-container");
                     if (itemsContainer) {
-                        const noGroupMsg = itemsContainer.querySelector(".context-menu-item:not(.add-new-group-button)"); // Select item that isn't the button
-                        // Check if the "No groups" message exists and remove it
-                        if (noGroupMsg && noGroupMsg.textContent === "No favorite groups found.") {
-                            noGroupMsg.remove();
+                        // Check if the new "No groups" message container exists and remove it
+                        const noGroupMsgContainer = itemsContainer.querySelector(".no-groups-message-container");
+                        if (noGroupMsgContainer) {
+                            noGroupMsgContainer.remove();
                         }
 
                         // Insert the new item at the correct sorted index
@@ -512,11 +512,8 @@ function showContextMenu(stream, x, y) {
                 itemsContainer.appendChild(menuItem);
             });
         } else {
-            // Display message if no groups exist
-            const noGroupItem = document.createElement("div");
-            noGroupItem.textContent = "No favorite groups found.";
-            noGroupItem.className = "context-menu-item no-groups-message"; // Add specific class
-            itemsContainer.appendChild(noGroupItem);
+            // Display the standardized "no groups" message
+            displayNoGroupsMessage(itemsContainer);
         }
 
         // --- Add New Group Button ---
@@ -831,14 +828,10 @@ function deleteGroup(index, groupName, contextMenu) {
                             }
 
 
-                            // If no groups are left, show the "No favorite groups" message
+                            // If no groups are left, show the standardized "no groups" message
+                            // Check both storage and visually (though displayNoGroupsMessage clears the container anyway)
                             if (groups.length === 0 && itemsContainer.querySelectorAll(".context-menu-item:not(.add-new-group-button)").length === 0) {
-                                const noGroupItem = document.createElement("div");
-                                noGroupItem.textContent = "No favorite groups found.";
-                                noGroupItem.className = "context-menu-item no-groups-message"; // Use specific class
-                                // Clear any potential leftover items before adding message
-                                itemsContainer.innerHTML = '';
-                                itemsContainer.appendChild(noGroupItem);
+                                displayNoGroupsMessage(itemsContainer);
                             }
                         }
 
@@ -866,4 +859,41 @@ function deleteGroup(index, groupName, contextMenu) {
             }
         }
     });
+}
+
+/**
+ * Displays a user-friendly message with instructions and a GIF when no favorite groups exist.
+ * Clears the container before adding the message.
+ * @param {HTMLElement} container - The DOM element where the message should be displayed (e.g., itemsContainer).
+ */
+function displayNoGroupsMessage(container) {
+    // Clear any existing items (like previous group list or old message)
+    container.innerHTML = "";
+
+    const messageWrapper = document.createElement("div");
+    // Add a class for styling. Consider adding text-align: center in your CSS.
+    messageWrapper.className = "no-groups-message-container";
+
+    // Use a template literal for the multi-line HTML structure.
+    // The GIF (<img>) is already the first element here.
+    messageWrapper.innerHTML = `
+        <img src="../../css/settings/nogroup.gif" alt="Create groups illustration" class="no-groups-gif">
+        <div class="no-groups-title">No Favorite Groups Created Yet</div>
+        <p class="no-groups-description">
+            This list helps you filter favorite streams into custom groups.
+        </p>
+        <p class="no-groups-tip">
+            💡 Right-click any stream in the popup to add it to a group or create a new one.
+        </p>
+    `;
+    /*
+        Note on Styling:
+        - To fix the text ("add it") being too close to the edge, add padding
+          to the '.no-groups-message-container' in your CSS file.
+        - To add space between the GIF and the title, add margin-bottom
+          to the '.no-groups-gif' in your CSS file.
+        - Consider centering the content using text-align: center;
+    */
+
+    container.appendChild(messageWrapper);
 }

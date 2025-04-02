@@ -7,13 +7,13 @@
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
   font-size: 13px;
   position: fixed;
-  width: 270px; /* Reduced width */
+  width: 290px;
   z-index: 1000;
   border: 1px solid rgba(224, 224, 224, 0.8);
   transition: all 0.15s cubic-bezier(0.2, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  max-height: 50vh;
+  max-height: 65vh;
   padding: 0;
 }
 
@@ -279,35 +279,47 @@
 }
 
 .context-menu-item.add-new-group-button {
-  color: #333333;
-  background-color: rgba(245, 245, 245, 0.6);
-  padding: 7px; /* Reduced padding */
-  margin: 4px 8px; /* Reduced margin */
+  /* Structure */
+  padding: 7px 12px;
+  margin: 6px 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  border-radius: 6px;
-  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+
+  /* Display */
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calc(100% - 16px); /* Adjusted width */
+  width: calc(100% - 16px);
   box-sizing: border-box;
-  border: 1px solid rgba(208, 208, 208, 0.4);
-  font-size: 14px; /* Smaller text */
+
+  /* Typography */
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+
+  /* Styling - matching the rounded corners and exact colors */
+  background-color: floralwhite;
+  border: 1px solid #9147ff;
+  color: #6366f1; /* var(--color-indigo-600) */
+  border-radius: 20px; /* Increased border radius to match */
+  transition: all 0.3s ease; /* Matched transition timing */
 }
 
 .context-menu-item.add-new-group-button:hover {
-  background-color: rgba(235, 235, 235, 0.8);
+  background-color: rgb(255, 255, 255);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .context-menu-item.add-new-group-button:before {
   content: "+";
-  font-size: 16px; /* Reduced font size */
-  margin-right: 6px; /* Reduced margin */
+  font-size: 16px;
+  margin-right: 6px;
   font-weight: 400;
   color: #9147ff;
+  position: relative;
+  z-index: 1;
 }
 
 .new-group-form {
@@ -511,6 +523,45 @@
   }
 }
 
+/* Styling for the 'No Groups' message area in the context menu */
+.no-groups-message-container {
+  padding: 10px 15px; /* Add top/bottom and MORE left/right padding */
+  text-align: center; /* Center the image and text */
+  color: #ccc; /* Example text color - adjust as needed */
+}
+
+.no-groups-message-container .no-groups-gif {
+  max-width: 80%; /* Prevent GIF from being too wide */
+  height: auto; /* Maintain aspect ratio */
+  margin-bottom: 10px; /* Add space below the GIF */
+  display: inline-block; /* Needed for text-align: center to work well on the image */
+}
+
+.no-groups-message-container .no-groups-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #fff; /* Example title color */
+}
+
+.no-groups-message-container .no-groups-description {
+  font-size: 0.9em;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.no-groups-message-container .no-groups-tip {
+  font-size: 0.9em;
+  font-style: italic;
+  line-height: 1.4;
+  opacity: 0.8; /* Make tip slightly less prominent */
+}
+
+/* Ensure paragraphs inside don't have excessive default margins */
+.no-groups-message-container p {
+  margin-top: 0;
+}
+
 /* Dark Mode Styles */
 .dark-mode .custom-context-menu {
   background-color: #2d2d35;
@@ -600,14 +651,52 @@
 }
 
 .dark-mode .context-menu-item.add-new-group-button {
-  color: #efeff1;
-  background-color: rgba(50, 50, 60, 0.6);
-  border: 1px solid rgba(85, 85, 100, 0.6);
+  background-color: #2a2b36;
+  border: 1px solid #3a3b45;
+  color: #a5b4fc; /* var(--color-indigo-300) */
+  position: relative;
+  overflow: hidden;
 }
 
 .dark-mode .context-menu-item.add-new-group-button:hover {
-  background-color: rgba(60, 60, 70, 0.8);
-  border: 1px solid rgba(100, 100, 120, 0.8);
+  background-color: #32333e;
+  border: 1px solid #3a3b45;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .context-menu-item.add-new-group-button:before {
+  color: #a5b4fc;
+  position: relative;
+  z-index: 1;
+}
+
+/* Glow Effect for Dark Mode - Exact match */
+.dark-mode .context-menu-item.add-new-group-button::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(99, 102, 241, 0.15) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+}
+
+.dark-mode .context-menu-item.add-new-group-button:hover::after {
+  opacity: 1;
+}
+
+/* Adding span wrapper for text to ensure it stays above glow */
+.context-menu-item.add-new-group-button span {
+  position: relative;
+  z-index: 1;
 }
 
 .dark-mode .new-group-form {
