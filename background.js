@@ -556,9 +556,10 @@ function createContextMenuItems() {
 // Function to update the badge based on count AND setting
 async function updateBadge() {
   try {
-    const settings = await chrome.storage.local.get(["showBadge", "liveStreamCount"]);
+    const settings = await chrome.storage.local.get(["showBadge", "liveStreamCount", "badgeColor"]);
     const showBadge = settings.showBadge !== undefined ? settings.showBadge : true; // Default true
     const liveCount = settings.liveStreamCount || 0;
+    const badgeColor = settings.badgeColor || "#6366f1"; // Default color if not set
 
     let badgeText = "";
     if (showBadge && liveCount > 0) {
@@ -568,9 +569,10 @@ async function updateBadge() {
     // Set badge text (empty string if showBadge is false or count is 0)
     await chrome.action.setBadgeText({ text: badgeText });
 
-    // Always set the badge color to be consistent, regardless of whether text is showing
-    // This ensures the color is correct when the badge becomes visible again
-    await chrome.action.setBadgeBackgroundColor({ color: "#6366f1" });
+    // Set badge color only if there's text, using the user's color preference
+    if (badgeText) {
+      await chrome.action.setBadgeBackgroundColor({ color: badgeColor });
+    }
 
   } catch (error) {
     console.error("Error updating badge:", error);
@@ -580,9 +582,12 @@ async function updateBadge() {
 // Listener for the badge settings
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "updateBadgeState") {
-    console.log("Background received updateBadgeState:", message.showBadge);
-    // Store new setting and update badge
-    chrome.storage.local.set({ showBadge: message.showBadge }, () => {
+    console.log("Background received updateBadgeState:", message.showBadge, message.badgeColor);
+    // Store new settings and update badge
+    chrome.storage.local.set({
+      showBadge: message.showBadge,
+      badgeColor: message.badgeColor
+    }, () => {
       updateBadge();
       sendResponse({ status: "Badge state updated by background" });
     });

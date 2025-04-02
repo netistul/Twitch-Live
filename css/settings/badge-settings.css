@@ -19,9 +19,13 @@
 #showBadgeOption .showAvatarLabel {
   font-family: "Arial", sans-serif;
   font-size: 14px;
-  flex: 1; /* Allow it to take available space */
   position: relative; /* For tooltip positioning */
-  margin-right: 15px; /* Space between label and toggle switch */
+  margin-bottom: 0;
+  color: #333;
+}
+
+.dark-mode #showBadgeOption .showAvatarLabel {
+  color: #e4e4e4 !important;
 }
 
 /* Make the toggle switch take a consistent space */
@@ -43,13 +47,194 @@
   opacity: 1;
 }
 
-/* Dark mode specific styling for badge option */
-.dark-mode #showBadgeOption .showAvatarLabel {
-  color: #e4e4e4 !important;
-}
-
 /* Ensure the settings group has enough width */
 #badge-section .settings-group {
-  width: 100%;
   min-width: 330px; /* Match other settings sections */
+}
+
+/* Badge Color Options */
+#badgeColorOption {
+  padding: 12px 0;
+  margin-left: 10px;
+  margin-right: 10px;
+  width: calc(100% - 20px); /* Match the width of showBadgeOption */
+  display: flex; /* Add display flex */
+  justify-content: space-between; /* Push content to edges */
+}
+
+/* Badge Color Container - New */
+.badge-color-container {
+  background-color: #f5f5f7;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  width: 100%; /* Make the container take full width */
+}
+.dark-mode .badge-color-container {
+  background-color: #252525;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.badge-color-container .badgeColorLabel {
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 14px;
+}
+
+.dark-mode .badge-color-container .badgeColorLabel {
+  color: #e4e4e4;
+}
+
+/* Badge Color Picker Styles - Revised */
+.color-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.color-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.color-box {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .color-box {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.color-box.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px #000, 0 0 0 4px rgba(99, 102, 241, 0.3);
+  transform: scale(1.05);
+}
+
+.dark-mode .color-box.selected {
+  border-color: #2c2c2e;
+  box-shadow: 0 0 0 1px #4a4a4c, 0 0 0 4px rgba(99, 102, 241, 0.3);
+}
+
+.color-box:hover {
+  transform: scale(1.05);
+}
+
+.custom-color-picker {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dark-mode .custom-color-picker {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.custom-color-picker label {
+  font-size: 13px;
+  margin-right: 12px;
+  color: #666;
+  font-weight: normal;
+}
+
+.dark-mode .custom-color-picker label {
+  color: #bbb;
+}
+
+/* Color wheel container for better styling control */
+.color-wheel-container {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+/* macOS-style color picker */
+#badgeColorPicker {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Hide the default color picker UI parts we don't want */
+#badgeColorPicker::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+#badgeColorPicker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+/* Overlay to create macOS style picker appearance */
+.color-picker-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+}
+
+.dark-mode .color-picker-overlay {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 1px 3px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Hover effects on the container */
+.color-wheel-container:hover .color-picker-overlay {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.dark-mode .color-wheel-container:hover .color-picker-overlay {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+/* Active state */
+.color-wheel-container:active .color-picker-overlay {
+  transform: scale(0.98);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Focus state for accessibility */
+#badgeColorPicker:focus + .color-picker-overlay {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode #badgeColorPicker:focus + .color-picker-overlay {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4), 0 1px 3px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
