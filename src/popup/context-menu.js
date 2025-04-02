@@ -886,14 +886,6 @@ function displayNoGroupsMessage(container) {
             💡 Right-click any stream in the popup to add it to a group or create a new one.
         </p>
     `;
-    /*
-        Note on Styling:
-        - To fix the text ("add it") being too close to the edge, add padding
-          to the '.no-groups-message-container' in your CSS file.
-        - To add space between the GIF and the title, add margin-bottom
-          to the '.no-groups-gif' in your CSS file.
-        - Consider centering the content using text-align: center;
-    */
 
     container.appendChild(messageWrapper);
 }

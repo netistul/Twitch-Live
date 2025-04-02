@@ -279,47 +279,43 @@
 }
 
 .context-menu-item.add-new-group-button {
-  /* Structure */
-  padding: 7px 12px;
-  margin: 6px 8px;
+  /* Structure - with increased height */
+  padding: 10px 12px; /* Increased vertical padding */
+  margin: 4px 8px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
 
-  /* Display */
+  /* Display - ensuring proper centering */
   display: flex;
   align-items: center;
   justify-content: center;
   width: calc(100% - 16px);
   box-sizing: border-box;
+  min-height: 38px; /* Increased explicit height */
 
   /* Typography */
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
   font-weight: 500;
+  text-align: center;
 
-  /* Styling - matching the rounded corners and exact colors */
+  /* Styling */
   background-color: floralwhite;
   border: 1px solid #9147ff;
-  color: #6366f1; /* var(--color-indigo-600) */
-  border-radius: 20px; /* Increased border radius to match */
-  transition: all 0.3s ease; /* Matched transition timing */
+  color: #6366f1;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  line-height: 1;
 }
 
 .context-menu-item.add-new-group-button:hover {
   background-color: rgb(255, 255, 255);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
+/* Remove the + symbol entirely */
 .context-menu-item.add-new-group-button:before {
-  content: "+";
-  font-size: 16px;
-  margin-right: 6px;
-  font-weight: 400;
-  color: #9147ff;
-  position: relative;
-  z-index: 1;
+  content: none;
 }
 
 .new-group-form {
@@ -653,25 +649,12 @@
 .dark-mode .context-menu-item.add-new-group-button {
   background-color: #2a2b36;
   border: 1px solid #3a3b45;
-  color: #a5b4fc; /* var(--color-indigo-300) */
+  color: var(--color-indigo-300);
   position: relative;
   overflow: hidden;
 }
 
-.dark-mode .context-menu-item.add-new-group-button:hover {
-  background-color: #32333e;
-  border: 1px solid #3a3b45;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.dark-mode .context-menu-item.add-new-group-button:before {
-  color: #a5b4fc;
-  position: relative;
-  z-index: 1;
-}
-
-/* Glow Effect for Dark Mode - Exact match */
+/* Glow Effect for Dark Mode */
 .dark-mode .context-menu-item.add-new-group-button::after {
   content: "";
   position: absolute;
@@ -693,10 +676,15 @@
   opacity: 1;
 }
 
-/* Adding span wrapper for text to ensure it stays above glow */
-.context-menu-item.add-new-group-button span {
+/* Ensure text stays above the glow effect */
+.dark-mode .context-menu-item.add-new-group-button span {
   position: relative;
   z-index: 1;
+}
+
+/* Ensure text is perfectly centered */
+.context-menu-item.add-new-group-button {
+  line-height: 1;
 }
 
 .dark-mode .new-group-form {
