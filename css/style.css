@@ -18,6 +18,13 @@ body {
   padding-bottom: 0;
 }
 
+#dynamicContentContainer::after {
+  content: "";
+  display: block;
+  height: 5px;
+  background-color: transparent; /* Make it invisible */
+}
+
 #initialPlaceholder {
   display: block;
   width: 100%;
