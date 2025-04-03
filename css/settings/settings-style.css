@@ -747,6 +747,27 @@ body {
   background: rgba(121, 75, 196, 0.7);
 }
 
+.channel-list-empty-message {
+  grid-column: 1 / -1; /* Make this paragraph span ALL grid columns */
+  text-align: center; /* Center the text content within the paragraph */
+  padding: 20px 10px; /* Add some vertical and horizontal padding */
+  font-style: italic; /* Optional: Make it look distinct */
+  color: #666; /* Adjust color for light mode */
+
+  /* Apply width constraints and centering like your groupListContainer fix,
+     but to the message element itself within the spanned grid area */
+  max-width: 450px; /* Limit the width of the message block */
+  margin-left: auto; /* Center the block horizontally */
+  margin-right: auto; /* Center the block horizontally */
+  width: 90%; /* Use a percentage width within the max-width */
+  box-sizing: border-box;
+}
+
+/* Dark Mode adjustment for the empty message */
+.dark-mode .channel-list-empty-message {
+  color: #aaa; /* Lighter color for dark mode */
+}
+
 /* Dark Mode Styles */
 /* Dark mode - body */
 body.dark-mode {

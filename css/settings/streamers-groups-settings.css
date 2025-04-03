@@ -8,6 +8,18 @@
   height: 100%;
 }
 
+.empty-groups-container {
+  width: 400px; /* Match the width of your badge settings */
+  max-width: 100%;
+  margin: 0 auto; /* Centers the container */
+}
+
+/* Make sure images don't overflow */
+.empty-groups-container img {
+  max-width: 100%;
+  height: auto;
+}
+
 #groupListContainer {
   margin-top: 16px;
   max-height: 500px; /* Set maximum height before scrolling */
@@ -16,7 +28,15 @@
   scrollbar-color: var(--color-indigo-400) var(--color-gray-100); /* For Firefox */
   padding-right: 28px; /* Space between content and scrollbar */
   margin-right: 7px; /* Additional outer spacing */
-  padding-left: 25px; /* Space for the left border, the diff of 3px comes from optionsMenu padding 3px */
+  padding-left: 25px; /* Space for the left border */
+
+  /* Reduce the width here */
+  width: 90%; /* Reduced from calc(100% - 35px) */
+  max-width: 500px; /* Add a max-width limit */
+
+  min-width: 330px; /* Match the min-width from badge settings */
+  margin-left: auto; /* Center the container */
+  margin-right: auto; /* Center the container */
 }
 
 /* Custom scrollbar for WebKit browsers */
@@ -168,7 +188,7 @@
 /* ================= GROUP ACTION BUTTONS ================= */
 .button-container {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center; /* Change from flex-end to center */
   gap: 12px;
   margin-top: 16px;
 }
@@ -227,8 +247,14 @@
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  left: -11px; /* This offsets half the difference between right and left padding */
+
+  /* Remove the left offset that's causing the misalignment */
+  /* left: -11px; */ /* This was offsetting the button to the left */
+
   width: fit-content; /* This ensures the button only takes up as much space as needed */
+  /* Add this to ensure perfect centering */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #addFavoriteGroupButton:hover {

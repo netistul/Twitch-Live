@@ -12,7 +12,6 @@ function displayGroups() {
         function (data) {
             const groups = data.favoriteGroups || [];
             const groupListContainer = document.getElementById("groupListContainer");
-            // const favoriteListText = document.getElementById("favoriteListText"); // Not used? Remove if not needed.
             const isLoggedIn = data.twitchAccessToken != null;
             const hasFollowers = data.followedList && data.followedList.length > 0;
 
@@ -20,15 +19,17 @@ function displayGroups() {
 
             if (groups.length === 0) {
                 groupListContainer.innerHTML = `
-          <p style="font-size: 16px; text-align: center;">
-            <img src="../../css/settings/nogroup.gif" style="display: block; margin: 0 auto;">
-            <strong>No Favorite Groups Created Yet</strong><br><br>
-            This is a list that will help you filter your favorite live streams from the popup into new category groups.
-            <br><br>
-            You can create a group and add any Twitch channel to it, organizing your streams.
-          </p>
-          <div class="info-box">
-            💡 You can also do this from the popup by right-clicking on any stream channel and selecting an existing group or creating a new one.
+          <div class="empty-groups-container">
+            <p style="font-size: 16px; text-align: center;">
+              <img src="../../css/settings/nogroup.gif" style="display: block; margin: 0 auto; max-width: 100%;">
+              <strong>No Favorite Groups Created Yet</strong><br><br>
+              This is a list that will help you filter your favorite live streams from the popup into new category groups.
+              <br><br>
+              You can create a group and add any Twitch channel to it, organizing your streams.
+            </p>
+            <div class="info-box">
+              💡 You can also do this from the popup by right-clicking on any stream channel and selecting an existing group or creating a new one.
+            </div>
           </div>
         `;
             } else {
