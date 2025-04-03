@@ -606,11 +606,19 @@ function createPreviewElement(stream, showAvatar, streamTitleDisplay, showStream
     viewersSpan.appendChild(document.createTextNode(`${formatViewerCount(stream.viewers)} `));
 
     // Append signal icon (only in hover mode with avatar showing)
-    if (showAvatar && streamTitleDisplay !== "newline") {
+    if (showAvatar) {  // Removed the exclusion of newline mode
         const signalIconSpan = document.createElement("span");
         signalIconSpan.className = "signal-icon";
+
+        // Add specific class for newline mode if needed
+        if (streamTitleDisplay === "newline") {
+            signalIconSpan.classList.add("signal-icon-newline");
+        }
+
         const signalIconImg = document.createElement("img");
-        signalIconImg.src = "../../css/signal.svg";
+        signalIconImg.src = streamTitleDisplay === "newline"
+            ? "../../css/signal-newline.svg"  // Use newline specific icon if available
+            : "../../css/signal.svg";
         signalIconImg.alt = "Live signal";
         signalIconSpan.appendChild(signalIconImg);
         viewersSpan.appendChild(signalIconSpan);

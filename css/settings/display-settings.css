@@ -389,9 +389,13 @@
 }
 
 .viewers-wrapper.newline-mode {
-  top: auto;
-  margin-top: 2px;
-  transform: none;
+  display: flex;
+  align-items: center; /* This will vertically center the items */
+  margin-top: 3px;
+}
+.viewers-wrapper.newline-mode .viewers-count {
+  display: flex;
+  align-items: center; /* This aligns text with icon */
 }
 
 .viewers-wrapper.default-mode {
@@ -410,6 +414,12 @@
   height: 13px;
   width: 13px;
   margin-left: 1px;
+}
+
+.signal-icon-newline {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 2px;
 }
 
 /* ======================== */
