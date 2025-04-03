@@ -8,6 +8,22 @@ body {
   overflow: hidden; /* Hide overflow */
 }
 
+/* Style for dynamicContentContainer - make it work like the old buttonContainer */
+#dynamicContentContainer {
+  display: none; /* Start hidden - will be shown by JavaScript */
+  overflow-y: auto; /* Make it scrollable */
+  overflow-x: hidden;
+  max-height: calc(556px - 1px); /* Similar to scrollContainer's max-height */
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+#initialPlaceholder {
+  display: block;
+  width: 100%;
+  height: 150px; /* Initial height, will expand when content is added */
+}
+
 #header {
   display: flex;
   justify-content: space-between;
@@ -344,6 +360,21 @@ body {
   margin-right: 5px; /* Space after avatar */
 }
 
+.stream-avatar.loading {
+  width: 30px;
+  height: 30px;
+  background-color: #18181b;
+  background-image: linear-gradient(
+    110deg,
+    #18181b 8%,
+    #262626 18%,
+    #18181b 33%
+  );
+  background-size: 200% 100%;
+  animation: darkLoading 1.5s ease-in-out infinite;
+  border-radius: 15px;
+}
+
 .stream-header {
   display: flex;
   align-items: center;
@@ -469,34 +500,29 @@ body {
 
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
-#scrollContainer::-webkit-scrollbar {
-  width: 3px; /* Width of the scrollbar */
-}
-
-#scrollContainer::-webkit-scrollbar-track {
-  background-color: #efeff1; /* Light gray track */
-}
-
-#scrollContainer::-webkit-scrollbar-thumb {
-  background-color: #6441a55e; /* Twitch-like purple thumb */
-  border-radius: 5px; /* Rounded corners for the thumb */
-}
-
-#scrollContainer::-webkit-scrollbar-thumb:hover {
-  background-color: #503484; /* Darker purple on hover */
-}
-
-#scrollContainer {
-  max-height: calc(556px - 1px);
-  overflow-y: auto;
-}
 
 /* Increase height for high-resolution screens */
 @media screen and (min-width: 1920px) {
-  #scrollContainer {
+  #dynamicContentContainer {
     max-height: 90vh;
-    /* ... other styles ... */
   }
+}
+
+#dynamicContentContainer::-webkit-scrollbar {
+  width: 3px;
+}
+
+#dynamicContentContainer::-webkit-scrollbar-track {
+  background-color: #efeff1;
+}
+
+#dynamicContentContainer::-webkit-scrollbar-thumb {
+  background-color: #6441a55e;
+  border-radius: 5px;
+}
+
+#dynamicContentContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #503484;
 }
 
 #buttonContainer {

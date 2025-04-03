@@ -13,7 +13,7 @@ const PREDEFINED_BADGE_COLORS = [
     { hex: "#0ea5e9", name: "Sky Blue" },
     { hex: "#ec4899", name: "Pink" },
     { hex: "#14b8a6", name: "Teal" },
-    { hex: "#f97316", name: "Orange" },
+    { hex: "#CDB7D7", name: "Light Purple" },
 ];
 
 // Default color (first color in the array)

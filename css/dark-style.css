@@ -114,10 +114,6 @@
   border-bottom: 1px dashed #c8646427;
 }
 
-.dark-mode #scrollContainer::-webkit-scrollbar-track {
-  background-color: #adadb7; /* Light gray track */
-}
-
 .dark-mode .viewers {
   color: #e76763;
 }
@@ -148,26 +144,22 @@ body.dark-mode .custom-tooltip {
 
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
-.dark-mode #scrollContainer::-webkit-scrollbar {
-  width: 4px; /* Width of the scrollbar */
+/* Dark mode styling for dynamicContentContainer scrollbars */
+.dark-mode #dynamicContentContainer::-webkit-scrollbar {
+  width: 4px;
 }
 
-.dark-mode #scrollContainer::-webkit-scrollbar-track {
-  background-color: #0d0d0e; /* Light gray track */
+.dark-mode #dynamicContentContainer::-webkit-scrollbar-track {
+  background-color: #0d0d0e;
 }
 
-.dark-mode #scrollContainer::-webkit-scrollbar-thumb {
-  background-color: #6441a575; /* Twitch-like purple thumb */
-  border-radius: 5px; /* Rounded corners for the thumb */
+.dark-mode #dynamicContentContainer::-webkit-scrollbar-thumb {
+  background-color: #6441a575;
+  border-radius: 5px;
 }
 
-.dark-mode #scrollContainer::-webkit-scrollbar-thumb:hover {
-  background-color: #503484; /* Darker purple on hover */
-}
-
-.dark-mode #scrollContainer {
-  max-height: calc(556px - 1px);
-  overflow-y: auto;
+.dark-mode #dynamicContentContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #503484;
 }
 
 /* Rate limit notification styling for dark mode */

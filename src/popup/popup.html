@@ -2,31 +2,38 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <!-- Ensure UTF-8 encoding -->
-    <title>Twitch Extension Login</title>
+    <title>Twitch Live</title>
     <link rel="stylesheet" type="text/css" href="../../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../../css/dark-style.css" />
     <link rel="stylesheet" type="text/css" href="../../css/context-menu.css" />
   </head>
-  <body class="dark-mode">
+  <body>
     <div id="header">
       Twitch Live
       <img id="settingsIcon" src="../../css/settings.png" alt="Settings" />
     </div>
 
-    <div id="buttonContainer">
-      <div id="streamContainer"></div>
-      <!-- New container for stream links -->
-      <!-- Other elements like login button will be added here as well -->
+    <!-- Initial Static Placeholder -->
+    <div id="initialPlaceholder">
+      <!-- Empty div that inherits body background color -->
     </div>
+
+    <!-- Container for Dynamic Content (Login Button or Streams) -->
+    <!-- Renamed from buttonContainer for clarity, but you could keep buttonContainer -->
+    <div id="dynamicContentContainer">
+      <!-- Login button or stream list will be injected here by ui.js -->
+    </div>
+
     <!-- SCRIPTS - UPDATED PATHS -->
     <script src="../utils.js"></script>
     <script src="channelAccess.js"></script>
     <script src="rateLimit.js"></script>
+    <!-- ui.js MUST come before popup.js -->
     <script src="ui.js"></script>
+    <!-- popup.js comes last to use functions defined in ui.js -->
     <script src="popup.js"></script>
 
-    <!-- Context menu (Now in the same directory) -->
+    <!-- Context menu -->
     <script src="context-menu.js"></script>
     <!-- END SCRIPTS -->
   </body>

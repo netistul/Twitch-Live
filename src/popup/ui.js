@@ -99,52 +99,61 @@ function applyDarkMode() {
 // --- Login Button Display ---
 
 function displayLoginButton(sessionExpired = false) {
-    const buttonContainer = getElement("buttonContainer");
-    if (!buttonContainer) return; // Guard clause
+    // Get the container meant for dynamic content
+    const container = getElement("dynamicContentContainer");
+    if (!container) {
+        console.error("Dynamic content container (#dynamicContentContainer) not found!");
+        return; // Cannot proceed
+    }
 
-    // Clear previous content
-    buttonContainer.innerHTML = "";
+    // Clear previous dynamic content (like old streams or messages)
+    container.innerHTML = "";
 
-    // If the session has expired, display a notification message
+    // Add session expired message if applicable
     if (sessionExpired) {
         const expirationMessage = document.createElement("div");
         expirationMessage.textContent = "Your session has expired. Please log in again.";
         expirationMessage.style.color = "#b41541"; // Or use CSS classes
         expirationMessage.style.marginBottom = "10px";
         expirationMessage.style.fontSize = "14px";
-        buttonContainer.appendChild(expirationMessage);
+        expirationMessage.style.textAlign = "center"; // Center align message
+        container.appendChild(expirationMessage);
     }
 
     // Create the login button
     const loginButton = document.createElement("button");
     loginButton.id = "loginButton";
     loginButton.textContent = "Login with Twitch";
-    loginButton.addEventListener("click", handleLoginClick); // Defined in popup.js
-
-    buttonContainer.appendChild(loginButton);
+    loginButton.addEventListener("click", handleLoginClick); // handleLoginClick is defined in popup.js
+    container.appendChild(loginButton);
 
     // Create and append the description text
     const description = document.createElement("div");
     description.textContent = "Log in with Twitch to see live channels you follow!";
-    description.id = "description";
-    buttonContainer.appendChild(description);
+    description.id = "description"; // Keep ID if styles depend on it
+    container.appendChild(description);
 
     // Create and append the not logged in icon
     const notLoggedInIcon = document.createElement("img");
     notLoggedInIcon.src = "../../css/notlogged.webp";
     notLoggedInIcon.alt = "Not Logged In";
-    notLoggedInIcon.style.height = "auto";
-    notLoggedInIcon.style.marginTop = "10px";
+    notLoggedInIcon.style.height = "auto"; // Adjust styling as needed
+    notLoggedInIcon.style.maxWidth = "80%"; // Prevent oversized image
+    notLoggedInIcon.style.marginTop = "15px";
     notLoggedInIcon.style.display = "block";
     notLoggedInIcon.style.marginLeft = "auto";
     notLoggedInIcon.style.marginRight = "auto";
-    buttonContainer.appendChild(notLoggedInIcon);
+    container.appendChild(notLoggedInIcon);
+
+    // Ensure the container is visible (this is mainly handled by showDynamicContent in popup.js)
+    container.style.display = 'block'; // Or 'flex' if you use flexbox for centering
 }
+
 
 // --- Live Streams Display ---
 
 function updateLiveStreams(streamsData) {
-    // Expects streamsData = { liveStreams, favoriteGroups, showAvatar, channelAccess, hideAccessedCount, streamGrouping, showStreamTime, streamTitleDisplay }
+    // Destructure the data passed from popup.js
     const {
         liveStreams = [],
         favoriteGroups = [],
@@ -152,33 +161,42 @@ function updateLiveStreams(streamsData) {
         channelAccess = {},
         hideAccessedCount = false,
         streamGrouping = "none",
-        showStreamTime = true, // Assuming default based on original code 'on'/'off' check
+        showStreamTime = true,
         streamTitleDisplay = "hover"
     } = streamsData;
 
-    const container = getElement("buttonContainer");
-    if (!container) return; // Guard clause
+    // Get the container meant for dynamic content
+    const container = getElement("dynamicContentContainer");
+    if (!container) {
+        console.error("Dynamic content container (#dynamicContentContainer) not found!");
+        return; // Cannot proceed
+    }
 
-    container.classList.toggle('with-avatar', showAvatar);
+    // Optional: Add/remove a class for styling based on avatar presence if needed globally
+    container.classList.toggle('with-avatar-layout', showAvatar); // Example class name
+
+    // Store scroll position *of the dynamic container*
     const currentScrollPosition = container.scrollTop;
-    container.innerHTML = ""; // Clear previous streams
 
-    const scrollContainer = document.createElement("div");
-    scrollContainer.id = "scrollContainer";
+    // Clear previous dynamic content (old streams, 'no streams' message, login button, etc.)
+    container.innerHTML = "";
 
+    // Ensure the container is visible (mainly handled by showDynamicContent in popup.js)
+    container.style.display = 'block';
+
+    // --- Handle No Live Streams ---
     if (liveStreams.length === 0) {
-        // Optional: Display a message if no streams are live
         const noStreamsMsg = document.createElement('div');
         noStreamsMsg.textContent = "No followed channels are currently live.";
         noStreamsMsg.style.padding = '20px';
         noStreamsMsg.style.textAlign = 'center';
-        scrollContainer.appendChild(noStreamsMsg);
-        container.appendChild(scrollContainer);
+        container.appendChild(noStreamsMsg);
+        // Restore scroll position (likely 0, but good practice)
+        container.scrollTop = currentScrollPosition;
         return; // Exit early
     }
 
-
-    // Sort channels based on access count (using the passed channelAccess data)
+    // --- Sort Streams (Based on access count) ---
     liveStreams.sort(
         (a, b) =>
             (channelAccess[b.broadcasterLogin] || 0) -
@@ -203,9 +221,10 @@ function updateLiveStreams(streamsData) {
         if (liveGroupStreams.length > 0) {
             isAnyFavoriteGroupLive = true;
             const groupHeader = createCollapsibleHeader(group.name.toUpperCase());
-            scrollContainer.appendChild(groupHeader);
+            container.appendChild(groupHeader); // Append header directly to the dynamic container
             liveGroupStreams.forEach((stream) => {
-                appendStreamLink(stream, scrollContainer, streamsData); // Pass all data down
+                // Pass the dynamic container as the parent for the stream link
+                appendStreamLink(stream, container, streamsData);
             });
         }
     });
@@ -225,42 +244,49 @@ function updateLiveStreams(streamsData) {
             // Group by game
             const gameGroups = {};
             ungroupedStreams.forEach(stream => {
-                const gameName = stream.category || "Other";
+                const gameName = stream.category || "Other"; // Use "Other" for streams without a category
                 if (!gameGroups[gameName]) gameGroups[gameName] = [];
                 gameGroups[gameName].push(stream);
             });
-            const sortedGameNames = Object.keys(gameGroups).sort();
+            // Sort game names alphabetically
+            const sortedGameNames = Object.keys(gameGroups).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
             sortedGameNames.forEach((gameName) => {
                 const gameHeader = createCollapsibleHeader(gameName.toUpperCase());
-                scrollContainer.appendChild(gameHeader);
+                container.appendChild(gameHeader); // Append header directly to the dynamic container
                 gameGroups[gameName].forEach((stream) => {
-                    appendStreamLink(stream, scrollContainer, streamsData);
+                    // Pass the dynamic container as the parent for the stream link
+                    appendStreamLink(stream, container, streamsData);
                 });
             });
 
         } else {
-            // Default / "More Live Channels" header if needed
+            // Default grouping ("none" or if favorites exist)
+            // Add "More Live Channels" header only if favorite groups were displayed
             if (isAnyFavoriteGroupLive) {
                 const otherHeader = createCollapsibleHeader("MORE LIVE TWITCH CHANNELS");
-                scrollContainer.appendChild(otherHeader);
+                container.appendChild(otherHeader); // Append header directly to the dynamic container
             }
+            // Append ungrouped streams
             ungroupedStreams.forEach((stream) => {
-                appendStreamLink(stream, scrollContainer, streamsData);
+                // Pass the dynamic container as the parent for the stream link
+                appendStreamLink(stream, container, streamsData);
             });
         }
     }
 
-    // Add margin to the very last stream item if needed
-    const lastStreamItem = scrollContainer.lastElementChild;
-    if (lastStreamItem && lastStreamItem.classList.contains('stream-item')) {
-        lastStreamItem.style.marginBottom = "5px";
+    // Add margin to the very last stream item or header for spacing at the bottom
+    const lastElement = container.lastElementChild;
+    if (lastElement && (lastElement.classList.contains('stream-item') || lastElement.classList.contains('group-header'))) {
+        // It's often better to handle this with CSS using :last-child pseudo-class
+        // e.g., #dynamicContentContainer > .stream-item:last-child { margin-bottom: 5px; }
+        // lastElement.style.marginBottom = "5px"; // Avoid inline style if possible
     }
 
-
-    container.appendChild(scrollContainer);
-    container.scrollTop = currentScrollPosition; // Restore scroll position
+    // Restore scroll position *of the dynamic container*
+    container.scrollTop = currentScrollPosition;
 }
+
 
 // --- Helper for Creating Collapsible Headers ---
 function createCollapsibleHeader(text) {
@@ -339,9 +365,18 @@ function appendStreamLink(stream, container, streamSettings) {
             subWrapper.classList.add("sub-wrapper-with-thumbnail", "sub-wrapper-newline");
         } else if (stream.avatar) {
             avatarImg = document.createElement("img");
-            avatarImg.src = stream.avatar;
-            avatarImg.className = "stream-avatar";
-            avatarImg.alt = `${stream.channelName}'s avatar`;
+            // Use a placeholder initially
+            avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' fill='%2318181b'/%3E%3C/svg%3E"; // Dark placeholder
+            avatarImg.className = "stream-avatar loading"; // Add loading class
+
+            // Load the actual avatar in the background
+            const actualImage = new Image();
+            actualImage.onload = () => {
+                avatarImg.src = stream.avatar;
+                avatarImg.classList.remove("loading");
+            };
+            actualImage.src = stream.avatar;
+
             Object.assign(avatarImg.style, { width: "30px", height: "30px", borderRadius: "15px", marginRight: "5px" });
         }
 
