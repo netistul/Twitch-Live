@@ -403,6 +403,18 @@
   transform: translateY(-50%);
 }
 
+body.very-dark-mode .viewers-wrapper.newline-mode .viewers-count {
+  color: rgb(248 113 113 / 1);
+  font-weight: 500 !important;
+  font-size: 14px;
+}
+
+body.very-dark-mode .viewers-wrapper.default-mode .viewers-count {
+  color: rgb(248 113 113 / 1);
+  font-weight: 500 !important;
+  font-size: 14px;
+}
+
 .signal-icon {
   display: inline-block;
   margin-left: -1px;

@@ -421,226 +421,385 @@ function updateTitleDisplayDropdownState(isAvatarEnabled) {
     }
 }
 
+// ==================================
+// PREVIEW CREATION LOGIC - MODULARIZED BY MODE
+// ==================================
+
+let previewUpdateTimeout = null;
+
+/** Cleans up any running timers associated with the preview container */
+function clearPreviewTimers(container) {
+    if (!container) return;
+    const timers = container.querySelectorAll('[data-timer-id]');
+    timers.forEach(el => {
+        const timerId = parseInt(el.dataset.timerId, 10);
+        if (!isNaN(timerId)) {
+            clearInterval(timerId);
+            // Optional: remove the attribute after clearing
+            delete el.dataset.timerId;
+        }
+    });
+}
+
+/**
+ * Builds the preview DOM elements for the 'Hover' mode WITH Avatar/Thumbnail visible.
+ * @param {HTMLElement} previewDiv - The main container div to append elements to.
+ * @param {object} stream - The stream data object.
+ * @param {object} options - Preview options { showStreamTime }.
+ */
+function buildPreview_HoverWithAvatar(previewDiv, stream, options) {
+    let timerId = null;
+
+    // 1. Avatar
+    if (stream.avatar) {
+        const avatarImg = document.createElement("img");
+        avatarImg.src = stream.avatar;
+        avatarImg.alt = `${stream.channelName} avatar`;
+        avatarImg.className = "stream-avatar";
+        previewDiv.appendChild(avatarImg);
+    }
+
+    // 2. Info Wrapper (Name, Category)
+    const infoWrapper = document.createElement("div");
+    infoWrapper.className = "info-wrapper hover-mode"; // Explicitly hover-mode
+
+    const channelNameSpan = document.createElement("span");
+    channelNameSpan.textContent = stream.channelName;
+    channelNameSpan.className = "channel-name hover-mode channel-name-with-avatar"; // Hover + Avatar classes
+    infoWrapper.appendChild(channelNameSpan);
+
+    if (stream.category) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.className = "stream-category"; // Category below name
+        categoryDiv.textContent = stream.category;
+        infoWrapper.appendChild(categoryDiv);
+    }
+    previewDiv.appendChild(infoWrapper);
+
+    // 3. Right Wrapper (Time, Viewers, Signal)
+    const viewersWrapper = document.createElement("div");
+    viewersWrapper.className = "viewers-wrapper default-mode"; // Positioning for hover
+
+    const viewersSpan = document.createElement("span");
+    viewersSpan.className = "viewers-count";
+    let viewersSpanContentAdded = false;
+
+    // Prepend Time
+    if (options.showStreamTime && stream.started_at) {
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "stream-time";
+        timeSpan.textContent = formatStreamTime(stream.started_at); // Use global util
+        viewersSpan.appendChild(timeSpan);
+
+        timerId = setInterval(() => {
+            if (timeSpan && timeSpan.isConnected) {
+                timeSpan.textContent = formatStreamTime(stream.started_at);
+            } else {
+                clearInterval(timerId);
+            }
+        }, 1000);
+        timeSpan.dataset.timerId = timerId; // Store timer ID
+
+        viewersSpan.appendChild(document.createTextNode(` `)); // Space
+        viewersSpanContentAdded = true;
+    }
+
+    // Append Viewer Count
+    if (stream.viewers !== undefined && stream.viewers !== null) {
+        viewersSpan.appendChild(document.createTextNode(`${formatViewerCount(stream.viewers)} `)); // Use global util
+        viewersSpanContentAdded = true;
+    }
+
+    // Append Signal Icon
+    const signalIconSpan = document.createElement("span");
+    signalIconSpan.className = "signal-icon"; // Default signal icon
+    const signalIconImg = document.createElement("img");
+    signalIconImg.src = "../../css/signal.svg";
+    signalIconImg.alt = "Live signal";
+    signalIconSpan.appendChild(signalIconImg);
+    viewersSpan.appendChild(signalIconSpan);
+    viewersSpanContentAdded = true;
+
+    // Only append if content was added
+    if (viewersSpanContentAdded) {
+        viewersWrapper.appendChild(viewersSpan);
+        previewDiv.appendChild(viewersWrapper);
+    }
+}
+
+/**
+ * Builds the preview DOM elements for the 'Hover' mode WITHOUT Avatar/Thumbnail visible.
+ * @param {HTMLElement} previewDiv - The main container div to append elements to.
+ * @param {object} stream - The stream data object.
+ * @param {object} options - Preview options { showStreamTime }.
+ */
+function buildPreview_HoverWithoutAvatar(previewDiv, stream, options) {
+    let timerId = null;
+
+    // 1. Avatar - NONE
+
+    // 2. Info Wrapper (Name only)
+    const infoWrapper = document.createElement("div");
+    infoWrapper.className = "info-wrapper hover-mode";
+
+    const channelNameSpan = document.createElement("span");
+    channelNameSpan.textContent = stream.channelName;
+    channelNameSpan.className = "channel-name hover-mode"; // NO channel-name-with-avatar
+    infoWrapper.appendChild(channelNameSpan);
+    previewDiv.appendChild(infoWrapper);
+
+    // 3. Right Wrapper (Category, Time, Viewers) - NO Signal Icon
+    const viewersWrapper = document.createElement("div");
+    viewersWrapper.className = "viewers-wrapper default-mode";
+    let contentAdded = false;
+
+    // Category comes first here
+    if (stream.category) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.className = `stream-category no-avatar ${options.showStreamTime ? 'with-time' : 'without-time'}`;
+        categoryDiv.textContent = stream.category;
+        viewersWrapper.appendChild(categoryDiv);
+        contentAdded = true;
+    }
+
+    // Viewers span holds Time + Count
+    const viewersSpan = document.createElement("span");
+    viewersSpan.className = "viewers-count"; // Still use this class for styling consistency if needed
+    let viewersSpanContentAdded = false;
+
+    // Prepend Time
+    if (options.showStreamTime && stream.started_at) {
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "stream-time";
+        timeSpan.textContent = formatStreamTime(stream.started_at); // Use global util
+        viewersSpan.appendChild(timeSpan);
+
+        timerId = setInterval(() => {
+            if (timeSpan && timeSpan.isConnected) {
+                timeSpan.textContent = formatStreamTime(stream.started_at);
+            } else {
+                clearInterval(timerId);
+            }
+        }, 1000);
+        timeSpan.dataset.timerId = timerId; // Store timer ID
+
+        viewersSpan.appendChild(document.createTextNode(` `)); // Space
+        viewersSpanContentAdded = true;
+    }
+
+    // Append Viewer Count
+    if (stream.viewers !== undefined && stream.viewers !== null) {
+        // Add a leading space if time wasn't shown but category was
+        if (!options.showStreamTime && contentAdded && !viewersSpanContentAdded) {
+            viewersSpan.appendChild(document.createTextNode(` `));
+        }
+        viewersSpan.appendChild(document.createTextNode(`${formatViewerCount(stream.viewers)} `)); // Use global util
+        viewersSpanContentAdded = true;
+    }
+
+    // Append viewersSpan only if it has content
+    if (viewersSpanContentAdded) {
+        viewersWrapper.appendChild(viewersSpan);
+        contentAdded = true; // Mark that the main wrapper has content
+    }
+
+    // Only append the wrapper if it has *any* content
+    if (contentAdded) {
+        previewDiv.appendChild(viewersWrapper);
+    }
+}
+
+/**
+ * Builds the preview DOM elements for the 'Newline' mode (Thumbnail layout).
+ * Assumes showAvatar is true for this mode to be selected by the router.
+ * @param {HTMLElement} previewDiv - The main container div to append elements to.
+ * @param {object} stream - The stream data object.
+ * @param {object} options - Preview options { showStreamTime }.
+ */
+function buildPreview_Newline(previewDiv, stream, options) {
+    let timerId = null;
+
+    // 1. Thumbnail
+    if (stream.thumbnail) {
+        const thumbnailWrapper = document.createElement("div");
+        thumbnailWrapper.className = "thumbnail-wrapper";
+
+        const thumbnailImg = document.createElement("img");
+        thumbnailImg.className = "stream-thumbnail";
+        thumbnailImg.src = "../../css/icon.png"; // Placeholder
+
+        const actualImage = new Image();
+        actualImage.onload = () => { thumbnailImg.src = stream.thumbnail.replace('{width}', '80').replace('{height}', '45'); };
+        actualImage.onerror = () => { thumbnailImg.src = "../../css/icon.png"; }; // Fallback
+        actualImage.src = stream.thumbnail.replace('{width}', '80').replace('{height}', '45');
+
+        thumbnailWrapper.appendChild(thumbnailImg);
+
+        // Time Overlay on Thumbnail
+        if (options.showStreamTime && stream.started_at) {
+            const timeOverlay = document.createElement("div");
+            timeOverlay.className = "stream-time-overlay";
+            timeOverlay.textContent = formatStreamTime(stream.started_at); // Use global util
+            thumbnailWrapper.appendChild(timeOverlay);
+
+            timerId = setInterval(() => {
+                if (timeOverlay && timeOverlay.isConnected) {
+                    timeOverlay.textContent = formatStreamTime(stream.started_at);
+                } else {
+                    clearInterval(timerId);
+                }
+            }, 1000);
+            timeOverlay.dataset.timerId = timerId; // Store timer ID
+        }
+        previewDiv.appendChild(thumbnailWrapper);
+    }
+    // Note: If stream.thumbnail is missing, newline mode might look odd without a left element.
+    // Could add a placeholder or fallback to avatar logic if needed.
+
+    // 2. Info Wrapper (Name, Title, Category)
+    const infoWrapper = document.createElement("div");
+    infoWrapper.className = "info-wrapper newline-mode"; // Explicitly newline-mode
+
+    const channelNameSpan = document.createElement("span");
+    channelNameSpan.textContent = stream.channelName;
+    channelNameSpan.className = "channel-name newline-mode channel-name-with-avatar"; // Newline + Avatar classes
+    infoWrapper.appendChild(channelNameSpan);
+
+    if (stream.title) {
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "stream-title";
+        titleDiv.textContent = stream.title;
+        infoWrapper.appendChild(titleDiv);
+    }
+
+    if (stream.category) {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.className = "stream-category-newline";
+        categoryDiv.textContent = stream.category;
+        infoWrapper.appendChild(categoryDiv);
+    }
+    previewDiv.appendChild(infoWrapper);
+
+    // 3. Right Wrapper (Viewers, Signal Icon)
+    const viewersWrapper = document.createElement("div");
+    viewersWrapper.className = "viewers-wrapper newline-mode"; // Positioning for newline
+
+    const viewersSpan = document.createElement("span");
+    viewersSpan.className = "viewers-count"; // For styling consistency
+    let viewersSpanContentAdded = false;
+
+    // Viewer Count
+    if (stream.viewers !== undefined && stream.viewers !== null) {
+        viewersSpan.appendChild(document.createTextNode(`${formatViewerCount(stream.viewers)} `)); // Use global util
+        viewersSpanContentAdded = true;
+    }
+
+    // Signal Icon
+    const signalIconSpan = document.createElement("span");
+    signalIconSpan.className = "signal-icon signal-icon-newline"; // Newline specific signal icon styling
+    const signalIconImg = document.createElement("img");
+    signalIconImg.src = "../../css/signal-newline.svg"; // Specific newline icon
+    signalIconImg.alt = "Live signal";
+    signalIconSpan.appendChild(signalIconImg);
+    viewersSpan.appendChild(signalIconSpan);
+    viewersSpanContentAdded = true; // Icon counts as content
+
+    // Append if content exists
+    if (viewersSpanContentAdded) {
+        viewersWrapper.appendChild(viewersSpan);
+        previewDiv.appendChild(viewersWrapper);
+    }
+}
+
+/**
+ * Creates the main preview element and routes to the correct builder function based on options.
+ * @param {object} stream - The stream data object.
+ * @param {object} options - Preview options { showAvatar, mode, showStreamTime }.
+ * @returns {HTMLElement} The complete preview div element.
+ */
+function createPreviewElement(stream, options) {
+    const previewDiv = document.createElement("div");
+
+    // Set base class + mode class determined by streamTitleDisplay ('hover' or 'newline')
+    previewDiv.className = `stream-preview ${options.mode === "newline" ? "newline-mode" : "hover-mode"}`;
+
+    // Route to the appropriate builder function
+    if (options.mode === "newline" && options.showAvatar) {
+        // --- Newline/Thumbnail Mode ---
+        buildPreview_Newline(previewDiv, stream, options);
+    } else if (options.mode !== "newline" && options.showAvatar) {
+        // --- Hover Mode WITH Avatar ---
+        buildPreview_HoverWithAvatar(previewDiv, stream, options);
+    } else {
+        // --- Hover Mode WITHOUT Avatar ---
+        // (Also catches newline mode when showAvatar is false, defaulting to no-avatar layout)
+        buildPreview_HoverWithoutAvatar(previewDiv, stream, options);
+    }
+
+    return previewDiv;
+}
+
 /**
 * Updates the preview pane based on current settings and a random live stream.
+* (This function remains largely the same, just calls the new createPreviewElement router)
 */
-let previewUpdateTimeout = null;
 function updatePreview() {
-    // Debounce preview updates slightly
     clearTimeout(previewUpdateTimeout);
     previewUpdateTimeout = setTimeout(() => {
         chrome.storage.local.get(
             ["liveStreams", "streamTitleDisplay", "showStreamTime", "showAvatar"],
             (data) => {
                 const liveStreams = data.liveStreams || [];
-                const streamTitleDisplay = data.streamTitleDisplay || "hover"; // Default to hover
-                const showStreamTime = data.showStreamTime === "on";
-                const showAvatar = data.showAvatar !== undefined ? data.showAvatar : true; // Default true
                 const previewContainer = document.getElementById("previewContainer");
-                const avatarCheckbox = document.getElementById("showAvatarCheckbox"); // Get checkbox state directly
 
-                // Ensure checkbox reflects stored state (in case of race condition on load)
-                if (avatarCheckbox && avatarCheckbox.checked !== showAvatar) {
-                    avatarCheckbox.checked = showAvatar;
+                if (!previewContainer) {
+                    console.error("Preview container not found!");
+                    return;
                 }
 
-                if (!previewContainer) return;
+                // Clear previous preview and its timers FIRST
+                clearPreviewTimers(previewContainer);
+                previewContainer.innerHTML = '';
+                previewContainer.style.display = "none";
 
-                previewContainer.innerHTML = ''; // Clear previous preview
-                previewContainer.style.display = "none"; // Hide by default
+                // Determine preview options
+                const options = {
+                    showAvatar: data.showAvatar !== undefined ? data.showAvatar : true,
+                    mode: data.streamTitleDisplay || "hover", // 'hover' or 'newline'
+                    showStreamTime: data.showStreamTime === "on"
+                };
+
+                // Ensure checkbox reflects stored state (redundancy for safety)
+                const avatarCheckbox = document.getElementById("showAvatarCheckbox");
+                if (avatarCheckbox && avatarCheckbox.checked !== options.showAvatar) {
+                    avatarCheckbox.checked = options.showAvatar;
+                    updateTitleDisplayDropdownState(options.showAvatar); // Ensure dropdown state matches
+                }
+
 
                 if (liveStreams.length > 0) {
-                    // Use a consistent stream for preview stability during option changes, or random if needed
-                    // For now, random on each update call. Consider storing the preview stream temporarily.
                     const previewStream = liveStreams[Math.floor(Math.random() * liveStreams.length)];
+                    if (!previewStream) return;
 
-                    if (!previewStream) return; // Should not happen if length > 0, but safety check
+                    // Create the preview element using the ROUTER function
+                    const previewElement = createPreviewElement(previewStream, options); // Use the router
+                    previewContainer.appendChild(previewElement);
+                    previewContainer.style.display = "flex";
 
-                    const previewDiv = createPreviewElement(previewStream, showAvatar, streamTitleDisplay, showStreamTime);
-                    previewContainer.appendChild(previewDiv);
-                    previewContainer.style.display = "flex"; // Show the container
-
-                    // Start timers if needed (handled within createPreviewElement)
+                    // Timers are handled within the builder functions now
                 } else {
-                    // Optionally display a "no live streams" message in the preview area
+                    // Optional: Display a "no live streams" message
                     // previewContainer.textContent = "No followed streams currently live.";
                     // previewContainer.style.display = "block";
                 }
             }
         );
-    }, 100); // 100ms debounce
+    }, 100); // Debounce
 }
 
-/**
-* Creates the HTML structure for the stream preview element.
-* @param {object} stream - The stream data object.
-* @param {boolean} showAvatar - Whether to show avatar/thumbnail.
-* @param {string} streamTitleDisplay - How to display title ('hover', 'newline', 'off').
-* @param {boolean} showStreamTime - Whether to display stream uptime.
-* @returns {HTMLElement} The preview div element.
-*/
-function createPreviewElement(stream, showAvatar, streamTitleDisplay, showStreamTime) {
-    const previewDiv = document.createElement("div");
-    previewDiv.className = `stream-preview ${streamTitleDisplay === "newline" ? "newline-mode" : "hover-mode"}`; // Use mode class
-
-    // Clear any existing timers before creating new ones
-    const previewContainer = document.getElementById("previewContainer");
-    if (previewContainer) clearPreviewTimers(previewContainer);
-
-    let timeIntervalId = null;
-
-    // --- Thumbnail or Avatar ---
-    if (showAvatar) {
-        if (streamTitleDisplay === "newline" && stream.thumbnail) {
-            // Newline mode: Thumbnail with optional time overlay
-            const thumbnailWrapper = document.createElement("div");
-            thumbnailWrapper.className = "thumbnail-wrapper";
-
-            const thumbnailImg = document.createElement("img");
-            thumbnailImg.className = "stream-thumbnail";
-            thumbnailImg.src = "../../css/icon.png"; // Placeholder
-
-            const actualImage = new Image();
-            actualImage.onload = () => { thumbnailImg.src = stream.thumbnail.replace('{width}', '80').replace('{height}', '45'); };
-            actualImage.onerror = () => { thumbnailImg.src = "../../css/icon.png"; }; // Fallback on error
-            actualImage.src = stream.thumbnail.replace('{width}', '80').replace('{height}', '45');
-
-            thumbnailWrapper.appendChild(thumbnailImg);
-
-            if (showStreamTime && stream.started_at) {
-                const timeOverlay = document.createElement("div");
-                timeOverlay.className = "stream-time-overlay";
-                timeOverlay.textContent = formatStreamTime(stream.started_at);
-                thumbnailWrapper.appendChild(timeOverlay);
-
-                timeIntervalId = setInterval(() => {
-                    if (timeOverlay && timeOverlay.isConnected) { // Check if still in DOM
-                        timeOverlay.textContent = formatStreamTime(stream.started_at);
-                    } else {
-                        clearInterval(timeIntervalId); // Stop if element removed
-                    }
-                }, 1000);
-                timeOverlay.dataset.timerId = timeIntervalId; // Store timer ID for cleanup
-            }
-            previewDiv.appendChild(thumbnailWrapper);
-
-        } else if (stream.avatar) {
-            // Hover mode (or newline without thumbnail): Avatar
-            const avatarImg = document.createElement("img");
-            avatarImg.src = stream.avatar;
-            avatarImg.alt = `${stream.channelName} avatar`;
-            avatarImg.className = "stream-avatar";
-            previewDiv.appendChild(avatarImg);
-        }
-    }
-
-    // --- Info Wrapper (Channel Name, Title, Category) ---
-    const infoWrapper = document.createElement("div");
-    infoWrapper.className = `info-wrapper ${streamTitleDisplay === "newline" ? "newline-mode" : "hover-mode"}`;
-
-    const channelNameSpan = document.createElement("span");
-    channelNameSpan.textContent = stream.channelName;
-    channelNameSpan.className = `channel-name ${streamTitleDisplay === "newline" ? "newline-mode" : "hover-mode"}`;
-    if (showAvatar) channelNameSpan.classList.add("channel-name-with-avatar");
-    infoWrapper.appendChild(channelNameSpan);
-
-    if (streamTitleDisplay === "newline") {
-        if (stream.title) {
-            const titleDiv = document.createElement("div");
-            titleDiv.className = "stream-title";
-            titleDiv.textContent = stream.title;
-            infoWrapper.appendChild(titleDiv);
-        }
-        if (stream.category) {
-            const categoryDiv = document.createElement("div");
-            categoryDiv.className = "stream-category-newline";
-            categoryDiv.textContent = stream.category;
-            infoWrapper.appendChild(categoryDiv);
-        }
-    } else if (showAvatar && stream.category) { // Category below name in hover mode with avatar
-        const categoryDiv = document.createElement("div");
-        categoryDiv.className = "stream-category";
-        categoryDiv.textContent = stream.category;
-        infoWrapper.appendChild(categoryDiv);
-    }
-
-    previewDiv.appendChild(infoWrapper);
-
-    // --- Viewers/Time/Category Wrapper (Right side) ---
-    const viewersWrapper = document.createElement("div");
-    viewersWrapper.className = `viewers-wrapper ${streamTitleDisplay === "newline" ? "newline-mode" : "default-mode"}`;
-
-    // Category for hover mode without avatar
-    if (!showAvatar && streamTitleDisplay !== "newline" && stream.category) {
-        const categoryDiv = document.createElement("div");
-        categoryDiv.className = `stream-category ${showStreamTime ? 'with-time' : 'without-time'}`;
-        // class when avatar is hidden
-        categoryDiv.classList.add('no-avatar');
-        categoryDiv.textContent = stream.category;
-        viewersWrapper.appendChild(categoryDiv);
-    }
-
-    const viewersSpan = document.createElement("span");
-    viewersSpan.className = "viewers-count";
-
-    // Prepend time if needed (only in hover mode)
-    if (showStreamTime && streamTitleDisplay !== "newline" && stream.started_at) {
-        const timeSpan = document.createElement("span");
-        timeSpan.className = "stream-time";
-        timeSpan.textContent = formatStreamTime(stream.started_at);
-        viewersSpan.appendChild(timeSpan);
-
-        timeIntervalId = setInterval(() => {
-            if (timeSpan && timeSpan.isConnected) {
-                timeSpan.textContent = formatStreamTime(stream.started_at);
-            } else {
-                clearInterval(timeIntervalId);
-            }
-        }, 1000);
-        timeSpan.dataset.timerId = timeIntervalId; // Store timer ID
-
-        viewersSpan.appendChild(document.createTextNode(` `)); // Add space after time
-    }
-
-    // Append viewer count
-    viewersSpan.appendChild(document.createTextNode(`${formatViewerCount(stream.viewers)} `));
-
-    // Append signal icon (only in hover mode with avatar showing)
-    if (showAvatar) {  // Removed the exclusion of newline mode
-        const signalIconSpan = document.createElement("span");
-        signalIconSpan.className = "signal-icon";
-
-        // Add specific class for newline mode if needed
-        if (streamTitleDisplay === "newline") {
-            signalIconSpan.classList.add("signal-icon-newline");
-        }
-
-        const signalIconImg = document.createElement("img");
-        signalIconImg.src = streamTitleDisplay === "newline"
-            ? "../../css/signal-newline.svg"  // Use newline specific icon if available
-            : "../../css/signal.svg";
-        signalIconImg.alt = "Live signal";
-        signalIconSpan.appendChild(signalIconImg);
-        viewersSpan.appendChild(signalIconSpan);
-    }
-
-    viewersWrapper.appendChild(viewersSpan);
-    previewDiv.appendChild(viewersWrapper);
-
-    return previewDiv;
-}
-
-
-/** Cleans up any running timers associated with the preview */
-function clearPreviewTimers(container) {
-    const timers = container.querySelectorAll('[data-timer-id]');
-    timers.forEach(el => {
-        const timerId = parseInt(el.dataset.timerId, 10);
-        if (timerId) {
-            clearInterval(timerId);
-        }
-    });
-}
+// ==================================
+// END OF PREVIEW CREATION LOGIC
+// ==================================
 
 /**
  * Intelligently waits for live streams data to be available before updating the preview.
