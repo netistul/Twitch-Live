@@ -301,6 +301,10 @@ function updateLiveStreams(streamsData) {
             });
         }
     }
+    // After all streams have been appended, add borders to the last stream in each group
+    if (streamTitleDisplay === "newline" && document.body.classList.contains("very-dark-mode")) {
+        addGroupBottomBorders(container);
+    }
 
     // Add margin to the very last stream item or header for spacing at the bottom
     const lastElement = container.lastElementChild;
@@ -330,6 +334,31 @@ function createCollapsibleHeader(text) {
     return header;
 }
 
+// Helper function to add borders to the last stream in each group
+function addGroupBottomBorders(container) {
+    const groupHeaders = container.querySelectorAll('.group-header');
+
+    groupHeaders.forEach((header, index) => {
+        // Find all stream items that belong to this group
+        let currentElement = header.nextElementSibling;
+        let lastStreamInGroup = null;
+
+        // Traverse until we reach the next header or the end of the container
+        while (currentElement && !currentElement.classList.contains('group-header')) {
+            if (currentElement.classList.contains('stream-item')) {
+                lastStreamInGroup = currentElement;
+            }
+            currentElement = currentElement.nextElementSibling;
+        }
+
+        // Add border to the last stream in the group
+        if (lastStreamInGroup) {
+            lastStreamInGroup.style.borderBottom = "1px solid rgba(38, 38, 38, 1)";
+            lastStreamInGroup.style.paddingBottom = "8px";
+            lastStreamInGroup.style.marginBottom = "8px"; // Add some space after the border
+        }
+    });
+}
 
 // --- Helper for Appending a Single Stream Link ---
 function appendStreamLink(stream, container, streamSettings) {
