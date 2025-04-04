@@ -73,29 +73,17 @@ function openSettingsPage() {
  * Always clears and recreates the alarm to ensure it's working properly.
  */
 function setupAlarm() {
-  console.log("[ALARM] Setting up alarm using simple approach from old version...");
+  console.log("[ALARM] Setting up alarm using simple, direct approach..."); // Optional: Keep a log
 
   // Simple approach: always clear and recreate the alarm
-  chrome.alarms.clear(FETCH_ALARM_NAME, () => {
+  chrome.alarms.clear(FETCH_ALARM_NAME, () => { // Use your constant
     chrome.alarms.create(FETCH_ALARM_NAME, {
-      periodInMinutes: FETCH_ALARM_PERIOD_MINUTES
+      periodInMinutes: FETCH_ALARM_PERIOD_MINUTES // Use your constant
     });
     console.log(`[ALARM] Created alarm '${FETCH_ALARM_NAME}' with period ${FETCH_ALARM_PERIOD_MINUTES} minutes (${FETCH_INTERVAL_SECONDS} seconds)`);
   });
 
-  // Still verify the alarm was created correctly
-  setTimeout(() => {
-    chrome.alarms.get(FETCH_ALARM_NAME, (alarm) => {
-      if (alarm) {
-        console.log(`[ALARM] Verified alarm exists: ${alarm.name}, next fire: ${new Date(alarm.scheduledTime)}`);
-      } else {
-        console.error(`[ERROR] Failed to create alarm '${FETCH_ALARM_NAME}'! Trying again...`);
-        chrome.alarms.create(FETCH_ALARM_NAME, {
-          periodInMinutes: FETCH_ALARM_PERIOD_MINUTES
-        });
-      }
-    });
-  }, 1000); // Check after 1 second
+  // NO VERIFICATION STEP HERE - REMOVE THE setTimeout BLOCK
 }
 
 /**

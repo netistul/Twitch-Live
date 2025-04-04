@@ -9,11 +9,13 @@ function showDynamicContent() {
 // Global flag to prevent multiple simultaneous updates if needed
 let isUpdatingStreams = false; // Make sure this is defined at the top level
 
+let isFirstStreamLoad = true;
+
 // Flag to detect if we need to actively poll for auth completion
 let activeAuthCheck = false;
 let noStreamsShowing = false;
 
-// --- Modify the DOMContentLoaded event handler ---
+// --- DOMContentLoaded event handler ---
 document.addEventListener("DOMContentLoaded", function () {
   console.log("[DEBUG] Popup opened");
 
@@ -37,31 +39,11 @@ document.addEventListener("DOMContentLoaded", function () {
   checkLoginAndDisplayAppropriateUI();
 
   // Add monitoring for empty stream list
-  // If we show "No followed channels are currently live" we should check more frequently
-  const streamCheckInterval = setInterval(function () {
-    // Only run this check for a limited time after popup opens
-    if (dynamicContentContainer) {
-      console.log("[DEBUG] Checking content: ", dynamicContentContainer.innerText);
+  // This will check for "No followed channels are currently live" or "Checking for live channels..."
+  // and trigger a refresh if needed
+  // Begin active polling for live streams if loading/empty
+  setTimeout(startActiveStreamPolling, 500); // Small delay so initial UI loads first
 
-      // Check if "No followed channels" message is showing
-      if (dynamicContentContainer.innerText.includes("No followed channels are currently live")) {
-        console.log("[DEBUG] Empty stream list detected, enabling active checking");
-        noStreamsShowing = true;
-
-        // Check if we're actually logged in
-        chrome.storage.local.get("twitchAccessToken", function (result) {
-          if (result.twitchAccessToken) {
-            console.log("[DEBUG] We have a token but no streams shown - forcing update");
-            // We're logged in but showing no streams - this is our target case
-            triggerUpdateLiveStreams();
-          }
-        });
-      } else {
-        // We have content or different message, can disable active checking
-        noStreamsShowing = false;
-      }
-    }
-  }, 2000); // Check every 2 seconds
 
   // Only run this special check for 30 seconds after popup opens
   setTimeout(() => {
@@ -91,6 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("[DEBUG] OAuth complete message received in popup.");
       applyDarkMode(); // Re-apply theme if needed
 
+      isFirstStreamLoad = true; // Reset first load flag
+
       // Check login which will trigger stream fetch
       checkLoginAndDisplayAppropriateUI();
 
@@ -111,6 +95,42 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle other messages if necessary
   });
 });
+
+function startActiveStreamPolling() {
+  let activeEmptyCheckCount = 0;
+  const maxEmptyChecks = 10;
+
+  const streamCheckInterval = setInterval(function () {
+    if (!dynamicContentContainer) return;
+
+    const content = dynamicContentContainer.innerText;
+    console.log("[DEBUG] Checking dynamic content:", content);
+
+    const isLoadingMessage = content.includes("Checking for live channels...");
+    const isEmptyMessage = content.includes("No followed channels are currently live");
+
+    if ((isLoadingMessage || isEmptyMessage) && activeEmptyCheckCount < maxEmptyChecks) {
+      activeEmptyCheckCount++;
+      console.log(`[DEBUG] Empty or loading state detected (check ${activeEmptyCheckCount}/${maxEmptyChecks})`);
+
+      chrome.storage.local.get("twitchAccessToken", function (result) {
+        if (result.twitchAccessToken) {
+          console.log("[DEBUG] We have token, retrying stream update...");
+          triggerUpdateLiveStreams();
+        }
+      });
+    } else {
+      console.log("[DEBUG] Streams loaded or max retries hit. Clearing interval.");
+      clearInterval(streamCheckInterval);
+    }
+  }, 2000); // Check every 2 seconds
+
+  // Stop checking after 30 seconds, even if maxEmptyChecks wasn't hit
+  setTimeout(() => {
+    clearInterval(streamCheckInterval);
+    console.log("[DEBUG] Disabling special content check");
+  }, 30000);
+}
 
 // --- Logic Functions ---
 
@@ -164,39 +184,30 @@ function triggerUpdateLiveStreams() {
   console.log("[DEBUG] Triggering live stream update...");
 
   chrome.storage.local.get(
-    [ // Make sure you have all your necessary keys here
+    [
       "twitchAccessToken", "liveStreams", "favoriteGroups", "showAvatar",
       "channelAccess", "hideAccessedCount", "streamGrouping", "showStreamTime",
       "streamTitleDisplay",
     ],
     function (result) {
-      // Reset flag regardless of outcome
       isUpdatingStreams = false;
 
       if (chrome.runtime.lastError) {
         console.error("[DEBUG] Error fetching data for stream update:", chrome.runtime.lastError);
-        if (dynamicContentContainer) {
-          // Log the error, maybe show a small indicator if content already exists
-          console.error("[DEBUG] Couldn't refresh streams.", chrome.runtime.lastError.message);
-          // Optionally, show an error message if the container is empty
-          if (!dynamicContentContainer.hasChildNodes()) {
-            dynamicContentContainer.innerHTML = "<div style='padding: 10px; text-align: center; color: orange;'>Couldn't load streams. Please try again later.</div>";
-          }
+        if (dynamicContentContainer && !dynamicContentContainer.hasChildNodes()) {
+          dynamicContentContainer.innerHTML = "<div style='padding: 10px; text-align: center; color: orange;'>Couldn't load streams. Please try again later.</div>";
         }
         return;
       }
 
-      // Only proceed if logged in
       if (!result.twitchAccessToken) {
         console.log("[DEBUG] Not logged in during stream update trigger, switching to login view.");
-        checkLoginAndDisplayAppropriateUI(); // Re-check and show login if needed
+        checkLoginAndDisplayAppropriateUI();
         return;
       }
 
-      // Log stream count
       console.log(`[DEBUG] Got ${result.liveStreams ? result.liveStreams.length : 0} live streams`);
 
-      // Prepare data object for the UI function
       const streamsData = {
         liveStreams: result.liveStreams || [],
         favoriteGroups: result.favoriteGroups || [],
@@ -204,17 +215,24 @@ function triggerUpdateLiveStreams() {
         channelAccess: result.channelAccess || {},
         hideAccessedCount: result.hideAccessedCount !== undefined ? result.hideAccessedCount : false,
         streamGrouping: result.streamGrouping || "none",
-        showStreamTime: result.showStreamTime === "on", // Convert 'on'/'off' to boolean
+        showStreamTime: result.showStreamTime === "on",
         streamTitleDisplay: result.streamTitleDisplay || "hover",
+
+        // 🔥 HERE’S THE IMPORTANT LINE:
+        isInitialLoad: isFirstStreamLoad
       };
 
-      // Call the UI function from ui.js to update the display
-      // This function MUST target the 'dynamicContentContainer' now
-      updateLiveStreams(streamsData); // Defined in ui.js
+      // Update the stream list UI
+      updateLiveStreams(streamsData);
 
-    } // end storage callback
-  ); // end storage.local.get
+      // 🔁 Mark first load as done
+      if (isFirstStreamLoad) {
+        isFirstStreamLoad = false;
+      }
+    }
+  );
 }
+
 
 
 // ----- incrementChannelAccess function definition REMOVED from here -----
