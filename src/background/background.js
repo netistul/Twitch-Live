@@ -1,7 +1,8 @@
+//background.js
 // --- Constants ---
 const TWITCH_CLIENT_ID = "z05n4woixewpyagrqrui76x28avd2g";
 const FETCH_ALARM_NAME = "fetchDataAlarm";
-const FETCH_INTERVAL_SECONDS = 30; // Set to 30 seconds
+const FETCH_INTERVAL_SECONDS = 20; // Set to 20 seconds
 const FETCH_ALARM_PERIOD_MINUTES = FETCH_INTERVAL_SECONDS / 60; // Auto-converts to minutes
 const RATE_LIMIT_NOTIFICATION_COOLDOWN_MS = 30000; // 30 seconds
 const NEW_STREAM_NOTIFICATION_DELAY_MS = 60000; // 1 minute after startup
@@ -10,7 +11,7 @@ const NEW_STREAM_NOTIFICATION_DELAY_MS = 60000; // 1 minute after startup
 
 // Listener for when the extension is installed or updated
 chrome.runtime.onInstalled.addListener((details) => {
-  console.log("Extension installed or updated:", details.reason);
+  console.log("[INIT] Extension installed or updated:", details.reason);
   if (details.reason === "install") {
     openSettingsPage(); // Open settings page only on first install
   }
@@ -20,7 +21,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 // Listener for when the browser starts
 chrome.runtime.onStartup.addListener(() => {
-  console.log("Browser started, initializing extension.");
+  console.log("[INIT] Browser started, initializing extension.");
   initializeExtension();
 });
 
@@ -28,16 +29,34 @@ chrome.runtime.onStartup.addListener(() => {
  * Performs initial setup when the extension starts or is updated.
  */
 function initializeExtension() {
-  console.log("Initializing extension...");
-  setupAlarm(); // Setup or reset the data fetching alarm
-  fetchList(); // Initial data fetch
-  createContextMenuItems(); // Setup right-click menu items
-  updateBadge(); // Update badge based on stored count (might be 0 initially)
-  // Record startup time to avoid notifications for streams already live at launch
-  chrome.storage.local.set({ startupTime: Date.now() });
+  console.log("[INIT] Initializing extension...");
+
   // Clear any previous rate limit flags on startup/reload
-  chrome.storage.local.remove(["rateLimitHit", "rateLimitTimestamp", "rateLimitDetails", "lastRateLimitNotification"]);
-  console.log("Extension initialization complete.");
+  chrome.storage.local.remove(
+    ["rateLimitHit", "rateLimitTimestamp", "rateLimitDetails", "lastRateLimitNotification"],
+    () => {
+      console.log("[INIT] Cleared previous rate limit flags");
+    }
+  );
+
+  // Update badge based on stored count
+  updateBadge();
+
+  // Initial data fetch
+  fetchList();
+
+  // Setup right-click menu items
+  createContextMenuItems();
+
+  // Setup alarm using the simple, reliable method from old version
+  setupAlarm();
+
+  // Record startup time to avoid notifications for streams already live at launch
+  chrome.storage.local.set({ startupTime: Date.now() }, () => {
+    console.log("[INIT] Set startup time");
+  });
+
+  console.log("[INIT] Extension initialization complete.");
 }
 
 /**
@@ -50,41 +69,60 @@ function openSettingsPage() {
 // --- Alarms ---
 
 /**
- * Sets up the periodic alarm for fetching data. Clears any existing alarm first.
+ * Sets up the periodic alarm for fetching data using the simpler approach from the old version.
+ * Always clears and recreates the alarm to ensure it's working properly.
  */
 function setupAlarm() {
-  chrome.alarms.get(FETCH_ALARM_NAME, (existingAlarm) => {
-    // Check if the alarm exists and has the correct period
-    if (!existingAlarm || existingAlarm.periodInMinutes !== FETCH_ALARM_PERIOD_MINUTES) {
-      chrome.alarms.clear(FETCH_ALARM_NAME, (cleared) => {
-        if (cleared) {
-          console.log(`Cleared existing alarm '${FETCH_ALARM_NAME}'.`);
-        } else {
-          // May indicate an issue or no alarm existed, which is fine.
-          // console.log(`No existing alarm '${FETCH_ALARM_NAME}' to clear or error clearing.`);
-        }
+  console.log("[ALARM] Setting up alarm using simple approach from old version...");
+
+  // Simple approach: always clear and recreate the alarm
+  chrome.alarms.clear(FETCH_ALARM_NAME, () => {
+    chrome.alarms.create(FETCH_ALARM_NAME, {
+      periodInMinutes: FETCH_ALARM_PERIOD_MINUTES
+    });
+    console.log(`[ALARM] Created alarm '${FETCH_ALARM_NAME}' with period ${FETCH_ALARM_PERIOD_MINUTES} minutes (${FETCH_INTERVAL_SECONDS} seconds)`);
+  });
+
+  // Still verify the alarm was created correctly
+  setTimeout(() => {
+    chrome.alarms.get(FETCH_ALARM_NAME, (alarm) => {
+      if (alarm) {
+        console.log(`[ALARM] Verified alarm exists: ${alarm.name}, next fire: ${new Date(alarm.scheduledTime)}`);
+      } else {
+        console.error(`[ERROR] Failed to create alarm '${FETCH_ALARM_NAME}'! Trying again...`);
         chrome.alarms.create(FETCH_ALARM_NAME, {
-          // Delay initial trigger slightly to allow initialization to settle
-          delayInMinutes: 0.1,
           periodInMinutes: FETCH_ALARM_PERIOD_MINUTES
         });
-        console.log(`Created alarm '${FETCH_ALARM_NAME}' with period ${FETCH_ALARM_PERIOD_MINUTES} minutes.`);
-      });
+      }
+    });
+  }, 1000); // Check after 1 second
+}
+
+/**
+ * Opens the extension's settings page in a new tab.
+ */
+function openSettingsPage() {
+  chrome.tabs.create({ url: chrome.runtime.getURL("src/settings/settings.html") });
+}
+
+// --- Fetch list function with enhanced logging ---
+function fetchList() {
+  console.log(`[FETCH] Starting fetchList at ${new Date().toISOString()}`);
+
+  chrome.storage.local.get(["twitchAccessToken", "userId"], (result) => {
+    if (result.twitchAccessToken && result.userId) {
+      console.log(`[FETCH] Found credentials. User ID: ${result.userId.substring(0, 4)}...`);
+
+      // First fetch user profile to check for avatar updates
+      fetchUserProfileUpdates(result.twitchAccessToken);
+
+      // Then continue with fetching follows
+      fetchFollowList(result.twitchAccessToken, result.userId);
     } else {
-      console.log(`Alarm '${FETCH_ALARM_NAME}' already exists with the correct period.`);
+      console.log("[FETCH] Access Token or User ID not found. Skipping fetch.");
     }
   });
 }
-
-
-// Listener for the data fetching alarm
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === FETCH_ALARM_NAME) {
-    console.log("Alarm triggered: fetching list.");
-    fetchList();
-  }
-});
-
 // --- Authentication & User Profile ---
 
 /**
@@ -114,6 +152,8 @@ function startOAuthFlow() {
     (redirectUrl) => {
       const lastError = isFirefox ? browser.runtime.lastError : chrome.runtime.lastError;
       if (lastError || !redirectUrl) {
+        // Clear login in progress flag
+        chrome.storage.local.remove("loginInProgress");
         console.error("OAuth flow failed:", lastError?.message || "No redirect URL received.");
         // Optionally send a message back to UI indicating failure
         chrome.runtime.sendMessage({ action: "oauthFailed", error: lastError?.message || "Unknown error" });
@@ -272,34 +312,6 @@ function handleAuthenticationError() {
 
 // --- Twitch Data Fetching (Follows & Streams) ---
 
-/**
- * Main function to fetch data periodically. Gets token/userId and triggers subsequent fetches.
- */
-function fetchList() {
-  chrome.storage.local.get(["twitchAccessToken", "userId", "tokenExpired"], (result) => {
-    if (result.tokenExpired) {
-      console.log("Token is marked as expired, skipping fetch.");
-      // Ensure badge is clear if token expired recently
-      updateBadge();
-      return;
-    }
-    if (result.twitchAccessToken && result.userId) {
-      // console.log("Fetching user profile updates and follow list..."); // Can be noisy
-      // Fetch profile updates first (quick check for avatar/name changes)
-      fetchUserProfileUpdates(result.twitchAccessToken);
-      // Then fetch the full follow list and stream statuses
-      fetchFollowList(result.twitchAccessToken, result.userId);
-    } else {
-      // console.log("Access token or user ID missing, skipping fetch."); // Can be noisy
-      // Clear badge if logged out
-      chrome.storage.local.get("liveStreamCount", (res) => {
-        if (res.liveStreamCount > 0) {
-          chrome.storage.local.set({ liveStreams: [], liveStreamCount: 0 }, updateBadge);
-        }
-      });
-    }
-  });
-}
 
 /**
  * Recursively fetches all followed channels for a user.
@@ -918,18 +930,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(data);
       });
       return true; // Indicate asynchronous response
-
-    // case "oauthComplete": // No longer strictly needed as a message *to* background
-    // case "oauthFailed":
-    // case "authError":
-    // case "disconnected":
-    // case "rateLimitHit":
-    // case "rateLimitResolved":
-    //    // These are messages *from* background *to* UI, handled by listeners in UI scripts.
-    //    // No action needed here in the background script's message listener.
-    //    console.log(`Background internally handled or sent '${message.action}' - no response needed.`);
-    //    break;
-
     default:
       console.log("Received unknown message action:", message.action);
       // Optionally send a response for unhandled messages
@@ -940,6 +940,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Return false explicitly if not sending an async response (or let it be undefined)
   // Returning true is only needed if sendResponse will be called later.
   return false; // Default for synchronous handling or no response needed
+});
+
+// Important: listener to respond when the alarm fires
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === FETCH_ALARM_NAME) {
+    console.log(`[ALARM] Alarm fired at ${new Date().toISOString()}`);
+    fetchList();
+  }
 });
 
 console.log("Background script loaded and listeners attached.");

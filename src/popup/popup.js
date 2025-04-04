@@ -1,21 +1,22 @@
 // --- popup.js ---
 
-// Global flag to prevent multiple simultaneous updates if needed
-let isUpdatingStreams = false;
-
-// --- Element References ---
-// Get references early, but ensure DOM is ready
-let initialPlaceholder = null;
-let dynamicContentContainer = null;
-
 // --- Helper Function ---
 function showDynamicContent() {
   if (initialPlaceholder) initialPlaceholder.style.display = 'none';
   if (dynamicContentContainer) dynamicContentContainer.style.display = 'block'; // Or 'flex' etc. if needed
 }
 
-// --- Event Listeners & Initialization ---
+// Global flag to prevent multiple simultaneous updates if needed
+let isUpdatingStreams = false; // Make sure this is defined at the top level
+
+// Flag to detect if we need to actively poll for auth completion
+let activeAuthCheck = false;
+let noStreamsShowing = false;
+
+// --- Modify the DOMContentLoaded event handler ---
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("[DEBUG] Popup opened");
+
   // Apply theme ASAP - MOST IMPORTANT STEP FOR INSTANT THEME
   applyDarkMode(); // Defined in ui.js
 
@@ -34,6 +35,39 @@ document.addEventListener("DOMContentLoaded", function () {
   // Check login status fairly quickly to decide what to show
   // This function will eventually call showDynamicContent()
   checkLoginAndDisplayAppropriateUI();
+
+  // Add monitoring for empty stream list
+  // If we show "No followed channels are currently live" we should check more frequently
+  const streamCheckInterval = setInterval(function () {
+    // Only run this check for a limited time after popup opens
+    if (dynamicContentContainer) {
+      console.log("[DEBUG] Checking content: ", dynamicContentContainer.innerText);
+
+      // Check if "No followed channels" message is showing
+      if (dynamicContentContainer.innerText.includes("No followed channels are currently live")) {
+        console.log("[DEBUG] Empty stream list detected, enabling active checking");
+        noStreamsShowing = true;
+
+        // Check if we're actually logged in
+        chrome.storage.local.get("twitchAccessToken", function (result) {
+          if (result.twitchAccessToken) {
+            console.log("[DEBUG] We have a token but no streams shown - forcing update");
+            // We're logged in but showing no streams - this is our target case
+            triggerUpdateLiveStreams();
+          }
+        });
+      } else {
+        // We have content or different message, can disable active checking
+        noStreamsShowing = false;
+      }
+    }
+  }, 2000); // Check every 2 seconds
+
+  // Only run this special check for 30 seconds after popup opens
+  setTimeout(() => {
+    clearInterval(streamCheckInterval);
+    console.log("[DEBUG] Disabling special content check");
+  }, 30000);
 
   // Set interval for updates (will update the dynamic content area)
   setInterval(function () {
@@ -54,23 +88,23 @@ document.addEventListener("DOMContentLoaded", function () {
   // Listener for OAuth completion from background script
   chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "oauthComplete") {
-      console.log("OAuth complete message received in popup.");
+      console.log("[DEBUG] OAuth complete message received in popup.");
       applyDarkMode(); // Re-apply theme if needed
-      // No need to hide placeholder spinner here, checkLogin will handle it
 
       // Check login which will trigger stream fetch
       checkLoginAndDisplayAppropriateUI();
 
-      // Optional: Force refresh a few times shortly after login
+      // Force refresh a few times shortly after login
       let refreshCount = 0;
       const refreshInterval = setInterval(() => {
         if (refreshCount < 3) {
+          console.log(`[DEBUG] Forced refresh #${refreshCount + 1} after auth`);
           triggerUpdateLiveStreams(); // Updates dynamic content
           refreshCount++;
         } else {
           clearInterval(refreshInterval);
         }
-      }, 500);
+      }, 1000); // Do this more quickly - every second
 
       chrome.storage.local.remove("tokenExpired");
     }
@@ -121,14 +155,13 @@ function triggerUpdateLiveStreams() {
   // Ensure dynamicContentContainer reference is available
   if (!dynamicContentContainer) dynamicContentContainer = document.getElementById('dynamicContentContainer');
 
-
   if (isUpdatingStreams) {
-    console.log("Stream update already in progress.");
+    console.log("[DEBUG] Stream update already in progress.");
     return; // Prevent concurrent updates
   }
 
   isUpdatingStreams = true;
-  console.log("Triggering live stream update...");
+  console.log("[DEBUG] Triggering live stream update...");
 
   chrome.storage.local.get(
     [ // Make sure you have all your necessary keys here
@@ -141,10 +174,10 @@ function triggerUpdateLiveStreams() {
       isUpdatingStreams = false;
 
       if (chrome.runtime.lastError) {
-        console.error("Error fetching data for stream update:", chrome.runtime.lastError);
+        console.error("[DEBUG] Error fetching data for stream update:", chrome.runtime.lastError);
         if (dynamicContentContainer) {
           // Log the error, maybe show a small indicator if content already exists
-          console.error("Couldn't refresh streams.", chrome.runtime.lastError.message);
+          console.error("[DEBUG] Couldn't refresh streams.", chrome.runtime.lastError.message);
           // Optionally, show an error message if the container is empty
           if (!dynamicContentContainer.hasChildNodes()) {
             dynamicContentContainer.innerHTML = "<div style='padding: 10px; text-align: center; color: orange;'>Couldn't load streams. Please try again later.</div>";
@@ -155,10 +188,13 @@ function triggerUpdateLiveStreams() {
 
       // Only proceed if logged in
       if (!result.twitchAccessToken) {
-        console.log("Not logged in during stream update trigger, switching to login view.");
+        console.log("[DEBUG] Not logged in during stream update trigger, switching to login view.");
         checkLoginAndDisplayAppropriateUI(); // Re-check and show login if needed
         return;
       }
+
+      // Log stream count
+      console.log(`[DEBUG] Got ${result.liveStreams ? result.liveStreams.length : 0} live streams`);
 
       // Prepare data object for the UI function
       const streamsData = {
@@ -183,24 +219,64 @@ function triggerUpdateLiveStreams() {
 
 // ----- incrementChannelAccess function definition REMOVED from here -----
 
-
-// --- UI Event Handlers (Called by listeners set up in ui.js) ---
-
 function handleLoginClick() {
-  console.log("Login button clicked.");
+  console.log("[DEBUG] Login button clicked");
   // The login button itself is now inside dynamicContentContainer
   const loginButton = document.getElementById("loginButton");
+  const description = document.getElementById("description"); // Get the description element
+  const notLoggedInIcon = document.querySelector("#dynamicContentContainer img[src*='notlogged.webp']"); // Get the not logged in icon
 
   // Update button text/state to show progress
   if (loginButton) {
     loginButton.textContent = "Logging in...";
     loginButton.disabled = true;
-    // Alternative: Use your existing showSpinner/hideSpinner IF showSpinner
-    // can target a specific container *without* clearing its other content,
-    // or if you place a dedicated spinner element next to the button.
-    // For simplicity, changing button text is often sufficient.
-    // e.g., showSpinner(loginButton.parentElement); // Might replace button if it clears innerHTML
+
+    // Hide the description if it exists
+    if (description) {
+      description.style.display = "none";
+    }
+
+    // Hide the not logged in icon if it exists
+    if (notLoggedInIcon) {
+      notLoggedInIcon.style.display = "none";
+    }
+
+    // Create a container for the loading GIF
+    const loadingContainer = document.createElement("div");
+    loadingContainer.id = "loginLoadingContainer";
+    loadingContainer.style.textAlign = "center";
+    loadingContainer.style.marginTop = "20px";
+    loadingContainer.style.marginBottom = "20px";
+
+    // Create and set up the loading image
+    const loadingImg = document.createElement("img");
+    loadingImg.src = "../../css/loading.webp";
+    loadingImg.alt = "Loading...";
+    loadingImg.style.width = "48px";
+    loadingImg.style.height = "48px";
+
+    // Add the image to the container
+    loadingContainer.appendChild(loadingImg);
+
+    // Add a message below the loading GIF
+    const loadingMsg = document.createElement("div");
+    loadingMsg.textContent = "Connecting to Twitch...";
+    loadingMsg.style.marginTop = "10px";
+    loadingMsg.style.fontSize = "12px";
+    loadingMsg.style.color = "#999";
+    loadingContainer.appendChild(loadingMsg);
+
+    // Insert the loading container after the login button
+    if (loginButton.parentNode) {
+      loginButton.parentNode.insertBefore(loadingContainer, loginButton.nextSibling);
+    } else if (dynamicContentContainer) {
+      dynamicContentContainer.appendChild(loadingContainer);
+    }
   }
+
+  // Enable active checking for auth completion
+  activeAuthCheck = true;
+
   // Send message to background script to start OAuth flow
   chrome.runtime.sendMessage({ action: "startOAuth" });
 }

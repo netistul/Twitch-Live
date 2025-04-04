@@ -31,6 +31,19 @@ body {
   height: 150px; /* Initial height, will expand when content is added */
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
 #header {
   display: flex;
   justify-content: space-between;

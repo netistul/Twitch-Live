@@ -139,7 +139,7 @@ function displayLoginButton(sessionExpired = false) {
     notLoggedInIcon.alt = "Not Logged In";
     notLoggedInIcon.style.height = "auto"; // Adjust styling as needed
     notLoggedInIcon.style.maxWidth = "80%"; // Prevent oversized image
-    notLoggedInIcon.style.marginTop = "15px";
+    notLoggedInIcon.style.marginTop = "50px";
     notLoggedInIcon.style.display = "block";
     notLoggedInIcon.style.marginLeft = "auto";
     notLoggedInIcon.style.marginRight = "auto";
@@ -162,7 +162,8 @@ function updateLiveStreams(streamsData) {
         hideAccessedCount = false,
         streamGrouping = "none",
         showStreamTime = true,
-        streamTitleDisplay = "hover"
+        streamTitleDisplay = "hover",
+        isInitialLoad = false  // Add this flag to track initial load state
     } = streamsData;
 
     // Get the container meant for dynamic content
@@ -186,16 +187,42 @@ function updateLiveStreams(streamsData) {
 
     // --- Handle No Live Streams ---
     if (liveStreams.length === 0) {
-        const noStreamsMsg = document.createElement('div');
-        noStreamsMsg.textContent = "No followed channels are currently live.";
-        noStreamsMsg.style.padding = '20px';
-        noStreamsMsg.style.textAlign = 'center';
-        container.appendChild(noStreamsMsg);
+        // Only show the "No followed channels" message if it's not the initial load
+        if (!isInitialLoad) {
+            const noStreamsMsg = document.createElement('div');
+            noStreamsMsg.textContent = "No followed channels are currently live.";
+            noStreamsMsg.style.padding = '20px';
+            noStreamsMsg.style.textAlign = 'center';
+            container.appendChild(noStreamsMsg);
+        } else {
+            // During initial load, show a loading indicator instead
+            const loadingContainer = document.createElement('div');
+            loadingContainer.style.padding = '20px';
+            loadingContainer.style.textAlign = 'center';
+
+            const loadingImg = document.createElement('img');
+            loadingImg.src = "../../css/loading.webp";
+            loadingImg.alt = "Loading...";
+            loadingImg.style.width = '48px';
+            loadingImg.style.height = '48px';
+
+            const loadingText = document.createElement('div');
+            loadingText.textContent = "Checking for live channels...";
+            loadingText.style.marginTop = '10px';
+            loadingText.style.fontSize = '12px';
+            loadingText.style.color = '#999';
+
+            loadingContainer.appendChild(loadingImg);
+            loadingContainer.appendChild(loadingText);
+            container.appendChild(loadingContainer);
+        }
+
         // Restore scroll position (likely 0, but good practice)
         container.scrollTop = currentScrollPosition;
         return; // Exit early
     }
 
+    // Rest of the function remains unchanged...
     // --- Sort Streams (Based on access count) ---
     liveStreams.sort(
         (a, b) =>
@@ -286,7 +313,6 @@ function updateLiveStreams(streamsData) {
     // Restore scroll position *of the dynamic container*
     container.scrollTop = currentScrollPosition;
 }
-
 
 // --- Helper for Creating Collapsible Headers ---
 function createCollapsibleHeader(text) {
@@ -410,7 +436,7 @@ function appendStreamLink(stream, container, streamSettings) {
         const tooltipHeight = tooltipSpan.offsetHeight;
         const x = e.clientX;
         const y = e.clientY;
-        const padding = 10; // Space from cursor
+        const padding = 20; // Space from cursor
         const fromBottom = window.innerHeight - e.clientY;
 
         tooltipSpan.style.left = x + padding + "px";
