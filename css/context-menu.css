@@ -415,8 +415,8 @@
 
 /* Light mode scrollbar */
 .context-menu-items-container::-webkit-scrollbar {
-  width: 6px; /* Thinner scrollbar */
-  height: 6px;
+  width: 8px; /* Thinner scrollbar */
+  height: 8px;
 }
 
 .context-menu-items-container::-webkit-scrollbar-track {

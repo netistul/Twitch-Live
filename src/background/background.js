@@ -207,8 +207,12 @@ function fetchUserProfile(accessToken) {
           () => {
             console.log("User profile data stored. Fetching follow list.");
             fetchFollowList(accessToken, userId, true); // Pass true for isOAuthComplete
-            // Don't send completion message *after* profile is successfully processed
-            // chrome.runtime.sendMessage({ action: "oauthComplete" });
+
+            // Check the alarm after OAuth is completely successful
+            setTimeout(() => {
+              ensureAlarmIsRunning();
+            }, 500); // Small delay for safety
+
             notifyOAuthComplete();
           }
         );
@@ -897,6 +901,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ status: "Fetch triggered" });
       break;
 
+    case "checkAlarm":
+      console.log("Received 'checkAlarm' message.");
+      ensureAlarmIsRunning();
+      sendResponse({ status: "Alarm check initiated" });
+      break;
+
     case "getInitialData": // Send necessary initial data to UI on request
       console.log("Received 'getInitialData' message.");
       chrome.storage.local.get([
@@ -918,6 +928,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(data);
       });
       return true; // Indicate asynchronous response
+
     default:
       console.log("Received unknown message action:", message.action);
       // Optionally send a response for unhandled messages
@@ -937,5 +948,27 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     fetchList();
   }
 });
+
+/**
+ * Checks if the fetch alarm exists and is running; recreates it if not.
+ */
+function ensureAlarmIsRunning() {
+  console.log("[ALARM] Checking if alarm is running...");  // Add this log to confirm function call
+
+  chrome.storage.local.get("twitchAccessToken", function (result) {
+    if (result.twitchAccessToken) {
+      chrome.alarms.get(FETCH_ALARM_NAME, (alarm) => {
+        if (!alarm) {
+          console.log(`[ALARM] Alarm '${FETCH_ALARM_NAME}' not found, creating it...`);
+          setupAlarm();
+        } else {
+          console.log(`[ALARM] Verified alarm '${FETCH_ALARM_NAME}' is active`);
+        }
+      });
+    } else {
+      console.log("[ALARM] No access token, alarm check skipped");
+    }
+  });
+}
 
 console.log("Background script loaded and listeners attached.");

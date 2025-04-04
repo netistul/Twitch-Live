@@ -15,6 +15,7 @@ let isFirstStreamLoad = true;
 let activeAuthCheck = false;
 let noStreamsShowing = false;
 
+let streamCheckInterval = null;
 // --- DOMContentLoaded event handler ---
 document.addEventListener("DOMContentLoaded", function () {
   console.log("[DEBUG] Popup opened");
@@ -41,27 +42,21 @@ document.addEventListener("DOMContentLoaded", function () {
   // Add monitoring for empty stream list
   // This will check for "No followed channels are currently live" or "Checking for live channels..."
   // and trigger a refresh if needed
-  // Begin active polling for live streams if loading/empty
-  setTimeout(startActiveStreamPolling, 500); // Small delay so initial UI loads first
 
+  // Begin active polling for live streams if loading/empty
+  setTimeout(startActiveStreamPolling, 500);
 
   // Only run this special check for 30 seconds after popup opens
+  // This is the failsafe timeout
   setTimeout(() => {
-    clearInterval(streamCheckInterval);
-    console.log("[DEBUG] Disabling special content check");
-  }, 30000);
-
-  // Set interval for updates (will update the dynamic content area)
-  setInterval(function () {
-    // Only trigger updates if logged in (checkLogin will handle showing login if needed)
-    chrome.storage.local.get("twitchAccessToken", function (result) {
-      if (result.twitchAccessToken) {
-        triggerUpdateLiveStreams();
-      } else {
-        // Re-check login periodically in case token expires or user logs out
-        checkLoginAndDisplayAppropriateUI();
-      }
-    });
+    // CHECK if the interval exists before clearing
+    if (streamCheckInterval) {
+      clearInterval(streamCheckInterval);
+      streamCheckInterval = null; // Optional: Reset the variable state
+      console.log("[DEBUG] Disabling special content check via DOMContentLoaded failsafe timeout");
+    } else {
+      console.log("[DEBUG] Failsafe timeout: No active stream check interval to clear.");
+    }
   }, 30000); // 30 seconds
 
   // Rate limit check
@@ -97,11 +92,22 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function startActiveStreamPolling() {
+  // Clear any *previous* interval if popup is reopened quickly
+  if (streamCheckInterval) {
+    clearInterval(streamCheckInterval);
+    console.log("[DEBUG] Cleared previous stream check interval.");
+  }
+
   let activeEmptyCheckCount = 0;
   const maxEmptyChecks = 10;
 
-  const streamCheckInterval = setInterval(function () {
-    if (!dynamicContentContainer) return;
+  // Assign to the outer variable - REMOVE 'const'
+  streamCheckInterval = setInterval(function () { // <--- ASSIGN HERE
+    if (!dynamicContentContainer) {
+      clearInterval(streamCheckInterval); // Clear using the outer variable
+      streamCheckInterval = null;
+      return;
+    }
 
     const content = dynamicContentContainer.innerText;
     console.log("[DEBUG] Checking dynamic content:", content);
@@ -121,14 +127,21 @@ function startActiveStreamPolling() {
       });
     } else {
       console.log("[DEBUG] Streams loaded or max retries hit. Clearing interval.");
-      clearInterval(streamCheckInterval);
+      clearInterval(streamCheckInterval); // Clear using the outer variable
+      streamCheckInterval = null; // Reset the outer variable
     }
   }, 2000); // Check every 2 seconds
 
-  // Stop checking after 30 seconds, even if maxEmptyChecks wasn't hit
+  console.log("[DEBUG] Started active stream polling interval:", streamCheckInterval);
+
+  // This timeout *also* needs to clear the outer variable
+  // It might even be redundant now, consider removing one of the 30s timeouts if they do the same thing.
   setTimeout(() => {
-    clearInterval(streamCheckInterval);
-    console.log("[DEBUG] Disabling special content check");
+    if (streamCheckInterval) { // Check if it still exists
+      clearInterval(streamCheckInterval);
+      streamCheckInterval = null; // Reset the outer variable
+      console.log("[DEBUG] Disabling special content check via startActiveStreamPolling's timeout");
+    }
   }, 30000);
 }
 
@@ -297,6 +310,7 @@ function handleLoginClick() {
 
   // Send message to background script to start OAuth flow
   chrome.runtime.sendMessage({ action: "startOAuth" });
+
 }
 
 function handleSettingsClick() {
