@@ -12,27 +12,32 @@ function displayGroups() {
         function (data) {
             const groups = data.favoriteGroups || [];
             const groupListContainer = document.getElementById("groupListContainer");
+            const favoriteSection = document.getElementById("favorites-section");
             const isLoggedIn = data.twitchAccessToken != null;
             const hasFollowers = data.followedList && data.followedList.length > 0;
 
-            groupListContainer.innerHTML = ""; // Clear previous list
+            // Clear previous content
+            groupListContainer.innerHTML = "";
+
+            // Remove any existing demo container
+            const existingDemo = document.querySelector(".favorite-demo-container");
+            if (existingDemo) {
+                existingDemo.remove();
+            }
 
             if (groups.length === 0) {
-                groupListContainer.innerHTML = `
-          <div class="empty-groups-container">
-            <p style="font-size: 16px; text-align: center;">
-              <img src="../../css/settings/nogroup.gif" style="display: block; margin: 0 auto; max-width: 100%;">
-              <strong>No Favorite Groups Created Yet</strong><br><br>
-              This is a list that will help you filter your favorite live streams from the popup into new category groups.
-              <br><br>
-              You can create a group and add any Twitch channel to it, organizing your streams.
-            </p>
-            <div class="info-box">
-              💡 You can also do this from the popup by right-clicking on any stream channel and selecting an existing group or creating a new one.
-            </div>
-          </div>
-        `;
+                // Empty state
+                groupListContainer.innerHTML = `<div class="empty-groups-container">
+                    <p style="font-size: 16px; text-align: center;">
+                        <img src="../../css/settings/nogroup.gif" style="display: block; margin: 0 auto; max-width: 100%;">
+                        <strong>No Favorite Groups Created Yet</strong><br><br>
+                        This is a list that will help you filter your favorite live streams from the popup into new category groups.
+                        <br><br>
+                        You can create a group and add any Twitch channel to it, organizing your streams.
+                    </p>
+                </div>`;
             } else {
+                // Create and populate the group list
                 const groupList = document.createElement("ul");
                 groupList.id = "groupList";
 
@@ -42,6 +47,27 @@ function displayGroups() {
                 });
 
                 groupListContainer.appendChild(groupList);
+            }
+
+            // Show the quick tip demo container if fewer than 3 groups (including 0)
+            if (groups.length < 3) {
+                const addButton = document.getElementById("addFavoriteGroupButton");
+
+                // Create demo container with popup icon style
+                const demoContainer = document.createElement("div");
+                demoContainer.className = "favorite-demo-container";
+                demoContainer.innerHTML = `
+                    <p class="demo-title">💡 You can also do this from the popup by right-clicking on any stream channel and selecting an existing group or creating a new one.</p>
+                    <div class="image-container">
+                        <img src="../../css/add-fav.png" class="add-fav-demo" alt="How to add favorites">
+                        <div class="popup-icon">
+                            <img src="../../css/icon.png" class="demo-icon" alt="Extension icon">
+                        </div>
+                    </div>
+                `;
+
+                // Insert the demo container after the add button
+                favoriteSection.insertBefore(demoContainer, addButton.nextSibling);
             }
         }
     );

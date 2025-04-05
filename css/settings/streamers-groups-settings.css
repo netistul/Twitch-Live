@@ -255,12 +255,111 @@
   /* Add this to ensure perfect centering */
   margin-left: auto;
   margin-right: auto;
+  margin-top: 16px;
+  margin-bottom: 24px;
 }
 
 #addFavoriteGroupButton:hover {
   background-color: rgb(255, 255, 255);
 }
 
+.favorite-demo-container {
+  width: 80%;
+  max-width: 380px;
+  margin: 0 auto 20px auto;
+  text-align: center;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 12px;
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.demo-title {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.add-fav-demo {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  max-height: 180px; /* Limit the height to keep it compact */
+  object-fit: contain;
+}
+
+.popup-icon {
+  position: absolute;
+  top: -17px;
+  right: -21px;
+  background-color: var(--modal-bg);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--modal-border);
+  cursor: pointer;
+}
+
+.popup-icon::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  aspect-ratio: 16.499 / 16.499;
+  bottom: -4px;
+  right: -6px;
+  background-image: url("data:image/svg+xml,%3Csvg version='1.1' id='Capa_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 16.499 16.499' xml:space='preserve' fill='%23333'%3E%3Cg%3E%3Cpath style='fill:%23333;' d='M14.511,4.037c-0.018-0.045-0.04-0.082-0.072-0.115c-0.05-0.047-0.115-0.08-0.188-0.082L0.335,0.002 C0.243-0.01,0.154,0.027,0.09,0.09C0.024,0.156-0.007,0.24,0.003,0.334l4.634,14.17c0.013,0.119,0.089,0.217,0.2,0.258 s0.235,0.01,0.318-0.076l1.111-5.611l7.334,7.332c0.121,0.123,0.312,0.123,0.431,0l2.378-2.375c0.119-0.121,0.119-0.312,0-0.432 L9.075,6.266l5.363-1.91C14.522,4.275,14.549,4.15,14.511,4.037z'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dark-mode .popup-icon::after {
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg version='1.1' id='Capa_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 16.499 16.499' xml:space='preserve' fill='%23CCCCCC'%3E%3Cg%3E%3Cpath style='fill:%23CCCCCC;' d='M14.511,4.037c-0.018-0.045-0.04-0.082-0.072-0.115c-0.05-0.047-0.115-0.08-0.188-0.082L0.335,0.002 C0.243-0.01,0.154,0.027,0.09,0.09C0.024,0.156-0.007,0.24,0.003,0.334l4.634,14.17c0.013,0.119,0.089,0.217,0.2,0.258 s0.235,0.01,0.318-0.076l1.111-5.611l7.334,7.332c0.121,0.123,0.312,0.123,0.431,0l2.378-2.375c0.119-0.121,0.119-0.312,0-0.432 L9.075,6.266l5.363-1.91C14.522,4.275,14.549,4.15,14.511,4.037z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 8px; /* Add margin to accommodate the protruding icon */
+  overflow: visible; /* Ensure the overflowing icon is visible */
+}
+.demo-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Dark mode adjustments */
+.dark-mode .favorite-demo-container {
+  background-color: #24252e;
+  border-color: #3a3b45;
+}
+
+.dark-mode .demo-title {
+  color: #f0f0f0;
+}
+
+.dark-mode .popup-icon {
+  background-color: #24252e;
+  border-color: #3a3b45;
+}
+
+.dark-mode .add-fav-demo {
+  filter: drop-shadow(0 0 4px rgba(100, 65, 165, 0.2));
+}
 /* ================= DARK MODE ================= */
 
 .dark-mode .group-name {
