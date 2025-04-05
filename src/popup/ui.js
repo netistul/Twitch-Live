@@ -1010,13 +1010,37 @@ function displayNoStreamsMessage(container) {
     const refreshBtn = document.getElementById("refreshStreamsBtn");
     if (refreshBtn) {
         refreshBtn.addEventListener("click", function () {
-            this.textContent = "Refreshing...";
-            this.disabled = true;
-            refreshStreams();
+            // Store 'this' (the button element) for use inside setTimeout
+            const buttonElement = this;
+
+            buttonElement.textContent = "Refreshing...";
+            buttonElement.disabled = true;
+
+            // Call the correct function from popup.js
+            if (typeof triggerUpdateLiveStreams === 'function') {
+                triggerUpdateLiveStreams();
+
+                // Re-enable the button after a short delay
+                // This gives time for the async operation to likely start/finish
+                // Adjust the delay (in milliseconds) as needed
+                setTimeout(() => {
+                    // Check if the button still exists in the DOM
+                    // (User might close the popup before the timeout)
+                    if (buttonElement && buttonElement.isConnected) {
+                        buttonElement.textContent = "Refresh";
+                        buttonElement.disabled = false;
+                    }
+                }, 2000); // Example: Re-enable after 2 seconds
+
+            } else {
+                console.error("triggerUpdateLiveStreams function not found! Check script loading order.");
+                // Also re-enable button in case of error finding the function
+                buttonElement.textContent = "Refresh"; // Or maybe "Error"
+                buttonElement.disabled = false;
+            }
         });
     }
 }
-
 
 // --- Helper Functions ---
 
