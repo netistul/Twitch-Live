@@ -816,7 +816,7 @@ function createCollapsibleHeader(text) {
  * @param {Object} streamsData - Stream data and settings
  */
 function updateLiveStreams(streamsData) {
-    // --- Destructuring and Initial Setup (NO CHANGE HERE) ---
+    // --- Destructuring and Initial Setup ---
     const {
         liveStreams = [],
         favoriteGroups = [],
@@ -825,8 +825,9 @@ function updateLiveStreams(streamsData) {
         hideAccessedCount = false,
         streamGrouping = "none",
         showStreamTime = true,
-        streamTitleDisplay = "hover", // Keep this setting name
-        isInitialLoad = false
+        streamTitleDisplay = "hover",
+        isInitialLoad = false,
+        isPostAuth = false
     } = streamsData;
 
     const container = getElement("dynamicContentContainer");
@@ -834,123 +835,188 @@ function updateLiveStreams(streamsData) {
         console.error("Dynamic content container (#dynamicContentContainer) not found!");
         return;
     }
-    const currentTheme = getCurrentTheme(); // Needed for logic below
+    const currentTheme = getCurrentTheme();
     const currentScrollPosition = container.scrollTop;
-    container.innerHTML = "";
-    container.style.display = 'block';
 
-    // --- Handle No Live Streams (NO CHANGE HERE) ---
-    if (liveStreams.length === 0) {
-        // ... (same no streams / loading logic) ...
-        container.scrollTop = currentScrollPosition;
-        return;
+    // Check if we have the "no streams" message and now have streams
+    const noStreamsMsg = container.querySelector("#noStreamsMessage");
+    if (noStreamsMsg && liveStreams.length > 0) {
+        // Apply fade-out to the no streams message
+        noStreamsMsg.classList.add('fade-out');
+
+        // Wait for animation to complete before updating with streams
+        setTimeout(() => {
+            // Now proceed with the original updating logic
+            updateStreamContent();
+        }, 300); // Match this with CSS transition duration
+    } else {
+        // No need for transition, proceed immediately
+        updateStreamContent();
     }
 
-    // --- Sort Streams (NO CHANGE HERE) ---
-    liveStreams.sort(
-        (a, b) =>
-            (channelAccess[b.broadcasterLogin] || 0) -
-            (channelAccess[a.broadcasterLogin] || 0)
-    );
-    let isAnyFavoriteGroupLive = false;
-    favoriteGroups.sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    );
+    // Function containing the original update logic
+    function updateStreamContent() {
+        // --- KEY CHANGE: Only clear container if we have streams or not in post-auth flow ---
+        if (liveStreams.length > 0 || (!isPostAuth && !isInitialLoad)) {
+            container.innerHTML = "";
+        } else if (isPostAuth && container.querySelector("#loginLoadingContainer")) {
+            // We're in post-auth flow with no streams yet - keep the loading indicator
+            // Just update its text
+            const loadingMsg = container.querySelector("#loginLoadingContainer div");
+            if (loadingMsg) {
+                loadingMsg.textContent = "Loading your streams...";
+                container.scrollTop = currentScrollPosition;
+                return; // Don't proceed with the rest of the function
+            }
+        }
 
-    // --- Favorite Groups Section ---
-    favoriteGroups.forEach((group) => {
-        const liveGroupStreams = liveStreams.filter((stream) =>
-            group.streamers
-                .map((s) => s.toLowerCase())
-                .includes(stream.channelName.toLowerCase())
+        container.style.display = 'block';
+
+        // --- Handle No Live Streams ---
+        if (liveStreams.length === 0) {
+            // Only show "no streams" message if we're not in post-auth or if explicit check was made
+            if (!isPostAuth || !container.querySelector("#loginLoadingContainer")) {
+                displayNoStreamsMessage(container);
+            }
+            container.scrollTop = currentScrollPosition;
+            return;
+        }
+
+        // --- We have streams to display - if we still have a loading container, remove it ---
+        const loadingContainer = container.querySelector("#loginLoadingContainer");
+        if (loadingContainer) {
+            loadingContainer.remove();
+        }
+
+        // --- Sort Streams (NO CHANGE HERE) ---
+        liveStreams.sort(
+            (a, b) =>
+                (channelAccess[b.broadcasterLogin] || 0) -
+                (channelAccess[a.broadcasterLogin] || 0)
+        );
+        let isAnyFavoriteGroupLive = false;
+        favoriteGroups.sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         );
 
-        if (liveGroupStreams.length > 0) {
-            isAnyFavoriteGroupLive = true;
-
-            // *** CHANGE: Create a wrapper for this favorite group ***
-            const groupWrapper = document.createElement('div');
-            groupWrapper.className = 'stream-group favorite-group'; // Add specific class if needed
-            container.appendChild(groupWrapper); // Append wrapper to main container
-
-            const groupHeader = createCollapsibleHeader(group.name.toUpperCase());
-            // *** CHANGE: Append header to the group wrapper ***
-            groupWrapper.appendChild(groupHeader);
-
-            liveGroupStreams.forEach((stream) => { // <-- No index or isLastInGroup needed now
-                // *** CHANGE: Pass groupWrapper as the container ***
-                // *** REMOVE: isLastInGroup flag ***
-                appendStreamLink(stream, groupWrapper, streamsData);
-            });
-        }
-    });
-
-    // --- Ungrouped Streams Section ---
-    const ungroupedStreams = liveStreams.filter(
-        (stream) =>
-            !favoriteGroups.some((group) =>
+        // --- Favorite Groups Section ---
+        favoriteGroups.forEach((group) => {
+            const liveGroupStreams = liveStreams.filter((stream) =>
                 group.streamers
                     .map((s) => s.toLowerCase())
                     .includes(stream.channelName.toLowerCase())
-            )
-    );
-
-    if (ungroupedStreams.length > 0) {
-        if (streamGrouping === "game") {
-            // Group by game
-            const gameGroups = {};
-            ungroupedStreams.forEach(stream => {
-                const gameName = stream.category || "Other";
-                if (!gameGroups[gameName]) gameGroups[gameName] = [];
-                gameGroups[gameName].push(stream);
-            });
-
-            const sortedGameNames = Object.keys(gameGroups).sort((a, b) =>
-                a.toLowerCase().localeCompare(b.toLowerCase())
             );
 
-            sortedGameNames.forEach((gameName) => {
-                // *** CHANGE: Create a wrapper for this game group ***
+            if (liveGroupStreams.length > 0) {
+                isAnyFavoriteGroupLive = true;
+
                 const groupWrapper = document.createElement('div');
-                groupWrapper.className = 'stream-group game-group'; // Add specific class if needed
-                container.appendChild(groupWrapper); // Append wrapper to main container
+                groupWrapper.className = 'stream-group favorite-group';
+                container.appendChild(groupWrapper);
 
-                const gameHeader = createCollapsibleHeader(gameName.toUpperCase());
-                // *** CHANGE: Append header to the group wrapper ***
-                groupWrapper.appendChild(gameHeader);
+                const groupHeader = createCollapsibleHeader(group.name.toUpperCase());
+                groupWrapper.appendChild(groupHeader);
 
-                const streamsInGameGroup = gameGroups[gameName];
-                streamsInGameGroup.forEach((stream) => { // <-- No index or isLastInGroup needed
-                    // *** CHANGE: Pass groupWrapper as the container ***
-                    // *** REMOVE: isLastInGroup flag ***
+                liveGroupStreams.forEach((stream) => {
                     appendStreamLink(stream, groupWrapper, streamsData);
                 });
-            });
-        } else {
-            // Default grouping ("none" or if favorites exist)
-
-            // *** CHANGE: Create ONE wrapper for ALL ungrouped streams ***
-            const groupWrapper = document.createElement('div');
-            groupWrapper.className = 'stream-group ungrouped-group'; // Add specific class
-            container.appendChild(groupWrapper); // Append wrapper to main container
-
-            if (isAnyFavoriteGroupLive) {
-                const otherHeader = createCollapsibleHeader("MORE LIVE TWITCH CHANNELS");
-                // *** CHANGE: Append header to the group wrapper ***
-                groupWrapper.appendChild(otherHeader);
             }
+        });
 
-            ungroupedStreams.forEach((stream) => { // <-- No index or isLastInGroup needed
-                // *** CHANGE: Pass groupWrapper as the container ***
-                // *** REMOVE: isLastInGroup flag ***
-                appendStreamLink(stream, groupWrapper, streamsData);
-            });
+        // --- Ungrouped Streams Section ---
+        const ungroupedStreams = liveStreams.filter(
+            (stream) =>
+                !favoriteGroups.some((group) =>
+                    group.streamers
+                        .map((s) => s.toLowerCase())
+                        .includes(stream.channelName.toLowerCase())
+                )
+        );
+
+        if (ungroupedStreams.length > 0) {
+            if (streamGrouping === "game") {
+                // Group by game
+                const gameGroups = {};
+                ungroupedStreams.forEach(stream => {
+                    const gameName = stream.category || "Other";
+                    if (!gameGroups[gameName]) gameGroups[gameName] = [];
+                    gameGroups[gameName].push(stream);
+                });
+
+                const sortedGameNames = Object.keys(gameGroups).sort((a, b) =>
+                    a.toLowerCase().localeCompare(b.toLowerCase())
+                );
+
+                sortedGameNames.forEach((gameName) => {
+                    const groupWrapper = document.createElement('div');
+                    groupWrapper.className = 'stream-group game-group';
+                    container.appendChild(groupWrapper);
+
+                    const gameHeader = createCollapsibleHeader(gameName.toUpperCase());
+                    groupWrapper.appendChild(gameHeader);
+
+                    const streamsInGameGroup = gameGroups[gameName];
+                    streamsInGameGroup.forEach((stream) => {
+                        appendStreamLink(stream, groupWrapper, streamsData);
+                    });
+                });
+            } else {
+                // Default grouping ("none" or if favorites exist)
+                const groupWrapper = document.createElement('div');
+                groupWrapper.className = 'stream-group ungrouped-group';
+                container.appendChild(groupWrapper);
+
+                if (isAnyFavoriteGroupLive) {
+                    const otherHeader = createCollapsibleHeader("MORE LIVE TWITCH CHANNELS");
+                    groupWrapper.appendChild(otherHeader);
+                }
+
+                ungroupedStreams.forEach((stream) => {
+                    appendStreamLink(stream, groupWrapper, streamsData);
+                });
+            }
         }
-    }
 
-    // Restore scroll position
-    container.scrollTop = currentScrollPosition;
+        // Restore scroll position
+        container.scrollTop = currentScrollPosition;
+    }
 }
+
+/**
+ * Display a message when no streams are available
+ */
+/**
+ * Display a message when no streams are available with modern styling and animations
+ * @param {HTMLElement} container - The container to display the message in
+ * @param {boolean} isInitialLoad - Whether this is the initial popup load
+ */
+/**
+ * Display a message when no streams are available with modern styling
+ */
+function displayNoStreamsMessage(container) {
+    container.innerHTML = "";
+
+    const noStreamsMsg = document.createElement("div");
+    noStreamsMsg.className = "no-streams-message";
+    noStreamsMsg.id = "noStreamsMessage"; // Add an ID to target it later
+    noStreamsMsg.innerHTML = `
+      <p>No followed channels are currently live.</p>
+      <button id="refreshStreamsBtn">Refresh</button>
+    `;
+
+    container.appendChild(noStreamsMsg);
+
+    // Add refresh button functionality
+    const refreshBtn = document.getElementById("refreshStreamsBtn");
+    if (refreshBtn) {
+        refreshBtn.addEventListener("click", function () {
+            this.textContent = "Refreshing...";
+            this.disabled = true;
+            refreshStreams();
+        });
+    }
+}
+
 
 // --- Helper Functions ---
 

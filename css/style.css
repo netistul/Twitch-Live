@@ -517,6 +517,132 @@ body {
   opacity: 1;
 }
 
+/* Transition animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* No streams message styling */
+.no-streams-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 15px;
+  color: var(--text-color);
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.no-streams-message.fade-out {
+  opacity: 0;
+}
+
+.no-streams-message img {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.no-streams-message p {
+  margin: 8px 0;
+}
+
+.no-streams-message .check-back {
+  font-size: 12px;
+  color: var(--secondary-text-color);
+  margin-top: 4px;
+}
+
+/* Loading transitions */
+#loginLoadingContainer {
+  transition: opacity 0.3s ease-out;
+}
+
+/* Stream group transitions */
+.stream-group {
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+}
+
+/* Refresh indicator styling */
+.refresh-indicator {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--accent-color);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+  z-index: 100;
+}
+
+.refresh-indicator.fade-in {
+  opacity: 1;
+}
+
+/* Only the minimal CSS needed for the fade-out effect */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Better styling for the no-streams message */
+.no-streams-message {
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.no-streams-message p {
+  margin-bottom: 16px;
+}
+
+#refreshStreamsBtn {
+  background-color: var(--primary-color, #6441a5);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#refreshStreamsBtn:hover {
+  background-color: var(--primary-hover, #7d5bbe);
+}
+
+#refreshStreamsBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 /* Custom Scrollbar Styles */
 /* For Webkit browsers like Chrome, Safari */
 

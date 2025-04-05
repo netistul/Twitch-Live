@@ -70,15 +70,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
       isFirstStreamLoad = true; // Reset first load flag
 
-      // Check login which will trigger stream fetch
-      checkLoginAndDisplayAppropriateUI();
+      // Don't immediately clear the loading message
+      // Instead, mark that we're authenticated but keep displaying loading
+      const loadingMsg = document.querySelector("#loginLoadingContainer div");
+      if (loadingMsg) {
+        loadingMsg.textContent = "Loading your streams...";
+      }
+
+      // Check login which will trigger stream fetch, but don't clear UI yet
+      // We'll modify checkLoginAndDisplayAppropriateUI to handle this
+      checkLoginAndDisplayAppropriateUI(true); // Pass true to indicate we're in post-auth flow
 
       // Force refresh a few times shortly after login
       let refreshCount = 0;
       const refreshInterval = setInterval(() => {
         if (refreshCount < 3) {
           console.log(`[DEBUG] Forced refresh #${refreshCount + 1} after auth`);
-          triggerUpdateLiveStreams(); // Updates dynamic content
+          triggerUpdateLiveStreams(true); // Pass true to indicate post-auth refresh
           refreshCount++;
         } else {
           clearInterval(refreshInterval);
@@ -147,7 +155,7 @@ function startActiveStreamPolling() {
 
 // --- Logic Functions ---
 
-function checkLoginAndDisplayAppropriateUI() {
+function checkLoginAndDisplayAppropriateUI(isPostAuth = false) {
   chrome.storage.local.get(
     ["twitchAccessToken", "tokenExpired"],
     function (result) {
@@ -182,7 +190,7 @@ function checkLoginAndDisplayAppropriateUI() {
 }
 
 // Renamed from updateLiveStreams to avoid confusion with the UI function
-function triggerUpdateLiveStreams() {
+function triggerUpdateLiveStreams(isPostAuth = false) {
   // Ensure dynamic container is visible (might be redundant but safe)
   showDynamicContent();
   // Ensure dynamicContentContainer reference is available
@@ -231,11 +239,12 @@ function triggerUpdateLiveStreams() {
         showStreamTime: result.showStreamTime === "on",
         streamTitleDisplay: result.streamTitleDisplay || "hover",
 
-        // 🔥 HERE’S THE IMPORTANT LINE:
-        isInitialLoad: isFirstStreamLoad
+        // 🔥 HERE'S THE IMPORTANT LINE:
+        isInitialLoad: isFirstStreamLoad,
+        isPostAuth: isPostAuth // Add this flag
       };
 
-      // Update the stream list UI
+      // Update the stream list UI, but only clear the loading indicator if streams are actually loaded
       updateLiveStreams(streamsData);
 
       // 🔁 Mark first load as done
@@ -245,7 +254,6 @@ function triggerUpdateLiveStreams() {
     }
   );
 }
-
 
 
 // ----- incrementChannelAccess function definition REMOVED from here -----
