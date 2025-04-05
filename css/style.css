@@ -194,7 +194,6 @@ body {
   margin-top: 5px;
   left: 12px;
   right: 12px;
-  border-bottom: 1px dashed #9999996e;
 }
 
 .stream-item::after {

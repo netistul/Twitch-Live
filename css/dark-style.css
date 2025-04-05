@@ -35,6 +35,14 @@
   background-color: rgb(23 23 23 / 1);
 }
 
+/* Apply ONLY when body has very-dark-mode AND the stream is thumbnail mode */
+body.very-dark-mode .stream-group > .stream-item.thumbnail-mode:last-of-type {
+  /* Styles for the last stream item within a group */
+  border-bottom: 1px solid rgba(38, 38, 38, 1);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
 .dark-mode .newline-category {
   color: #a0acb6;
   font-size: 12px !important;
@@ -102,16 +110,15 @@
   background-color: rgb(38, 38, 38);
 }
 
-.dark-mode .stream-info::after {
+.dark-mode .stream-item::after {
   border-bottom: 1px dashed #c8646427;
 }
 
-.very-dark-mode .stream-info::after,
 .very-dark-mode .stream-item::after {
-  border-bottom: none !important; /* Forcefully removes the line */
+  border-bottom: none;
 }
 
-.stream-item::after {
+.very-dark-mode .stream-item.avatar-mode::after {
   border-bottom: 1px dashed #c8646427;
 }
 

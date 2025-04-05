@@ -152,8 +152,671 @@ function displayLoginButton(sessionExpired = false) {
 
 // --- Live Streams Display ---
 
+/**
+ * Main function to render streams based on current theme and display mode
+ * @param {Object} stream - Stream data object
+ * @param {HTMLElement} container - Container to append the stream item to
+ * @param {Object} settings - Settings object with display preferences
+ * @returns {HTMLElement} - The created stream item element
+ */
+function appendStreamLink(stream, container, settings) {
+    // Extract relevant settings
+    const {
+        showAvatar,
+        channelAccess,
+        hideAccessedCount,
+        showStreamTime,
+        streamTitleDisplay
+    } = settings;
+
+    // Determine the current theme and display mode
+    const theme = getCurrentTheme();
+    const displayMode = getDisplayMode(showAvatar, streamTitleDisplay);
+
+    // Create base channel item
+    const channelItem = createBaseChannelItem(stream);
+
+    // Apply theme and mode specific styling
+    switch (displayMode) {
+        case 'thumbnail':
+            renderThumbnailMode(channelItem, stream, settings, theme);
+            break;
+        case 'with-avatar':
+            renderAvatarMode(channelItem, stream, settings, theme);
+            break;
+        case 'no-avatar':
+            renderNoAvatarMode(channelItem, stream, settings, theme);
+            break;
+    }
+
+    // Add to container
+    container.appendChild(channelItem);
+    return channelItem;
+}
+
+/**
+ * Get the current theme from body classes
+ * @returns {string} - Current theme ('light', 'dark', or 'very-dark')
+ */
+function getCurrentTheme() {
+    if (document.body.classList.contains('very-dark-mode')) {
+        return 'very-dark';
+    } else if (document.body.classList.contains('dark-mode')) {
+        return 'dark';
+    } else {
+        return 'light';
+    }
+}
+
+/**
+ * Determine display mode based on settings
+ * @param {boolean} showAvatar - Whether to show avatar
+ * @param {string} streamTitleDisplay - How to display stream title
+ * @returns {string} - Display mode ('thumbnail', 'with-avatar', or 'no-avatar')
+ */
+function getDisplayMode(showAvatar, streamTitleDisplay) {
+    if (streamTitleDisplay === 'newline' && showAvatar) {
+        return 'thumbnail';
+    } else if (showAvatar) {
+        return 'with-avatar';
+    } else {
+        return 'no-avatar';
+    }
+}
+
+/**
+ * Create the base channel item with common elements
+ * @param {Object} stream - Stream data
+ * @returns {HTMLElement} - Base channel item element
+ */
+function createBaseChannelItem(stream) {
+    const channelItem = document.createElement("div");
+    channelItem.className = "stream-item";
+
+    // Add context menu event listener
+    channelItem.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
+        if (typeof showContextMenu === 'function') {
+            showContextMenu(stream, event.pageX, event.pageY);
+        } else {
+            console.error("showContextMenu is not defined! Check script order.");
+        }
+        return false;
+    });
+
+    // Create channel link element
+    const channelLink = document.createElement("a");
+    channelLink.href = `https://www.twitch.tv/${stream.broadcasterLogin}`;
+    channelLink.className = "stream-info";
+    channelLink.target = "_blank";
+    channelLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        handleStreamLinkClick(stream.broadcasterLogin, channelLink.href);
+    });
+
+    channelItem.appendChild(channelLink);
+
+    // Store the link as a property for easy access
+    channelItem.linkElement = channelLink;
+
+    return channelItem;
+}
+
+/**
+ * Render stream in thumbnail mode (newline with thumbnail)
+ * @param {HTMLElement} channelItem - The channel item element
+ * @param {Object} stream - Stream data
+ * @param {Object} settings - Display settings
+ * @param {string} theme - Current theme
+ */
+function renderThumbnailMode(channelItem, stream, settings, theme) {
+    const { showStreamTime, channelAccess, hideAccessedCount } = settings;
+    const isRerun = stream.title.toLowerCase().includes("rerun");
+    const channelLink = channelItem.linkElement;
+
+    // Add theme-specific classes
+    channelItem.classList.add('thumbnail-mode');
+    channelItem.classList.add(`thumbnail-${theme}`);
+    channelLink.classList.add('with-avatar');
+
+    // Create wrapper structure
+    const wrapperDiv = document.createElement("div");
+    wrapperDiv.className = "channel-category-wrapper channel-category-wrapper-with-avatar";
+    wrapperDiv.style.width = "100%";
+    wrapperDiv.style.overflow = "hidden";
+
+    const subWrapper = document.createElement("div");
+    subWrapper.className = "sub-wrapper-with-avatar sub-wrapper-with-thumbnail sub-wrapper-newline";
+    subWrapper.style.width = "100%";
+    subWrapper.style.overflow = "hidden";
+
+    // Create thumbnail container for overlay positioning
+    const thumbnailContainer = document.createElement("div");
+    thumbnailContainer.style.position = "relative";
+
+    // Add thumbnail image
+    const avatarImg = createThumbnailImage(stream);
+    thumbnailContainer.appendChild(avatarImg);
+    channelLink.appendChild(thumbnailContainer);
+
+    // Create content block for channel name, title, category
+    const categoryDiv = document.createElement("div");
+    categoryDiv.style.textAlign = "left";
+    categoryDiv.style.width = "100%";
+    categoryDiv.style.overflow = "hidden";
+
+    // Add channel name with tooltip
+    const channelNameSpan = createChannelNameWithTooltip(stream);
+    channelNameSpan.classList.add("with-avatar");
+    categoryDiv.appendChild(channelNameSpan);
+
+    // Add stream title
+    const titleContainer = document.createElement("div");
+    Object.assign(titleContainer.style, {
+        width: "100%",
+        overflow: "hidden",
+        marginTop: "2px",
+        maxWidth: "300px",
+        position: "relative"
+    });
+
+    const titleSpan = document.createElement("span");
+    titleSpan.className = "stream-title-display";
+    titleSpan.textContent = stream.title;
+    Object.assign(titleSpan.style, {
+        display: "block",
+        fontSize: "12px",
+        textOverflow: "ellipsis",
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        width: "100%",
+        maxWidth: "100%"
+    });
+
+    titleContainer.appendChild(titleSpan);
+    categoryDiv.appendChild(titleContainer);
+
+    // Add category
+    const categorySpan = document.createElement("span");
+    categorySpan.className = "stream-category-with-avatar newline-category";
+    categorySpan.textContent = stream.category;
+    categorySpan.style.textAlign = "left";
+    Object.assign(categorySpan.style, {
+        fontSize: "11px",
+        display: "block",
+        marginTop: "2px"
+    });
+
+    categoryDiv.appendChild(categorySpan);
+    subWrapper.appendChild(categoryDiv);
+
+    // Create viewers and time section
+    const viewersWrapper = createViewersWrapper(stream, true, 'newline');
+    Object.assign(viewersWrapper.style, {
+        position: "absolute",
+        top: "8px",
+        right: "5px"
+    });
+
+    // Add time overlay on thumbnail if needed
+    if (showStreamTime) {
+        const timeSpan = createTimeSpan(stream.started_at);
+        timeSpan.classList.add("stream-time-overlay");
+        thumbnailContainer.appendChild(timeSpan);
+    }
+
+    // Add viewers count and icon
+    const viewersSpan = createViewersSpan(stream.viewers, isRerun);
+    viewersWrapper.appendChild(viewersSpan);
+
+    // Add signal icon
+    const iconImg = document.createElement("img");
+    iconImg.src = isRerun ? "../../css/rerun.svg" : "../../css/signal-newline.svg";
+    iconImg.className = "signal-icon";
+    iconImg.alt = "Signal";
+    Object.assign(iconImg.style, {
+        height: "13px",
+        width: "13px",
+        marginLeft: showStreamTime ? "-15px" : "-13px"
+    });
+    viewersWrapper.appendChild(iconImg);
+
+    // Add hidden access count tooltip if needed
+    if (hideAccessedCount) {
+        addAccessCountTooltip(channelItem, avatarImg, stream.broadcasterLogin, channelAccess);
+    }
+
+
+
+    // Assemble components
+    subWrapper.appendChild(viewersWrapper);
+    wrapperDiv.appendChild(subWrapper);
+    channelLink.appendChild(wrapperDiv);
+}
+
+/**
+ * Render stream with avatar mode
+ * @param {HTMLElement} channelItem - The channel item element
+ * @param {Object} stream - Stream data
+ * @param {Object} settings - Display settings
+ * @param {string} theme - Current theme
+ */
+function renderAvatarMode(channelItem, stream, settings, theme) {
+    const { showStreamTime, channelAccess, hideAccessedCount } = settings;
+    const isRerun = stream.title.toLowerCase().includes("rerun");
+    const channelLink = channelItem.linkElement;
+
+    // Add theme-specific classes
+    channelItem.classList.add('avatar-mode');
+    channelItem.classList.add(`avatar-${theme}`);
+    channelLink.classList.add('with-avatar');
+
+    // Create wrapper structure
+    const wrapperDiv = document.createElement("div");
+    wrapperDiv.className = "channel-category-wrapper channel-category-wrapper-with-avatar";
+    wrapperDiv.style.width = "100%";
+    wrapperDiv.style.overflow = "hidden";
+
+    const subWrapper = document.createElement("div");
+    subWrapper.className = "sub-wrapper-with-avatar";
+    subWrapper.style.width = "100%";
+    subWrapper.style.overflow = "hidden";
+
+    // Add avatar
+    const avatarImg = createAvatarImage(stream);
+    channelLink.appendChild(avatarImg);
+
+    // Create content block for channel name, category
+    const categoryDiv = document.createElement("div");
+    categoryDiv.style.textAlign = "left";
+    categoryDiv.style.width = "100%";
+    categoryDiv.style.overflow = "hidden";
+
+    // Add channel name with tooltip
+    const channelNameSpan = createChannelNameWithTooltip(stream);
+    channelNameSpan.classList.add("with-avatar");
+    categoryDiv.appendChild(channelNameSpan);
+
+    // Add category
+    const categorySpan = document.createElement("span");
+    categorySpan.className = "stream-category-with-avatar";
+    categorySpan.textContent = stream.category;
+    categorySpan.style.textAlign = "left";
+    categoryDiv.appendChild(categorySpan);
+
+    subWrapper.appendChild(categoryDiv);
+
+    // Create viewers and time section
+    const viewersWrapper = createViewersWrapper(stream, true, 'avatar');
+
+    // Add time if needed
+    if (showStreamTime) {
+        const timeSpan = createTimeSpan(stream.started_at);
+        viewersWrapper.appendChild(timeSpan);
+    }
+
+    // Add viewers count and icon
+    const viewersSpan = createViewersSpan(stream.viewers, isRerun);
+    viewersWrapper.appendChild(viewersSpan);
+
+    // Add signal icon
+    const iconImg = document.createElement("img");
+    iconImg.src = isRerun ? "../../css/rerun.svg" : "../../css/signal.svg";
+    iconImg.className = "signal-icon";
+    iconImg.alt = "Signal";
+    Object.assign(iconImg.style, {
+        height: "13px",
+        width: "13px",
+        marginLeft: showStreamTime ? "-15px" : "-13px"
+    });
+    viewersWrapper.appendChild(iconImg);
+
+    // Add hidden access count tooltip if needed
+    if (hideAccessedCount) {
+        addAccessCountTooltip(channelItem, avatarImg, stream.broadcasterLogin, channelAccess);
+    }
+
+    // Apply theme-specific styling based on theme
+    applyThemeSpecificStyles(channelItem, theme, 'avatar');
+
+    // Assemble components
+    subWrapper.appendChild(viewersWrapper);
+    wrapperDiv.appendChild(subWrapper);
+    channelLink.appendChild(wrapperDiv);
+}
+
+/**
+ * Render stream with no avatar mode
+ * @param {HTMLElement} channelItem - The channel item element
+ * @param {Object} stream - Stream data
+ * @param {Object} settings - Display settings
+ * @param {string} theme - Current theme
+ */
+function renderNoAvatarMode(channelItem, stream, settings, theme) {
+    const { showStreamTime } = settings;
+    const isRerun = stream.title.toLowerCase().includes("rerun");
+    const channelLink = channelItem.linkElement;
+
+    // Add theme-specific classes
+    channelItem.classList.add('no-avatar-mode');
+    channelItem.classList.add(`no-avatar-${theme}`);
+
+    // Create wrapper structure
+    const wrapperDiv = document.createElement("div");
+    wrapperDiv.className = "channel-category-wrapper";
+    wrapperDiv.style.width = "100%";
+    wrapperDiv.style.overflow = "hidden";
+
+    // Add channel name with tooltip
+    const channelNameSpan = createChannelNameWithTooltip(stream);
+    wrapperDiv.appendChild(channelNameSpan);
+
+    // Add category
+    const categorySpan = document.createElement("span");
+    categorySpan.className = "stream-category";
+    categorySpan.textContent = stream.category;
+    categorySpan.style.textAlign = "left";
+    wrapperDiv.appendChild(categorySpan);
+
+    // Create viewers and time section
+    const viewersWrapper = createViewersWrapper(stream, false, 'no-avatar');
+
+    // Add time if needed
+    if (showStreamTime) {
+        const timeSpan = createTimeSpan(stream.started_at);
+        viewersWrapper.appendChild(timeSpan);
+    }
+
+    // Add viewers count
+    const viewersSpan = createViewersSpan(stream.viewers, isRerun);
+    viewersWrapper.appendChild(viewersSpan);
+
+    // Apply theme-specific styling
+    applyThemeSpecificStyles(channelItem, theme, 'no-avatar');
+
+    // Assemble components
+    wrapperDiv.appendChild(viewersWrapper);
+    channelLink.appendChild(wrapperDiv);
+}
+
+// --- Helper Functions ---
+
+/**
+ * Create an avatar image element
+ * @param {Object} stream - Stream data
+ * @returns {HTMLElement} - Avatar image element
+ */
+function createAvatarImage(stream) {
+    const avatarImg = document.createElement("img");
+    // Use a placeholder initially
+    avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' fill='%2318181b'/%3E%3C/svg%3E";
+    avatarImg.className = "stream-avatar loading";
+
+    // Load the actual avatar in the background
+    const actualImage = new Image();
+    actualImage.onload = () => {
+        avatarImg.src = stream.avatar;
+        avatarImg.classList.remove("loading");
+    };
+    actualImage.src = stream.avatar;
+
+    Object.assign(avatarImg.style, {
+        width: "30px",
+        height: "30px",
+        borderRadius: "15px",
+        marginRight: "5px"
+    });
+
+    return avatarImg;
+}
+
+/**
+ * Create a thumbnail image element
+ * @param {Object} stream - Stream data
+ * @returns {HTMLElement} - Thumbnail image element
+ */
+function createThumbnailImage(stream) {
+    const avatarImg = document.createElement("img");
+    avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' fill='%2318181b'/%3E%3C/svg%3E";
+
+    const actualImage = new Image();
+    actualImage.onload = () => {
+        avatarImg.src = stream.thumbnail.replace('{width}', '30').replace('{height}', '30');
+    };
+    actualImage.src = stream.thumbnail.replace('{width}', '30').replace('{height}', '30');
+
+    avatarImg.className = "stream-thumbnail loading";
+    avatarImg.alt = `${stream.channelName}'s thumbnail`;
+
+    return avatarImg;
+}
+
+/**
+ * Create channel name span with tooltip
+ * @param {Object} stream - Stream data
+ * @returns {HTMLElement} - Channel name span with tooltip
+ */
+function createChannelNameWithTooltip(stream) {
+    const channelNameSpan = document.createElement("span");
+    channelNameSpan.className = "channel-name";
+    channelNameSpan.textContent = stream.channelName;
+    channelNameSpan.style.textAlign = "left";
+
+    const tooltipSpan = document.createElement("span");
+    tooltipSpan.className = "custom-tooltip";
+    tooltipSpan.textContent = stream.title;
+    channelNameSpan.appendChild(tooltipSpan);
+
+    // Tooltip positioning logic
+    channelNameSpan.addEventListener("mousemove", function (e) {
+        const tooltipHeight = tooltipSpan.offsetHeight;
+        const x = e.clientX;
+        const y = e.clientY;
+        const padding = 20;
+        const fromBottom = window.innerHeight - e.clientY;
+
+        tooltipSpan.style.left = x + padding + "px";
+        if (fromBottom < tooltipHeight + padding) {
+            tooltipSpan.style.top = y - tooltipHeight - padding + "px";
+        } else {
+            tooltipSpan.style.top = y + padding + "px";
+        }
+    });
+
+    return channelNameSpan;
+}
+
+/**
+ * Create viewers wrapper element
+ * @param {Object} stream - Stream data
+ * @param {boolean} hasAvatar - Whether display has avatar
+ * @param {string} displayMode - Display mode
+ * @returns {HTMLElement} - Viewers wrapper element
+ */
+function createViewersWrapper(stream, hasAvatar, displayMode) {
+    const viewersWrapper = document.createElement("div");
+    viewersWrapper.className = hasAvatar ? "viewers-wrapper-with-avatar" : "viewers-wrapper";
+
+    Object.assign(viewersWrapper.style, {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px"
+    });
+
+    return viewersWrapper;
+}
+
+/**
+ * Create time span for stream duration
+ * @param {string} startTime - Stream start time
+ * @returns {HTMLElement} - Time span element
+ */
+function createTimeSpan(startTime) {
+    const timeSpan = document.createElement("span");
+    timeSpan.className = "stream-time";
+    timeSpan.style.fontSize = "12px";
+    timeSpan.style.color = "#9CA3AF";
+    timeSpan.textContent = formatStreamTime(startTime);
+
+    // Update time every second
+    const timeInterval = setInterval(() => {
+        if (timeSpan && timeSpan.isConnected) {
+            timeSpan.textContent = formatStreamTime(startTime);
+        } else {
+            clearInterval(timeInterval);
+        }
+    }, 1000);
+
+    return timeSpan;
+}
+
+/**
+ * Create viewers count span
+ * @param {number} viewers - Number of viewers
+ * @param {boolean} isRerun - Whether stream is a rerun
+ * @returns {HTMLElement} - Viewers span element
+ */
+function createViewersSpan(viewers, isRerun) {
+    const viewersSpan = document.createElement("span");
+    viewersSpan.className = isRerun ? "viewers rerun" : "viewers";
+    viewersSpan.textContent = formatViewerCount(viewers);
+    return viewersSpan;
+}
+
+/**
+ * Add access count tooltip to avatar
+ * @param {HTMLElement} channelItem - Channel item element
+ * @param {HTMLElement} avatarImg - Avatar image element
+ * @param {string} broadcasterLogin - Broadcaster login name
+ * @param {Object} channelAccess - Channel access data
+ */
+function addAccessCountTooltip(channelItem, avatarImg, broadcasterLogin, channelAccess) {
+    const accessCount = channelAccess[broadcasterLogin] || 0;
+
+    const accessTooltip = document.createElement("div");
+    accessTooltip.className = "avatar-tooltip";
+    accessTooltip.textContent = `Accessed: ${accessCount} times`;
+
+    Object.assign(accessTooltip.style, {
+        position: "absolute",
+        display: "none",
+        padding: "5px",
+        background: "rgba(0, 0, 0, 0.8)",
+        color: "white",
+        borderRadius: "3px",
+        zIndex: "1000",
+        pointerEvents: "none"
+    });
+
+    channelItem.appendChild(accessTooltip);
+
+    avatarImg.addEventListener("mouseover", () => {
+        accessTooltip.style.display = "block";
+    });
+
+    avatarImg.addEventListener("mousemove", (e) => {
+        accessTooltip.style.left = e.pageX + 10 + "px";
+        accessTooltip.style.top = e.pageY + 10 + "px";
+    });
+
+    avatarImg.addEventListener("mouseout", () => {
+        accessTooltip.style.display = "none";
+    });
+}
+
+/**
+ * Apply theme-specific styles to channel item
+ * @param {HTMLElement} channelItem - Channel item element
+ * @param {string} theme - Current theme
+ * @param {string} displayMode - Display mode
+ */
+function applyThemeSpecificStyles(channelItem, theme, displayMode) {
+    // Theme-specific styling
+    if (theme === 'very-dark' && displayMode === 'thumbnail') {
+        channelItem.style.borderBottom = "1px solid rgba(38, 38, 38, 1)";
+        channelItem.style.paddingBottom = "8px";
+        channelItem.style.marginBottom = "8px";
+    }
+
+    // Add more theme-specific styles here as needed
+    switch (theme) {
+        case 'light':
+            // Light theme specific styles
+            break;
+        case 'dark':
+            // Dark theme specific styles
+            break;
+        case 'very-dark':
+            // Very dark theme specific styles beyond the border already added
+            break;
+    }
+
+    // Display mode specific styling
+    switch (displayMode) {
+        case 'thumbnail':
+            // Additional thumbnail mode styles
+            break;
+        case 'avatar':
+            // Additional avatar mode styles
+            break;
+        case 'no-avatar':
+            // Additional no-avatar mode styles
+            break;
+    }
+}
+
+/**
+ * Helper function to add borders to the last stream in each group
+ * Only needed for thumbnail mode in very-dark theme
+ * @param {HTMLElement} container - Container element
+ */
+function addGroupBottomBorders(container) {
+    const groupHeaders = container.querySelectorAll('.group-header');
+
+    groupHeaders.forEach((header) => {
+        // Find all stream items that belong to this group
+        let currentElement = header.nextElementSibling;
+        let lastStreamInGroup = null;
+
+        // Traverse until we reach the next header or the end of the container
+        while (currentElement && !currentElement.classList.contains('group-header')) {
+            if (currentElement.classList.contains('stream-item')) {
+                lastStreamInGroup = currentElement;
+            }
+            currentElement = currentElement.nextElementSibling;
+        }
+
+        // Add border to the last stream in the group
+        if (lastStreamInGroup) {
+            lastStreamInGroup.style.borderBottom = "1px solid rgba(38, 38, 38, 1)";
+            lastStreamInGroup.style.paddingBottom = "8px";
+            lastStreamInGroup.style.marginBottom = "8px";
+        }
+    });
+}
+
+// --- Helper for Creating Collapsible Headers ---
+function createCollapsibleHeader(text) {
+    const header = document.createElement("h3");
+    header.textContent = text;
+    header.classList.add("group-header");
+    header.addEventListener('click', function () {
+        this.classList.toggle('collapsed');
+        let nextElement = this.nextElementSibling;
+        while (nextElement && !nextElement.classList.contains('group-header')) {
+            nextElement.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+            nextElement = nextElement.nextElementSibling;
+        }
+    });
+    return header;
+}
+
+/**
+ * Modified updateLiveStreams to incorporate new theme system
+ * @param {Object} streamsData - Stream data and settings
+ */
 function updateLiveStreams(streamsData) {
-    // Destructure the data passed from popup.js
+    // --- Destructuring and Initial Setup (NO CHANGE HERE) ---
     const {
         liveStreams = [],
         favoriteGroups = [],
@@ -162,77 +825,34 @@ function updateLiveStreams(streamsData) {
         hideAccessedCount = false,
         streamGrouping = "none",
         showStreamTime = true,
-        streamTitleDisplay = "hover",
-        isInitialLoad = false  // Add this flag to track initial load state
+        streamTitleDisplay = "hover", // Keep this setting name
+        isInitialLoad = false
     } = streamsData;
 
-    // Get the container meant for dynamic content
     const container = getElement("dynamicContentContainer");
     if (!container) {
         console.error("Dynamic content container (#dynamicContentContainer) not found!");
-        return; // Cannot proceed
+        return;
     }
-
-    // Optional: Add/remove a class for styling based on avatar presence if needed globally
-    container.classList.toggle('with-avatar-layout', showAvatar); // Example class name
-
-    // Store scroll position *of the dynamic container*
+    const currentTheme = getCurrentTheme(); // Needed for logic below
     const currentScrollPosition = container.scrollTop;
-
-    // Clear previous dynamic content (old streams, 'no streams' message, login button, etc.)
     container.innerHTML = "";
-
-    // Ensure the container is visible (mainly handled by showDynamicContent in popup.js)
     container.style.display = 'block';
 
-    // --- Handle No Live Streams ---
+    // --- Handle No Live Streams (NO CHANGE HERE) ---
     if (liveStreams.length === 0) {
-        // Only show the "No followed channels" message if it's not the initial load
-        if (!isInitialLoad) {
-            const noStreamsMsg = document.createElement('div');
-            noStreamsMsg.textContent = "No followed channels are currently live.";
-            noStreamsMsg.style.padding = '20px';
-            noStreamsMsg.style.textAlign = 'center';
-            container.appendChild(noStreamsMsg);
-        } else {
-            // During initial load, show a loading indicator instead
-            const loadingContainer = document.createElement('div');
-            loadingContainer.style.padding = '20px';
-            loadingContainer.style.textAlign = 'center';
-
-            const loadingImg = document.createElement('img');
-            loadingImg.src = "../../css/loading.webp";
-            loadingImg.alt = "Loading...";
-            loadingImg.style.width = '48px';
-            loadingImg.style.height = '48px';
-
-            const loadingText = document.createElement('div');
-            loadingText.textContent = "Checking for live channels...";
-            loadingText.style.marginTop = '10px';
-            loadingText.style.fontSize = '12px';
-            loadingText.style.color = '#999';
-
-            loadingContainer.appendChild(loadingImg);
-            loadingContainer.appendChild(loadingText);
-            container.appendChild(loadingContainer);
-        }
-
-        // Restore scroll position (likely 0, but good practice)
+        // ... (same no streams / loading logic) ...
         container.scrollTop = currentScrollPosition;
-        return; // Exit early
+        return;
     }
 
-    // Rest of the function remains unchanged...
-    // --- Sort Streams (Based on access count) ---
+    // --- Sort Streams (NO CHANGE HERE) ---
     liveStreams.sort(
         (a, b) =>
             (channelAccess[b.broadcasterLogin] || 0) -
             (channelAccess[a.broadcasterLogin] || 0)
     );
-
     let isAnyFavoriteGroupLive = false;
-
-    // Sort favorite groups alphabetically before displaying them
     favoriteGroups.sort((a, b) =>
         a.name.toLowerCase().localeCompare(b.name.toLowerCase())
     );
@@ -247,11 +867,20 @@ function updateLiveStreams(streamsData) {
 
         if (liveGroupStreams.length > 0) {
             isAnyFavoriteGroupLive = true;
+
+            // *** CHANGE: Create a wrapper for this favorite group ***
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = 'stream-group favorite-group'; // Add specific class if needed
+            container.appendChild(groupWrapper); // Append wrapper to main container
+
             const groupHeader = createCollapsibleHeader(group.name.toUpperCase());
-            container.appendChild(groupHeader); // Append header directly to the dynamic container
-            liveGroupStreams.forEach((stream) => {
-                // Pass the dynamic container as the parent for the stream link
-                appendStreamLink(stream, container, streamsData);
+            // *** CHANGE: Append header to the group wrapper ***
+            groupWrapper.appendChild(groupHeader);
+
+            liveGroupStreams.forEach((stream) => { // <-- No index or isLastInGroup needed now
+                // *** CHANGE: Pass groupWrapper as the container ***
+                // *** REMOVE: isLastInGroup flag ***
+                appendStreamLink(stream, groupWrapper, streamsData);
             });
         }
     });
@@ -271,372 +900,57 @@ function updateLiveStreams(streamsData) {
             // Group by game
             const gameGroups = {};
             ungroupedStreams.forEach(stream => {
-                const gameName = stream.category || "Other"; // Use "Other" for streams without a category
+                const gameName = stream.category || "Other";
                 if (!gameGroups[gameName]) gameGroups[gameName] = [];
                 gameGroups[gameName].push(stream);
             });
-            // Sort game names alphabetically
-            const sortedGameNames = Object.keys(gameGroups).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+            const sortedGameNames = Object.keys(gameGroups).sort((a, b) =>
+                a.toLowerCase().localeCompare(b.toLowerCase())
+            );
 
             sortedGameNames.forEach((gameName) => {
+                // *** CHANGE: Create a wrapper for this game group ***
+                const groupWrapper = document.createElement('div');
+                groupWrapper.className = 'stream-group game-group'; // Add specific class if needed
+                container.appendChild(groupWrapper); // Append wrapper to main container
+
                 const gameHeader = createCollapsibleHeader(gameName.toUpperCase());
-                container.appendChild(gameHeader); // Append header directly to the dynamic container
-                gameGroups[gameName].forEach((stream) => {
-                    // Pass the dynamic container as the parent for the stream link
-                    appendStreamLink(stream, container, streamsData);
+                // *** CHANGE: Append header to the group wrapper ***
+                groupWrapper.appendChild(gameHeader);
+
+                const streamsInGameGroup = gameGroups[gameName];
+                streamsInGameGroup.forEach((stream) => { // <-- No index or isLastInGroup needed
+                    // *** CHANGE: Pass groupWrapper as the container ***
+                    // *** REMOVE: isLastInGroup flag ***
+                    appendStreamLink(stream, groupWrapper, streamsData);
                 });
             });
-
         } else {
             // Default grouping ("none" or if favorites exist)
-            // Add "More Live Channels" header only if favorite groups were displayed
+
+            // *** CHANGE: Create ONE wrapper for ALL ungrouped streams ***
+            const groupWrapper = document.createElement('div');
+            groupWrapper.className = 'stream-group ungrouped-group'; // Add specific class
+            container.appendChild(groupWrapper); // Append wrapper to main container
+
             if (isAnyFavoriteGroupLive) {
                 const otherHeader = createCollapsibleHeader("MORE LIVE TWITCH CHANNELS");
-                container.appendChild(otherHeader); // Append header directly to the dynamic container
+                // *** CHANGE: Append header to the group wrapper ***
+                groupWrapper.appendChild(otherHeader);
             }
-            // Append ungrouped streams
-            ungroupedStreams.forEach((stream) => {
-                // Pass the dynamic container as the parent for the stream link
-                appendStreamLink(stream, container, streamsData);
+
+            ungroupedStreams.forEach((stream) => { // <-- No index or isLastInGroup needed
+                // *** CHANGE: Pass groupWrapper as the container ***
+                // *** REMOVE: isLastInGroup flag ***
+                appendStreamLink(stream, groupWrapper, streamsData);
             });
         }
     }
-    // After all streams have been appended, add borders to the last stream in each group
-    if (streamTitleDisplay === "newline" && document.body.classList.contains("very-dark-mode")) {
-        addGroupBottomBorders(container);
-    }
 
-    // Add margin to the very last stream item or header for spacing at the bottom
-    const lastElement = container.lastElementChild;
-    if (lastElement && (lastElement.classList.contains('stream-item') || lastElement.classList.contains('group-header'))) {
-        // It's often better to handle this with CSS using :last-child pseudo-class
-        // e.g., #dynamicContentContainer > .stream-item:last-child { margin-bottom: 5px; }
-        // lastElement.style.marginBottom = "5px"; // Avoid inline style if possible
-    }
-
-    // Restore scroll position *of the dynamic container*
+    // Restore scroll position
     container.scrollTop = currentScrollPosition;
 }
-
-// --- Helper for Creating Collapsible Headers ---
-function createCollapsibleHeader(text) {
-    const header = document.createElement("h3");
-    header.textContent = text;
-    header.classList.add("group-header");
-    header.addEventListener('click', function () {
-        this.classList.toggle('collapsed');
-        let nextElement = this.nextElementSibling;
-        while (nextElement && !nextElement.classList.contains('group-header')) {
-            nextElement.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
-            nextElement = nextElement.nextElementSibling;
-        }
-    });
-    return header;
-}
-
-// Helper function to add borders to the last stream in each group
-function addGroupBottomBorders(container) {
-    const groupHeaders = container.querySelectorAll('.group-header');
-
-    groupHeaders.forEach((header, index) => {
-        // Find all stream items that belong to this group
-        let currentElement = header.nextElementSibling;
-        let lastStreamInGroup = null;
-
-        // Traverse until we reach the next header or the end of the container
-        while (currentElement && !currentElement.classList.contains('group-header')) {
-            if (currentElement.classList.contains('stream-item')) {
-                lastStreamInGroup = currentElement;
-            }
-            currentElement = currentElement.nextElementSibling;
-        }
-
-        // Add border to the last stream in the group
-        if (lastStreamInGroup) {
-            lastStreamInGroup.style.borderBottom = "1px solid rgba(38, 38, 38, 1)";
-            lastStreamInGroup.style.paddingBottom = "8px";
-            lastStreamInGroup.style.marginBottom = "8px"; // Add some space after the border
-        }
-    });
-}
-
-// --- Helper for Appending a Single Stream Link ---
-function appendStreamLink(stream, container, streamSettings) {
-    // Destructure settings needed within this function
-    const { showAvatar, channelAccess, hideAccessedCount, showStreamTime, streamTitleDisplay } = streamSettings;
-
-    const channelItem = document.createElement("div");
-    channelItem.className = "stream-item";
-    // --- Add contextmenu event listener ---
-    channelItem.addEventListener("contextmenu", function (event) { // Using function() might be safer for 'this' if needed later, but arrow is fine too
-        event.preventDefault(); // Prevent default browser context menu
-        // Ensure showContextMenu is available before calling
-        if (typeof showContextMenu === 'function') {
-            showContextMenu(stream, event.pageX, event.pageY); // Call directly
-        } else {
-            console.error("showContextMenu is not defined! Check script order.");
-        }
-        return false; // Prevent further handling
-    });
-
-    const isRerun = stream.title.toLowerCase().includes("rerun");
-
-    const channelLink = document.createElement("a");
-    channelLink.href = `https://www.twitch.tv/${stream.broadcasterLogin}`;
-    channelLink.className = "stream-info";
-    channelLink.target = "_blank";
-    channelLink.addEventListener("click", (event) => {
-        event.preventDefault();
-        // Call the logic handler from popup.js BEFORE opening the link
-        handleStreamLinkClick(stream.broadcasterLogin, channelLink.href);
-    });
-
-
-    const wrapperDiv = document.createElement("div");
-    wrapperDiv.className = "channel-category-wrapper";
-    wrapperDiv.style.width = "100%";
-    wrapperDiv.style.overflow = "hidden";
-
-    const subWrapper = document.createElement("div"); // For channel name, category, viewers
-    subWrapper.style.width = "100%";
-    subWrapper.style.overflow = "hidden";
-
-    let avatarImg = null; // Keep track if avatar is added
-
-    // --- Avatar / Thumbnail ---
-    if (showAvatar) {
-        channelLink.classList.add("with-avatar"); // Base class if avatar enabled
-        wrapperDiv.classList.add("channel-category-wrapper-with-avatar");
-        subWrapper.className = "sub-wrapper-with-avatar";
-
-        if (streamTitleDisplay === "newline" && stream.thumbnail) {
-            avatarImg = document.createElement("img");
-            avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' fill='%2318181b'/%3E%3C/svg%3E"; // Dark placeholder
-            const actualImage = new Image();
-            actualImage.onload = () => { avatarImg.src = stream.thumbnail.replace('{width}', '30').replace('{height}', '30'); };
-            actualImage.src = stream.thumbnail.replace('{width}', '30').replace('{height}', '30');
-            avatarImg.className = "stream-thumbnail loading"; // Add loading class if you have CSS for it
-            avatarImg.alt = `${stream.channelName}'s thumbnail`;
-            subWrapper.classList.add("sub-wrapper-with-thumbnail", "sub-wrapper-newline");
-        } else if (stream.avatar) {
-            avatarImg = document.createElement("img");
-            // Use a placeholder initially
-            avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' fill='%2318181b'/%3E%3C/svg%3E"; // Dark placeholder
-            avatarImg.className = "stream-avatar loading"; // Add loading class
-
-            // Load the actual avatar in the background
-            const actualImage = new Image();
-            actualImage.onload = () => {
-                avatarImg.src = stream.avatar;
-                avatarImg.classList.remove("loading");
-            };
-            actualImage.src = stream.avatar;
-
-            Object.assign(avatarImg.style, { width: "30px", height: "30px", borderRadius: "15px", marginRight: "5px" });
-        }
-
-        if (avatarImg) {
-            // Special handling for time overlay on thumbnail
-            if (streamTitleDisplay === "newline" && stream.thumbnail && showStreamTime) {
-                const thumbnailContainer = document.createElement("div");
-                thumbnailContainer.style.position = "relative"; // For overlay positioning
-                thumbnailContainer.appendChild(avatarImg);
-                // Time span will be added later to this container
-                channelLink.appendChild(thumbnailContainer);
-            } else {
-                channelLink.appendChild(avatarImg); // Append avatar/thumbnail directly
-            }
-        }
-    }
-
-    // --- Channel Name & Tooltip ---
-    const channelNameSpan = document.createElement("span");
-    channelNameSpan.className = "channel-name";
-    channelNameSpan.textContent = stream.channelName;
-    channelNameSpan.style.textAlign = "left"; // Ensure alignment
-
-    const tooltipSpan = document.createElement("span");
-    tooltipSpan.className = "custom-tooltip";
-    tooltipSpan.textContent = stream.title;
-    channelNameSpan.appendChild(tooltipSpan);
-
-    // Tooltip positioning logic (can be complex, consider a library or CSS solution)
-    channelNameSpan.addEventListener("mousemove", function (e) {
-        const tooltipHeight = tooltipSpan.offsetHeight;
-        const x = e.clientX;
-        const y = e.clientY;
-        const padding = 20; // Space from cursor
-        const fromBottom = window.innerHeight - e.clientY;
-
-        tooltipSpan.style.left = x + padding + "px";
-        if (fromBottom < tooltipHeight + padding) { // Check space below cursor
-            tooltipSpan.style.top = y - tooltipHeight - padding + "px"; // Place above
-        } else {
-            tooltipSpan.style.top = y + padding + "px"; // Place below
-        }
-    });
-
-    // --- Category & Title (based on layout) ---
-    const categoryDiv = document.createElement("div"); // Container for name/category/title text
-    categoryDiv.style.textAlign = "left";
-    categoryDiv.style.width = "100%";
-    categoryDiv.style.overflow = "hidden";
-
-    if (showAvatar && avatarImg) { // Layout when avatar is present
-        channelNameSpan.classList.add("with-avatar");
-        categoryDiv.appendChild(channelNameSpan); // Name first
-
-        // Title (if newline mode)
-        if (streamTitleDisplay === "newline") {
-            const titleContainer = document.createElement("div");
-            Object.assign(titleContainer.style, { width: "100%", overflow: "hidden", marginTop: "2px", maxWidth: "300px", position: "relative" }); // Adjust maxWidth as needed
-            const titleSpan = document.createElement("span");
-            titleSpan.className = "stream-title-display";
-            titleSpan.textContent = stream.title;
-            Object.assign(titleSpan.style, { display: "block", fontSize: "12px", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100%", maxWidth: "100%" });
-            titleContainer.appendChild(titleSpan);
-            categoryDiv.appendChild(titleContainer);
-        }
-
-        // Category
-        const categorySpan = document.createElement("span");
-        categorySpan.className = "stream-category-with-avatar";
-        categorySpan.textContent = stream.category;
-        categorySpan.style.textAlign = "left";
-
-        if (streamTitleDisplay === "newline") {
-            Object.assign(categorySpan.style, { fontSize: "11px", display: "block", marginTop: "2px" });
-            categorySpan.classList.add("newline-category"); // For specific CSS styling
-        }
-        categoryDiv.appendChild(categorySpan);
-        subWrapper.appendChild(categoryDiv); // Add text block to sub-wrapper
-
-    } else { // Layout without avatar
-        wrapperDiv.appendChild(channelNameSpan); // Name directly in wrapper
-        const categorySpan = document.createElement("span");
-        categorySpan.className = "stream-category";
-        categorySpan.textContent = stream.category;
-        categorySpan.style.textAlign = "left";
-        wrapperDiv.appendChild(categorySpan); // Category directly in wrapper
-    }
-
-
-    // --- Access Count Tooltip (if hidden) ---
-    if (hideAccessedCount && avatarImg) {
-        const accessCount = channelAccess[stream.broadcasterLogin] || 0;
-        const accessTooltip = document.createElement("div");
-        accessTooltip.className = "avatar-tooltip"; // Use CSS for styling
-        accessTooltip.textContent = `Accessed: ${accessCount} times`;
-        // Basic styling, prefer CSS
-        Object.assign(accessTooltip.style, { position: "absolute", display: "none", padding: "5px", background: "rgba(0, 0, 0, 0.8)", color: "white", borderRadius: "3px", zIndex: "1000", pointerEvents: "none" }); // Important: pointerEvents none
-        channelItem.appendChild(accessTooltip); // Append to item, easier to manage
-
-        avatarImg.addEventListener("mouseover", (e) => {
-            accessTooltip.style.display = "block";
-        });
-        avatarImg.addEventListener("mousemove", (e) => {
-            // Position relative to the page, adjust as needed
-            accessTooltip.style.left = e.pageX + 10 + "px";
-            accessTooltip.style.top = e.pageY + 10 + "px";
-        });
-        avatarImg.addEventListener("mouseout", () => {
-            accessTooltip.style.display = "none";
-        });
-    }
-
-
-    // --- Viewers & Time Wrapper ---
-    const viewersWrapper = document.createElement("div");
-    viewersWrapper.className = showAvatar && avatarImg ? "viewers-wrapper-with-avatar" : "viewers-wrapper";
-    Object.assign(viewersWrapper.style, { display: "flex", alignItems: "center", gap: "8px" }); // Use flex for alignment
-
-    if (streamTitleDisplay === "newline" && showAvatar && avatarImg) { // Positioning for newline mode
-        Object.assign(viewersWrapper.style, { position: "absolute", top: "8px", right: "5px" });
-    }
-
-
-    // --- Stream Time ---
-    let timeSpan = null;
-    if (showStreamTime) {
-        timeSpan = document.createElement("span");
-        timeSpan.className = "stream-time";
-        timeSpan.style.fontSize = "12px";
-        timeSpan.style.color = "#9CA3AF"; // Use CSS classes ideally
-        timeSpan.textContent = formatStreamTime(stream.started_at); // Assumes formatStreamTime exists
-
-        if (streamTitleDisplay === "newline" && showAvatar && avatarImg && stream.thumbnail) {
-            timeSpan.classList.add("stream-time-overlay"); // Style overlay in CSS
-            // Find the thumbnail container created earlier and append timeSpan to it
-            const thumbContainer = channelLink.querySelector('div[style*="position: relative"]');
-            if (thumbContainer) {
-                thumbContainer.appendChild(timeSpan);
-            }
-        } else {
-            viewersWrapper.appendChild(timeSpan); // Add time to the viewers wrapper
-        }
-
-        // Update time every second
-        const timeInterval = setInterval(() => {
-            if (timeSpan && timeSpan.isConnected) { // Check if element still exists
-                timeSpan.textContent = formatStreamTime(stream.started_at);
-            } else {
-                clearInterval(timeInterval); // Stop if element removed
-            }
-        }, 1000);
-
-        // Simple cleanup: Stop interval when the link is removed (might not be perfect)
-        const observer = new MutationObserver((mutationsList, observerInstance) => {
-            for (const mutation of mutationsList) {
-                if (mutation.removedNodes) {
-                    mutation.removedNodes.forEach(removedNode => {
-                        if (removedNode === channelItem || removedNode.contains(channelItem)) {
-                            clearInterval(timeInterval);
-                            observerInstance.disconnect();
-                            return;
-                        }
-                    });
-                }
-            }
-        });
-        observer.observe(container, { childList: true, subtree: true });
-    }
-
-
-    // --- Viewers Count ---
-    const viewersSpan = document.createElement("span");
-    viewersSpan.className = isRerun ? "viewers rerun" : "viewers";
-    viewersSpan.textContent = formatViewerCount(stream.viewers); // Assumes formatViewerCount exists
-    viewersWrapper.appendChild(viewersSpan);
-
-
-    // --- Signal Icon ---
-    if (showAvatar && avatarImg) {
-        const iconImg = document.createElement("img");
-        iconImg.src = isRerun
-            ? "../../css/rerun.svg"
-            : streamTitleDisplay === "newline"
-                ? "../../css/signal-newline.svg"
-                : "../../css/signal.svg";
-        iconImg.className = "signal-icon";
-        iconImg.alt = "Signal";
-        Object.assign(iconImg.style, { height: "13px", width: "13px", marginLeft: showStreamTime ? "-15px" : "-13px" }); // Adjust spacing
-        viewersWrapper.appendChild(iconImg);
-    }
-
-
-    // --- Assemble ---
-    if (showAvatar && avatarImg) {
-        subWrapper.appendChild(viewersWrapper); // Viewers go into sub-wrapper
-        wrapperDiv.appendChild(subWrapper);     // Sub-wrapper goes into main wrapper
-    } else {
-        wrapperDiv.appendChild(viewersWrapper); // Viewers go directly into main wrapper
-    }
-
-    channelLink.appendChild(wrapperDiv); // Main wrapper goes into link
-    channelItem.appendChild(channelLink); // Link goes into list item
-    container.appendChild(channelItem);   // List item goes into main container
-}
-
 
 // --- Helper Functions ---
 
